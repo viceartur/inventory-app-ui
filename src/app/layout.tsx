@@ -1,11 +1,11 @@
-import { NavLinks } from './ui/nav-links'
-import './globals.css'
+import { NavLinks } from "./components/nav-links";
+import "./globals.css";
 
 export const metadata = {
-  title: 'Inventory Management App',
-  description: 'Manage inventory in the warehouse properly!',
-}
- 
+  title: "Inventory Management App",
+  description: "Manage inventory in the warehouse properly!",
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -14,5 +14,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </body>
     </html>
-  )
+  );
 }
