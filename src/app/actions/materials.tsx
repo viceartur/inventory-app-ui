@@ -109,7 +109,7 @@ export async function removeMaterial(materialId: string, formData: FormData) {
     if (res.status != 200) {
       return { message: "Error: " + res.statusText };
     }
-    return { message: "Material Moved" };
+    return { message: "Material Removed" };
   } catch (error: any) {
     return { message: "Error: " + error.message };
   }
