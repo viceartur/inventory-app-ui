@@ -1,5 +1,5 @@
-import { IncomingMaterialsComponent } from "app/components/materials";
+import { IncomingMaterials } from "app/components/materials";
 
-export default async function IncomingMaterials() {
-  return <IncomingMaterialsComponent />;
+export default async function IncomingMaterialsPage() {
+  return <IncomingMaterials />;
 }

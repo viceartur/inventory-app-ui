@@ -13,6 +13,13 @@ export function NavLinks() {
       </Link>
 
       <Link
+        className={`link ${pathname === "/warehouse" ? "active" : ""}`}
+        href="/warehouse"
+      >
+        Warehouse/Locations
+      </Link>
+
+      <Link
         className={`link ${pathname === "/customer" ? "active" : ""}`}
         href="/customer"
       >
@@ -31,6 +38,13 @@ export function NavLinks() {
         href="/incoming-materials"
       >
         Incoming Materials
+      </Link>
+
+      <Link
+        className={`link ${pathname === "/materials" ? "active" : ""}`}
+        href="/materials"
+      >
+        Inventory
       </Link>
     </nav>
   );
