@@ -1,4 +1,7 @@
 "use client";
+import { FormEvent, useActionState, useEffect, useState } from "react";
+import { redirect } from "next/navigation";
+
 import { SubmitButton } from "app/ui/submit-button";
 import {
   createMaterial,
@@ -6,8 +9,6 @@ import {
   removeMaterial,
   sendMaterial,
 } from "../actions/materials";
-import { FormEvent, useActionState, useEffect, useState } from "react";
-import { redirect } from "next/navigation";
 
 const initialFormState = {
   message: "",
@@ -45,8 +46,10 @@ export function SendMaterialForm() {
   useEffect(() => {
     async function fetchMaterialTypes() {
       const res = await fetch("http://localhost:5000/material_types");
+      if (!res) return;
+
       const data = await res.json();
-      if (!data?.length) setSelectMaterialTypes([]);
+      if (!data?.length) return;
 
       const types = data.map((type: any, i: number) => ({
         id: i,

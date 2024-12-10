@@ -23,7 +23,7 @@ export function NavLinks() {
         className={`link ${pathname === "/customer" ? "active" : ""}`}
         href="/customer"
       >
-        Customer
+        Customers
       </Link>
 
       <Link
@@ -45,6 +45,13 @@ export function NavLinks() {
         href="/materials"
       >
         Inventory
+      </Link>
+
+      <Link
+        className={`link ${pathname === "/reports" ? "active" : ""}`}
+        href="/reports"
+      >
+        Reports
       </Link>
     </nav>
   );
