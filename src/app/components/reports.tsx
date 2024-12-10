@@ -1,7 +1,7 @@
 "use client";
 
 import { redirect, useSearchParams } from "next/navigation";
-import { useState, useEffect, FormEvent, useRef } from "react";
+import { useState, useEffect, FormEvent } from "react";
 
 export function Reports() {
   const [searchParams, setSearchParams] = useState({
