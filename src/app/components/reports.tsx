@@ -196,7 +196,7 @@ export function Balance() {
   return (
     <>
       <button onClick={() => redirect("/reports")}>Back to Reports</button>
-      <h2>Transactions List: {transactions.length} items</h2>
+      <h2>Balance List: {transactions.length} items</h2>
       <div className="material_list">
         <div className="list_header">
           <p>Stock ID</p>
