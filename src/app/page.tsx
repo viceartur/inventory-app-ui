@@ -7,9 +7,11 @@ export default function MainPage() {
 
   return (
     <>
-      <h1>Welcome to the main page</h1>
-      <h3>Server status:</h3> {serverStatus}
-      <h3>DataBase connection:</h3> {dbStatus}
+      <h1>Welcome to the Inventory Management App v2.0</h1>
+      <p>
+        If you have any questions please reach me out on
+        <a href="https://outlook.office.com/mail/">asopov@tagsystems.net</a>
+      </p>
     </>
   );
 }

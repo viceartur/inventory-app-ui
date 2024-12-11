@@ -6,24 +6,25 @@ export async function createWarehouse(prevState: any, formData: FormData) {
     locationName: formData.get("locationName"),
   };
 
-  console.log(warehouse);
+  try {
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/warehouses`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(warehouse),
+      }
+    );
 
-  const res = await fetch(
-    `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/warehouses`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(warehouse),
+    console.log(res);
+
+    if (res.status != 200) {
+      return { message: "Error: " + res.statusText };
     }
-  );
-
-  console.log(res);
-
-  if (res.status != 200) {
-    return { message: "Error: " + res.statusText };
+    return { message: "Warehouse Created" };
+  } catch (error: any) {
+    return { message: "Error: " + error.message };
   }
-
-  return { message: "Warehouse Created" };
 }

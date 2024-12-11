@@ -13,16 +13,18 @@ export function CustomerForm() {
     <>
       <h2>Add Customer</h2>
       <form action={formAction}>
-        <input
-          type="text"
-          name="customerName"
-          placeholder="Customer Name"
-          required
-        />
+        <label>Customer Code:</label>
         <input
           type="text"
           name="customerCode"
           placeholder="Customer Code"
+          required
+        />
+        <label>Customer Name:</label>
+        <input
+          type="text"
+          name="customerName"
+          placeholder="Customer Name"
           required
         />
         <p>{state?.message}</p>

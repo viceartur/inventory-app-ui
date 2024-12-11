@@ -14,22 +14,25 @@ export async function sendMaterial(prevState: any, formData: FormData) {
     isActive: formData.get("isActive") == "on",
   };
 
-  const res = await fetch(
-    `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/incoming_materials`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(material),
+  try {
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/incoming_materials`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(material),
+      }
+    );
+
+    if (res.status != 200) {
+      return { message: res.statusText };
     }
-  );
-
-  if (res.status != 200) {
-    return { message: res.statusText };
+    return { message: "Material Sent" };
+  } catch (error: any) {
+    return { message: "Error: " + error.message };
   }
-
-  return { message: "Material Sent" };
 }
 
 export async function createMaterial(

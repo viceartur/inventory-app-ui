@@ -11,14 +11,16 @@ export function WarehouseForm() {
   const [state, formAction] = useActionState(createWarehouse, initialState);
   return (
     <>
-      <h2>Add Warehouse/Location</h2>
+      <h2>Add Warehouse and Location</h2>
       <form action={formAction}>
+        <label>Warehouse Name:</label>
         <input
           type="text"
           name="warehouseName"
           placeholder="Warehouse Name"
           required
         />
+        <label>Location Name:</label>
         <input
           type="text"
           name="locationName"

@@ -6,20 +6,23 @@ export async function createCustomer(prevState: any, formData: FormData) {
     customerCode: formData.get("customerCode"),
   };
 
-  const res = await fetch(
-    `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customer),
+  try {
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(customer),
+      }
+    );
+
+    if (res.status != 200) {
+      return { message: "Error: " + res.statusText };
     }
-  );
-
-  if (res.status != 200) {
-    return { message: res.statusText };
+    return { message: "Customer Added" };
+  } catch (error: any) {
+    return { message: "Error: " + error.message };
   }
-
-  return { message: "Customer Added" };
 }

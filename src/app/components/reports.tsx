@@ -62,7 +62,7 @@ export function Reports() {
       <p>Transaction Report - all transactions and its prices</p>
       <p>Balance Report - total prices for a period of time</p>
       <p>Please enter the filter options:</p>
-      <form className="filter" onChange={onChangeForm}>
+      <form onChange={onChangeForm}>
         <label>Customer:</label>
         <select name="customerId" required>
           {selectCustomers.map((customer, i) => (

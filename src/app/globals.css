@@ -2,16 +2,13 @@
   font-family: "Poppins", sans-serif;
   justify-content: center;
   margin: 0.5rem;
-  background-color: #f0f0f0;
-}
-
-h2 {
-  margin: 1.5rem;
+  font-size: large;
 }
 
 nav {
   padding: 1.5rem;
   background-color: rgb(207, 207, 207);
+  border: 1px solid black;
   position: sticky;
   top: 0;
   overflow: hidden;
@@ -39,6 +36,13 @@ form {
   border-radius: 5px;
   padding: 10px;
   border: 4px solid rgb(190, 190, 190);
+
+  label {
+    font-weight: 600;
+    color: rgb(0, 0, 145);
+    padding: 4px;
+    border-radius: 4px;
+  }
 }
 
 button {
@@ -53,9 +57,17 @@ button {
 }
 
 select,
-input {
+input,
+input:checked {
   padding: 10px;
   border-radius: 4px;
+}
+
+.filter {
+  border: none;
+  width: auto;
+  justify-content: start;
+  flex-direction: row;
 }
 
 .material_list {
@@ -66,21 +78,35 @@ input {
   flex-direction: column;
 
   .list_header {
+    color: rgb(0, 0, 145);
+    font-weight: 600;
+    padding: 0.6rem;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
   }
 
   .material_list-item {
-    border: 4px solid rgb(190, 190, 190);
     display: flex;
     justify-content: space-between;
-    border-radius: 5px;
+    border: 2px solid transparent;
+    padding: 0.6rem;
+
+    &:hover {
+      border: 2px solid rgb(136, 136, 136);
+      border-radius: 5px;
+    }
 
     p {
       width: 30%;
-      padding: 10px;
       border-radius: 5px;
+      font-weight: 600;
+
+      label {
+        padding: 0.6rem;
+        background-color: rgb(164, 164, 164);
+        border-radius: 5px;
+        color: white;
+      }
     }
   }
 }
