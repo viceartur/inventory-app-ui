@@ -21,7 +21,7 @@ export function Reports() {
 
   useEffect(() => {
     async function fetchCustomers() {
-      const res = await fetch("http://localhost:5000/customers");
+      const res = await fetch("http://localhost:8080/customers");
       const data = await res.json();
       if (!data?.length) setSelectCustomers([]);
 
@@ -113,7 +113,7 @@ export function Transactions() {
   useEffect(() => {
     async function fetchMaterials() {
       const res = await fetch(
-        `http://localhost:5000/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        `http://localhost:8080/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
       );
       if (!res) return;
 
@@ -173,7 +173,7 @@ export function Balance() {
   useEffect(() => {
     async function fetchMaterials() {
       const res = await fetch(
-        `http://localhost:5000/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+        `http://localhost:8080/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
       );
       if (!res) return;
 
