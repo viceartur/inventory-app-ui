@@ -8,7 +8,7 @@ export async function createWarehouse(prevState: any, formData: FormData) {
 
   console.log(warehouse);
 
-  const res = await fetch("http://localhost:8080/warehouses", {
+  const res = await fetch("http://192.168.6.59:8080/warehouses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

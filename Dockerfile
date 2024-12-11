@@ -45,3 +45,6 @@ ENV PORT=3000
 
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server.js"]
+
+# docker build -t inventory-app-ui .
+# docker run -d -p 3000:3000 inventory-app-ui

@@ -6,7 +6,7 @@ export async function createCustomer(prevState: any, formData: FormData) {
     customerCode: formData.get("customerCode"),
   };
 
-  const res = await fetch("http://localhost:8080/customers", {
+  const res = await fetch("http://192.168.6.59:8080/customers", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

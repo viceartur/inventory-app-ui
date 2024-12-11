@@ -14,7 +14,7 @@ export async function sendMaterial(prevState: any, formData: FormData) {
     isActive: formData.get("isActive") == "on",
   };
 
-  const res = await fetch("http://localhost:8080/incoming_materials", {
+  const res = await fetch("http://192.168.6.59:8080/incoming_materials", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,7 +41,7 @@ export async function createMaterial(
   };
 
   try {
-    const res = await fetch("http://localhost:8080/materials", {
+    const res = await fetch("http://192.168.6.59:8080/materials", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export async function moveMaterial(materialId: string, formData: FormData) {
 
   try {
     const res = await fetch(
-      "http://localhost:8080/materials/move-to-location",
+      "http://192.168.6.59:8080/materials/move-to-location",
       {
         method: "PATCH",
         headers: {
@@ -96,7 +96,7 @@ export async function removeMaterial(materialId: string, formData: FormData) {
 
   try {
     const res = await fetch(
-      "http://localhost:8080/materials/remove-from-location",
+      "http://192.168.6.59:8080/materials/remove-from-location",
       {
         method: "PATCH",
         headers: {

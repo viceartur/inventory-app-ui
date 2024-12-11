@@ -30,7 +30,7 @@ export function SendMaterialForm() {
 
   useEffect(() => {
     async function fetchCustomers() {
-      const res = await fetch("http://localhost:8080/customers");
+      const res = await fetch("http://192.168.6.59:8080/customers");
       const data = await res.json();
       if (!data?.length) setSelectCustomers([]);
 
@@ -45,7 +45,7 @@ export function SendMaterialForm() {
 
   useEffect(() => {
     async function fetchMaterialTypes() {
-      const res = await fetch("http://localhost:8080/material_types");
+      const res = await fetch("http://192.168.6.59:8080/material_types");
       if (!res) return;
 
       const data = await res.json();
@@ -110,7 +110,7 @@ export function IncomingMaterials() {
 
   useEffect(() => {
     async function fetchIncomingMaterials() {
-      const res = await fetch("http://localhost:8080/incoming_materials");
+      const res = await fetch("http://192.168.6.59:8080/incoming_materials");
       if (!res) return setIncomingMaterialsList([]);
 
       const data = await res.json();
@@ -175,7 +175,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchIncomingMaterials() {
-      const res = await fetch("http://localhost:8080/incoming_materials");
+      const res = await fetch("http://192.168.6.59:8080/incoming_materials");
       const data = await res.json();
       if (!data?.length) return;
 
@@ -192,7 +192,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchLocations() {
-      const res = await fetch("http://localhost:8080/locations");
+      const res = await fetch("http://192.168.6.59:8080/locations");
       const data = await res.json();
       if (!data?.length) return;
 
@@ -256,7 +256,7 @@ export function Materials() {
 
   useEffect(() => {
     async function fetchMaterials() {
-      const res = await fetch("http://localhost:8080/materials");
+      const res = await fetch("http://192.168.6.59:8080/materials");
       if (!res) return setMaterialsList([]);
 
       const data = await res.json();
@@ -421,7 +421,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchMaterials() {
-      const res = await fetch("http://localhost:8080/materials");
+      const res = await fetch("http://192.168.6.59:8080/materials");
       if (!res) return;
 
       const data = await res.json();
@@ -440,7 +440,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchLocations() {
-      const res = await fetch("http://localhost:8080/locations");
+      const res = await fetch("http://192.168.6.59:8080/locations");
       const data = await res.json();
       if (!data?.length) return;
 
@@ -521,7 +521,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchMaterials() {
-      const res = await fetch("http://localhost:8080/materials");
+      const res = await fetch("http://192.168.6.59:8080/materials");
       if (!res) return;
 
       const data = await res.json();
