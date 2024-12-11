@@ -21,7 +21,9 @@ export function Reports() {
 
   useEffect(() => {
     async function fetchCustomers() {
-      const res = await fetch("http://192.168.6.59:8080/customers");
+      const res = await fetch(
+        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`
+      );
       const data = await res.json();
       if (!data?.length) setSelectCustomers([]);
 
@@ -113,7 +115,7 @@ export function Transactions() {
   useEffect(() => {
     async function fetchMaterials() {
       const res = await fetch(
-        `http://192.168.6.59:8080/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
       );
       if (!res) return;
 
@@ -173,7 +175,7 @@ export function Balance() {
   useEffect(() => {
     async function fetchMaterials() {
       const res = await fetch(
-        `http://192.168.6.59:8080/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
       );
       if (!res) return;
 

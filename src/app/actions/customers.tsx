@@ -6,13 +6,16 @@ export async function createCustomer(prevState: any, formData: FormData) {
     customerCode: formData.get("customerCode"),
   };
 
-  const res = await fetch("http://192.168.6.59:8080/customers", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(customer),
-  });
+  const res = await fetch(
+    `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(customer),
+    }
+  );
 
   if (res.status != 200) {
     return { message: res.statusText };

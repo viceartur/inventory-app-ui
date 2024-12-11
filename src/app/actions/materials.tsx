@@ -14,13 +14,16 @@ export async function sendMaterial(prevState: any, formData: FormData) {
     isActive: formData.get("isActive") == "on",
   };
 
-  const res = await fetch("http://192.168.6.59:8080/incoming_materials", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(material),
-  });
+  const res = await fetch(
+    `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/incoming_materials`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(material),
+    }
+  );
 
   if (res.status != 200) {
     return { message: res.statusText };
@@ -41,13 +44,16 @@ export async function createMaterial(
   };
 
   try {
-    const res = await fetch("http://192.168.6.59:8080/materials", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(incomingMaterial),
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(incomingMaterial),
+      }
+    );
 
     if (res.status != 200) {
       return { message: "Error: " + res.statusText };
@@ -68,7 +74,7 @@ export async function moveMaterial(materialId: string, formData: FormData) {
 
   try {
     const res = await fetch(
-      "http://192.168.6.59:8080/materials/move-to-location",
+      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials/move-to-location`,
       {
         method: "PATCH",
         headers: {
@@ -96,7 +102,7 @@ export async function removeMaterial(materialId: string, formData: FormData) {
 
   try {
     const res = await fetch(
-      "http://192.168.6.59:8080/materials/remove-from-location",
+      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials/remove-from-location`,
       {
         method: "PATCH",
         headers: {
