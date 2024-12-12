@@ -59,11 +59,11 @@ export async function createMaterial(
     );
 
     if (res.status != 200) {
-      return { message: "Error: " + res.statusText };
+      return { error: "Error: " + res.statusText };
     }
-    return { message: "Material Added" };
+    return null;
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Error: " + error.message };
   }
 }
 
@@ -88,11 +88,11 @@ export async function moveMaterial(materialId: string, formData: FormData) {
     );
 
     if (res.status != 200) {
-      return { message: "Error: " + res.statusText };
+      return { error: "Error: " + res.statusText };
     }
-    return { message: "Material Moved" };
+    return null;
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Error: " + error.message };
   }
 }
 
@@ -116,10 +116,10 @@ export async function removeMaterial(materialId: string, formData: FormData) {
     );
 
     if (res.status != 200) {
-      return { message: "Error: " + res.statusText };
+      return { error: "Error: " + res.statusText };
     }
-    return { message: "Material Removed" };
+    return null;
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Error: " + error.message };
   }
 }

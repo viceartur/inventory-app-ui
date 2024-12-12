@@ -234,12 +234,18 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const formData = new FormData(event.currentTarget);
     const incomingMaterialId = props.materialId;
 
-    const { message } = await createMaterial(incomingMaterialId, formData);
-    setSubmitMessage(message);
+    const res: any = await createMaterial(incomingMaterialId, formData);
+    if (res?.error) {
+      setSubmitMessage(res.error);
+    } else {
+      setSubmitMessage("Material Added. Redirecting to Incoming Materials...");
+      setTimeout(() => {
+        redirect("/incoming-materials/");
+      }, 2000);
+    }
   }
 
   return (
@@ -511,8 +517,15 @@ export function MoveMaterialForm(props: { materialId: string }) {
     const formData = new FormData(event.currentTarget);
     const materialId = props.materialId;
 
-    const { message } = await moveMaterial(materialId, formData);
-    setSubmitMessage(message);
+    const res: any = await moveMaterial(materialId, formData);
+    if (res?.error) {
+      setSubmitMessage(res.error);
+    } else {
+      setSubmitMessage("Material Moved. Redirecting to Inventory...");
+      setTimeout(() => {
+        redirect("/materials/");
+      }, 2000);
+    }
   }
 
   return (
@@ -617,8 +630,15 @@ export function RemoveMaterialForm(props: { materialId: string }) {
     const formData = new FormData(event.currentTarget);
     const materialId = props.materialId;
 
-    const { message } = await removeMaterial(materialId, formData);
-    setSubmitMessage(message);
+    const response: any = await removeMaterial(materialId, formData);
+    if (response?.error) {
+      setSubmitMessage(response.error);
+    } else {
+      setSubmitMessage("Material Removed. Redirecting to Inventory...");
+      setTimeout(() => {
+        redirect("/materials/");
+      }, 2000);
+    }
   }
 
   return (
