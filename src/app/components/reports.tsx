@@ -82,26 +82,28 @@ export function Reports() {
         <label>Date As Of (balance):</label>
         <input type="date" name="dateAsOf" />
       </form>
-      <button
-        onClick={() => {
-          const { customerId, materialType, dateFrom, dateTo } = searchParams;
-          redirect(
-            `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
-          );
-        }}
-      >
-        Get Transactions Report
-      </button>
-      <button
-        onClick={() => {
-          const { customerId, materialType, dateAsOf } = searchParams;
-          redirect(
-            `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
-          );
-        }}
-      >
-        Get Balance Report
-      </button>
+      <div>
+        <button
+          onClick={() => {
+            const { customerId, materialType, dateFrom, dateTo } = searchParams;
+            redirect(
+              `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+            );
+          }}
+        >
+          Get Transactions Report
+        </button>
+        <button
+          onClick={() => {
+            const { customerId, materialType, dateAsOf } = searchParams;
+            redirect(
+              `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+            );
+          }}
+        >
+          Get Balance Report
+        </button>
+      </div>
     </section>
   );
 }
@@ -180,35 +182,35 @@ export function Transactions() {
 
   return (
     <section>
-      <button onClick={() => redirect("/reports")}>Back to Reports</button>
-      <button onClick={onClickDownload}>Download this Report</button>
-      <h2>Transactions List: {transactions.length} items</h2>
-      <div className="material_list">
-        <table>
-          <thead>
-            <tr>
-              <th>Stock ID</th>
-              <th>Material Type</th>
-              <th>Quantity (+/-)</th>
-              <th>Unit Cost, USD</th>
-              <th>Cost, USD</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((material: any, i) => (
-              <tr key={i}>
-                <td>{material.stockId}</td>
-                <td>{material.materialType}</td>
-                <td>{material.qty}</td>
-                <td>{material.unitCost}</td>
-                <td>{material.cost}</td>
-                <td>{material.date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div>
+        <button onClick={() => redirect("/reports")}>Back to Reports</button>
+        <button onClick={onClickDownload}>Download this Report</button>
       </div>
+      <h2>Transaction Report</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Stock ID</th>
+            <th>Material Type</th>
+            <th>Quantity (+/-)</th>
+            <th>Unit Cost, USD</th>
+            <th>Cost, USD</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((material: any, i) => (
+            <tr key={i}>
+              <td>{material.stockId}</td>
+              <td>{material.materialType}</td>
+              <td>{material.qty}</td>
+              <td>{material.unitCost}</td>
+              <td>{material.cost}</td>
+              <td>{material.date}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }
@@ -279,31 +281,31 @@ export function Balance() {
 
   return (
     <section>
-      <button onClick={() => redirect("/reports")}>Back to Reports</button>
-      <button onClick={onClickDownload}>Download this Report</button>
-      <h2>Balance List: {transactions.length} items</h2>
-      <div className="material_list">
-        <table>
-          <thead>
-            <tr>
-              <th>Stock ID</th>
-              <th>Material Type</th>
-              <th>Quantity (+/-)</th>
-              <th>Total Value, USD</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((material: any, i) => (
-              <tr key={i}>
-                <td>{material.stockId}</td>
-                <td>{material.materialType}</td>
-                <td>{material.qty}</td>
-                <td>{material.totalValue}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div>
+        <button onClick={() => redirect("/reports")}>Back to Reports</button>
+        <button onClick={onClickDownload}>Download this Report</button>
       </div>
+      <h2>Balance Report</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Stock ID</th>
+            <th>Material Type</th>
+            <th>Quantity (+/-)</th>
+            <th>Total Value, USD</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((material: any, i) => (
+            <tr key={i}>
+              <td>{material.stockId}</td>
+              <td>{material.materialType}</td>
+              <td>{material.qty}</td>
+              <td>{material.totalValue}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }
