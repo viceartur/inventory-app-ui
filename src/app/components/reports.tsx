@@ -154,8 +154,8 @@ export function Transactions() {
       stockId: transaction.stockId,
       materialType: transaction.materialType,
       qty: transaction.qty,
-      unitCost: transaction.unitCost.slice(1),
-      cost: transaction.cost.slice(1),
+      unitCost: transaction.unitCost,
+      cost: transaction.cost,
       date: transaction.date,
     }));
 
@@ -255,7 +255,7 @@ export function Balance() {
       stockId: transaction.stockId,
       materialType: transaction.materialType,
       qty: transaction.qty,
-      totalValue: transaction.totalValue.slice(1),
+      totalValue: transaction.totalValue,
     }));
 
     const excelData = [
