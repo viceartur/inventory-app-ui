@@ -5,10 +5,9 @@
 }
 
 h2 {
+  padding: 1rem;
   color: rgb(0, 0, 86);
   width: fit-content;
-  padding: 0.5rem;
-  border-radius: 5px;
 }
 
 nav {
@@ -19,7 +18,7 @@ nav {
   top: 0;
   overflow: hidden;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   text-align: center;
 
@@ -46,6 +45,7 @@ nav {
 }
 
 section {
+  width: fit-content;
   padding: 1rem;
   background-color: rgb(219, 240, 223);
   border: 2px solid green;
@@ -55,7 +55,7 @@ section {
 form {
   display: flex;
   flex-direction: column;
-  width: 500px;
+  width: 30rem;
   border: 2px solid black;
   border-radius: 5px;
   padding: 10px;
@@ -71,8 +71,9 @@ form {
 }
 
 button {
-  padding: 5px;
-  width: 15rem;
+  font-size: 1rem;
+  padding: 0.5rem;
+  width: fit-content;
   border-radius: 4px;
   background-color: rgb(190, 190, 190);
 
@@ -90,8 +91,8 @@ input:checked {
 
 .filter {
   border: 1px solid rgb(71, 71, 71);
-  width: auto;
-  justify-content: start;
+  width: fit-content;
+  justify-content: flex-start;
   flex-direction: row;
 }
 
@@ -119,7 +120,7 @@ input:checked {
 
   .material_list-item {
     display: flex;
-    justify-content: start;
+    justify-content: flex-start;
     border: 2px solid transparent;
     padding: 0.6rem;
     background-color: white;
@@ -139,6 +140,7 @@ input:checked {
 
 /* Reports */
 table {
+  width: 70rem;
   border-collapse: collapse;
   margin: 0;
 
