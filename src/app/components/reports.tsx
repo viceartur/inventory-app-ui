@@ -3,6 +3,9 @@
 import { redirect, useSearchParams } from "next/navigation";
 import { useState, useEffect, FormEvent } from "react";
 
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
+
 export function Reports() {
   const [searchParams, setSearchParams] = useState({
     customerId: "",
@@ -137,9 +140,48 @@ export function Transactions() {
     fetchMaterials();
   }, []);
 
+  const onClickDownload = () => {
+    const columns = [
+      { title: "Stock ID", dataKey: "stockId" },
+      { title: "Material Type", dataKey: "materialType" },
+      { title: "Qty", dataKey: "qty" },
+      { title: "Unit Cost", dataKey: "unitCost" },
+      { title: "Cost", dataKey: "cost" },
+      { title: "Date", dataKey: "date" },
+    ];
+
+    const data = transactions.map((transaction: any) => ({
+      stockId: transaction.stockId,
+      materialType: transaction.materialType,
+      qty: transaction.qty,
+      unitCost: transaction.unitCost.slice(1),
+      cost: transaction.cost.slice(1),
+      date: transaction.date,
+    }));
+
+    const excelData = [
+      columns.map((column) => column.title),
+      ...data.map((item: any) => columns.map((column) => item[column.dataKey])),
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, `transaction_report_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
   return (
     <section>
       <button onClick={() => redirect("/reports")}>Back to Reports</button>
+      <button onClick={onClickDownload}>Download this Report</button>
       <h2>Transactions List: {transactions.length} items</h2>
       <div className="material_list">
         <table>
@@ -201,9 +243,44 @@ export function Balance() {
     fetchMaterials();
   }, []);
 
+  const onClickDownload = () => {
+    const columns = [
+      { title: "Stock ID", dataKey: "stockId" },
+      { title: "Material Type", dataKey: "materialType" },
+      { title: "Qty", dataKey: "qty" },
+      { title: "Total Value", dataKey: "totalValue" },
+    ];
+
+    const data = transactions.map((transaction: any) => ({
+      stockId: transaction.stockId,
+      materialType: transaction.materialType,
+      qty: transaction.qty,
+      totalValue: transaction.totalValue.slice(1),
+    }));
+
+    const excelData = [
+      columns.map((column) => column.title),
+      ...data.map((item: any) => columns.map((column) => item[column.dataKey])),
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, `balance_report_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
   return (
     <section>
       <button onClick={() => redirect("/reports")}>Back to Reports</button>
+      <button onClick={onClickDownload}>Download this Report</button>
       <h2>Balance List: {transactions.length} items</h2>
       <div className="material_list">
         <table>
