@@ -10,7 +10,7 @@ const initialState = {
 export function WarehouseForm() {
   const [state, formAction] = useActionState(createWarehouse, initialState);
   return (
-    <>
+    <section>
       <h2>Add Warehouse and Location</h2>
       <form action={formAction}>
         <label>Warehouse Name:</label>
@@ -30,6 +30,6 @@ export function WarehouseForm() {
         <p>{state?.message}</p>
         <SubmitButton title="Add Warehouse" />
       </form>
-    </>
+    </section>
   );
 }

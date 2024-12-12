@@ -2,30 +2,54 @@
   font-family: "Poppins", sans-serif;
   justify-content: center;
   margin: 0.5rem;
-  font-size: large;
+}
+
+h2 {
+  color: rgb(0, 0, 86);
+  width: fit-content;
+  padding: 0.5rem;
+  border-radius: 5px;
 }
 
 nav {
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: rgb(207, 207, 207);
   border: 1px solid black;
   position: sticky;
   top: 0;
   overflow: hidden;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  text-align: center;
 
   a {
-    color: black;
-    text-decoration: none;
-    background-color: inherit;
-  }
-
-  a.active {
-    text-decoration: none;
-    color: white;
-    background-color: grey;
     border-radius: 4px;
     padding: 0.7rem;
+    font-weight: 600;
+    color: rgb(0, 0, 145);
+    text-decoration: none;
+    background-color: inherit;
+    border: 2px solid transparent;
+
+    &:hover {
+      border: 2px solid black;
+    }
+
+    &.active {
+      text-decoration: none;
+      color: white;
+      background-color: grey;
+      border: 2px solid black;
+    }
   }
+}
+
+section {
+  padding: 1rem;
+  background-color: rgb(219, 240, 223);
+  border: 2px solid green;
+  border-radius: 0.3rem;
 }
 
 form {
@@ -36,6 +60,7 @@ form {
   border-radius: 5px;
   padding: 10px;
   border: 4px solid rgb(190, 190, 190);
+  background-color: rgb(233, 233, 233);
 
   label {
     font-weight: 600;
@@ -64,49 +89,81 @@ input:checked {
 }
 
 .filter {
-  border: none;
+  border: 1px solid rgb(71, 71, 71);
   width: auto;
   justify-content: start;
   flex-direction: row;
 }
 
+/* Materials List */
 .material_list {
-  border: 2px solid rgb(71, 71, 71);
+  background-color: rgb(233, 233, 233);
+  border: 1px solid rgb(71, 71, 71);
   border-radius: 5px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
 
   .list_header {
+    background-color: rgb(190, 190, 190);
     color: rgb(0, 0, 145);
     font-weight: 600;
     padding: 0.6rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+
+    p {
+      width: 10rem;
+    }
   }
 
   .material_list-item {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     border: 2px solid transparent;
     padding: 0.6rem;
+    background-color: white;
+    border-radius: 5px;
+    align-items: baseline;
 
     &:hover {
       border: 2px solid rgb(136, 136, 136);
-      border-radius: 5px;
+      background-color: bisque;
     }
 
     p {
-      width: 30%;
-      border-radius: 5px;
-      font-weight: 600;
+      width: 10rem;
+    }
+  }
+}
 
-      label {
-        padding: 0.6rem;
-        background-color: rgb(164, 164, 164);
-        border-radius: 5px;
-        color: white;
+/* Reports */
+table {
+  border-collapse: collapse;
+  margin: 0;
+
+  thead {
+    border: 1px solid black;
+    background-color: rgb(190, 190, 190);
+
+    tr {
+      text-align: left;
+
+      th {
+        padding: 0.5rem;
+        color: rgb(0, 0, 145);
       }
+    }
+  }
+
+  tbody {
+    tr:hover {
+      background-color: bisque;
+    }
+
+    td {
+      padding: 0.5rem;
+      border: 1px solid black;
     }
   }
 }

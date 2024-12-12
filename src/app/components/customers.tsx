@@ -10,7 +10,7 @@ const initialState = {
 export function CustomerForm() {
   const [state, formAction] = useActionState(createCustomer, initialState);
   return (
-    <>
+    <section>
       <h2>Add Customer</h2>
       <form action={formAction}>
         <label>Customer Code:</label>
@@ -30,6 +30,6 @@ export function CustomerForm() {
         <p>{state?.message}</p>
         <SubmitButton title="Add Customer" />
       </form>
-    </>
+    </section>
   );
 }

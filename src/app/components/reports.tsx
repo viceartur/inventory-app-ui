@@ -56,7 +56,7 @@ export function Reports() {
   }
 
   return (
-    <>
+    <section>
       <h2>Financial Reports Page</h2>
       <p>Description:</p>
       <p>Transaction Report - all transactions and its prices</p>
@@ -99,7 +99,7 @@ export function Reports() {
       >
         Get Balance Report
       </button>
-    </>
+    </section>
   );
 }
 
@@ -138,30 +138,36 @@ export function Transactions() {
   }, []);
 
   return (
-    <>
+    <section>
       <button onClick={() => redirect("/reports")}>Back to Reports</button>
       <h2>Transactions List: {transactions.length} items</h2>
       <div className="material_list">
-        <div className="list_header">
-          <p>Stock ID</p>
-          <p>Material Type</p>
-          <p>Quantity</p>
-          <p>Unit Cost</p>
-          <p>Cost</p>
-          <p>Date</p>
-        </div>
-        {transactions.map((material: any, i) => (
-          <div className="material_list-item" key={i}>
-            <p>{material.stockId}</p>
-            <p>{material.materialType}</p>
-            <p>{material.qty}</p>
-            <p>{material.unitCost}</p>
-            <p>{material.cost}</p>
-            <p>{material.date}</p>
-          </div>
-        ))}
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Material Type</th>
+              <th>Quantity (+/-)</th>
+              <th>Unit Cost, USD</th>
+              <th>Cost, USD</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.materialType}</td>
+                <td>{material.qty}</td>
+                <td>{material.unitCost}</td>
+                <td>{material.cost}</td>
+                <td>{material.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </>
+    </section>
   );
 }
 
@@ -196,25 +202,31 @@ export function Balance() {
   }, []);
 
   return (
-    <>
+    <section>
       <button onClick={() => redirect("/reports")}>Back to Reports</button>
       <h2>Balance List: {transactions.length} items</h2>
       <div className="material_list">
-        <div className="list_header">
-          <p>Stock ID</p>
-          <p>Material Type</p>
-          <p>Quantity</p>
-          <p>Total Value</p>
-        </div>
-        {transactions.map((material: any, i) => (
-          <div className="material_list-item" key={i}>
-            <p>{material.stockId}</p>
-            <p>{material.materialType}</p>
-            <p>{material.qty}</p>
-            <p>{material.totalValue}</p>
-          </div>
-        ))}
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Material Type</th>
+              <th>Quantity (+/-)</th>
+              <th>Total Value, USD</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.materialType}</td>
+                <td>{material.qty}</td>
+                <td>{material.totalValue}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </>
+    </section>
   );
 }

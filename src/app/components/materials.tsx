@@ -65,7 +65,7 @@ export function SendMaterialForm() {
   }, []);
 
   return (
-    <>
+    <section>
       <h2>Send Material to Incoming</h2>
       <p>
         CSR Staff may fill out the material information below and then send it
@@ -116,7 +116,7 @@ export function SendMaterialForm() {
         <p>{state?.message}</p>
         <SubmitButton title="Send Material" />
       </form>
-    </>
+    </section>
   );
 }
 
@@ -145,21 +145,21 @@ export function IncomingMaterials() {
   }, []);
 
   return (
-    <>
+    <section>
       <h2>Incoming Materials List: {incomingMaterialsList.length} items</h2>
       {incomingMaterialsList.length ? (
         <div className="material_list">
+          <div className="list_header">
+            <p>Customer</p>
+            <p>Stock ID</p>
+            <p>Quantity</p>
+            <p>Action</p>
+          </div>
           {incomingMaterialsList.map((material: any, i) => (
             <div className="material_list-item" key={i}>
-              <p>
-                <label>Customer:</label> {material.customerName}
-              </p>
-              <p>
-                <label>Stock ID:</label> {material.stockId}
-              </p>
-              <p>
-                <label>Qty:</label> {material.qty}
-              </p>
+              <p>{material.customerName}</p>
+              <p>{material.stockId}</p>
+              <p>{material.qty}</p>
               <button
                 onClick={() =>
                   redirect(`/incoming-materials/${material.shippingId}`)
@@ -173,7 +173,7 @@ export function IncomingMaterials() {
       ) : (
         <p>List is empty</p>
       )}
-    </>
+    </section>
   );
 }
 
@@ -243,7 +243,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
   }
 
   return (
-    <>
+    <section>
       <button onClick={() => redirect("/incoming-materials/")}>Go back</button>
       <form onSubmit={onSubmitForm}>
         <div>
@@ -292,7 +292,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
         <p>{sumbitMessage}</p>
         <SubmitButton title="Add Material" />
       </form>
-    </>
+    </section>
   );
 }
 
@@ -401,7 +401,7 @@ export function Materials() {
   }
 
   return (
-    <>
+    <section>
       <h2>Filter Options</h2>
       <form className="filter" onSubmit={onFilterSubmit}>
         <input type="text" name="stockId" placeholder="Stock ID" />
@@ -409,9 +409,7 @@ export function Materials() {
         <input type="text" name="locationName" placeholder="Location Name" />
         <SubmitButton title="Filter Items" />
       </form>
-
       <h2>Inventory List: {filteredItems.length} items</h2>
-
       <div className="material_list">
         <div className="list_header">
           <p>Customer</p>
@@ -444,7 +442,7 @@ export function Materials() {
           </div>
         ))}
       </div>
-    </>
+    </section>
   );
 }
 
@@ -518,7 +516,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
   }
 
   return (
-    <>
+    <section>
       <button onClick={() => redirect("/materials/")}>Go back</button>
       <h2>Move Material to Location</h2>
       <p>Info: An item will be moved to the different location</p>
@@ -568,7 +566,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
         <p>{sumbitMessage}</p>
         <SubmitButton title="Move Material" />
       </form>
-    </>
+    </section>
   );
 }
 
@@ -624,7 +622,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   }
 
   return (
-    <>
+    <section>
       <button onClick={() => redirect("/materials/")}>Go back</button>
       <h2>Use Material</h2>
       <p>Info: An item will be removed from the location</p>
@@ -673,6 +671,6 @@ export function RemoveMaterialForm(props: { materialId: string }) {
         <p>{sumbitMessage}</p>
         <SubmitButton title="Use Material" />
       </form>
-    </>
+    </section>
   );
 }
