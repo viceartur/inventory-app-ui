@@ -29,7 +29,7 @@ export async function sendMaterial(prevState: any, formData: FormData) {
     if (res.status != 200) {
       return { message: res.statusText };
     }
-    return { message: "Material Sent" };
+    return { message: `Material "${material.stockId}" sent to the Warehouse` };
   } catch (error: any) {
     return { message: "Error: " + error.message };
   }

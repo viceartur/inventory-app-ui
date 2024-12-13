@@ -23,7 +23,7 @@ export async function createWarehouse(prevState: any, formData: FormData) {
     if (res.status != 200) {
       return { message: "Error: " + res.statusText };
     }
-    return { message: "Warehouse Created" };
+    return { message: `Warehouse "${warehouse.warehouseName}" created` };
   } catch (error: any) {
     return { message: "Error: " + error.message };
   }

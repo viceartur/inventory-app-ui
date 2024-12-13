@@ -67,53 +67,73 @@ export function SendMaterialForm() {
   return (
     <section>
       <h2>Send Material to Incoming</h2>
-      <p>
-        CSR Staff may fill out the material information below and then send it
-        to the Warehouse
-      </p>
       <form action={materialFormAction}>
-        <label>Stock ID:</label>
-        <input type="text" name="stockId" placeholder="Stock ID" required />
-        <label>Quantity:</label>
-        <input type="number" name="qty" placeholder="Quantity" required />
-        <label>Unit Cost (USD):</label>
-        <input
-          type="decimal"
-          name="cost"
-          placeholder="Unit Cost (USD)"
-          required
-        />
-        <label>Customer:</label>
-        <select name="customerId" required>
-          {selectCustomers.map((customer, i) => (
-            <option key={i} value={customer.id}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
-        <label>Material Type:</label>
-        <select name="materialType" required>
-          {selectMaterialTypes.map((type) => (
-            <option key={type.id} value={type.name}>
-              {type.name}
-            </option>
-          ))}
-        </select>
-        <label>Min Qty:</label>
-        <input type="number" name="minQty" placeholder="Min Quantity" />
-        <label>Max Qty:</label>
-        <input type="number" name="maxQty" placeholder="Max Quantity" />
-        <label>Descrption:</label>
-        <input type="text" name="description" placeholder="Description" />
-        <label>
-          Tag Owned:
-          <input type="checkbox" name="owner" />
-        </label>
-        <label>
-          Allow for Use:
-          <input type="checkbox" name="isActive" />
-        </label>
-        <p>{state?.message}</p>
+        <div className="form-info">
+          <p>
+            CSR Staff may fill out the material information below and then send
+            it to the Warehouse
+          </p>
+        </div>
+        <div className="form-line">
+          <label>Stock ID:</label>
+          <input type="text" name="stockId" placeholder="Stock ID" required />
+        </div>
+        <div className="form-line">
+          <label>Quantity:</label>
+          <input type="number" name="qty" placeholder="Quantity" required />
+        </div>
+        <div className="form-line">
+          <label>Unit Cost (USD):</label>
+          <input
+            type="decimal"
+            name="cost"
+            placeholder="Unit Cost (USD)"
+            required
+          />
+        </div>
+        <div className="form-line">
+          <label>Customer:</label>
+          <select name="customerId" required>
+            {selectCustomers.map((customer, i) => (
+              <option key={i} value={customer.id}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Material Type:</label>
+          <select name="materialType" required>
+            {selectMaterialTypes.map((type) => (
+              <option key={type.id} value={type.name}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Min Qty:</label>
+          <input type="number" name="minQty" placeholder="Min Quantity" />
+        </div>
+        <div className="form-line">
+          <label>Max Qty:</label>
+          <input type="number" name="maxQty" placeholder="Max Quantity" />
+        </div>
+        <div className="form-line">
+          <label>Descrption:</label>
+          <input type="text" name="description" placeholder="Description" />
+        </div>
+        <div>
+          <label>
+            Tag Owned:
+            <input type="checkbox" name="owner" />
+          </label>
+          <label>
+            Allow for Use:
+            <input type="checkbox" name="isActive" />
+          </label>
+        </div>
+        <p className="submit-message">{state?.message}</p>
         <SubmitButton title="Send Material" />
       </form>
     </section>
@@ -250,53 +270,70 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   return (
     <section>
-      <button onClick={() => redirect("/incoming-materials/")}>Go back</button>
+      <h2>Adding the Material to the Location</h2>
       <form onSubmit={onSubmitForm}>
-        <div>
-          <label>Customer: </label>
-          {incomingMaterial.CustomerName}
+        <div className="form-info">
+          <h3>Information from CSR:</h3>
+          <div>
+            <label>Customer: </label>
+            {incomingMaterial.CustomerName}
+          </div>
+          <div>
+            <label>Stock ID: </label>
+            {incomingMaterial.StockID}
+          </div>
+          <div>
+            <label>Type: </label>
+            {incomingMaterial.MaterialType}
+          </div>
+          <div>
+            <label>Ownership:</label>
+            {incomingMaterial.Owner}
+          </div>
+          <div>
+            <label>Allow for use:</label>
+            {incomingMaterial.IsActive ? "Yes" : "No"}
+          </div>
+          <div>
+            <label>Descripion:</label>
+            {incomingMaterial.Notes}
+          </div>
         </div>
-        <div>
-          <label>Stock ID: </label>
-          {incomingMaterial.StockID}
+        <div className="form-line">
+          <label>Quantity:</label>
+          <input
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            key={incomingMaterial.Quantity}
+            defaultValue={incomingMaterial.Quantity}
+            required
+          />
         </div>
-        <div>
-          <label>Type: </label>
-          {incomingMaterial.MaterialType}
+        <div className="form-line">
+          <label>Location:</label>
+          <select name="locationId" required>
+            {selectLocations.map((location: any, i: number) => (
+              <option key={i} value={location.id}>
+                {location.name}
+              </option>
+            ))}
+          </select>
         </div>
-        <div>
-          <label>Ownership:</label>
-          {incomingMaterial.Owner}
+        <div className="form-line">
+          <label>Notes:</label>
+          <input type="text" name="notes" placeholder="Notes" />
         </div>
+        <p className="submit-message">{sumbitMessage}</p>
         <div>
-          <label>Allow for use:</label>
-          {incomingMaterial.IsActive ? "Yes" : "No"}
+          <button
+            type="button"
+            onClick={() => redirect("/incoming-materials/")}
+          >
+            Go back
+          </button>
+          <SubmitButton title="Add Material" />
         </div>
-        <div>
-          <label>Descripion:</label>
-          {incomingMaterial.Notes}
-        </div>
-        <label>Quantity:</label>
-        <input
-          type="number"
-          name="quantity"
-          placeholder="Quantity"
-          key={incomingMaterial.Quantity}
-          defaultValue={incomingMaterial.Quantity}
-          required
-        />
-        <label>Location:</label>
-        <select name="locationId" required>
-          {selectLocations.map((location: any, i: number) => (
-            <option key={i} value={location.id}>
-              {location.name}
-            </option>
-          ))}
-        </select>
-        <label>Notes:</label>
-        <input type="text" name="notes" placeholder="Notes" />
-        <p>{sumbitMessage}</p>
-        <SubmitButton title="Add Material" />
       </form>
     </section>
   );
@@ -530,54 +567,69 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
   return (
     <section>
-      <button onClick={() => redirect("/materials/")}>Go back</button>
       <h2>Move Material to Location</h2>
-      <p>Info: An item will be moved to the different location</p>
       <form onSubmit={onSubmitForm}>
-        <div>
-          <label>Customer:</label>
-          {material.CustomerName}
+        <div className="form-info">
+          <h3>The Material will be moved to a Location</h3>
+          <div>
+            <label>Customer:</label>
+            {material.CustomerName}
+          </div>
+          <div>
+            <label>Stock ID:</label>
+            {material.StockID}
+          </div>
+          <div>
+            <label>Current Location:</label>
+            {material.LocationName}
+          </div>
+          <div>
+            <label>Type:</label>
+            {material.MaterialType}
+          </div>
+          <div>
+            <label>Ownership:</label>
+            {material.Owner}
+          </div>
+          <div>
+            <label>Allow for use:</label>
+            {material.IsActive ? "Yes" : "No"}
+          </div>
+          <div>
+            <label>Descripion:</label>
+            {material.Notes}
+          </div>
+          <div>
+            <label>Current Qty:</label>
+            {material.Quantity}
+          </div>
         </div>
-        <div>
-          <label>Stock ID:</label>
-          {material.StockID}
+        <div className="form-line">
+          <label>Quantity to Move:</label>
+          <input
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            required
+          />
         </div>
-        <div>
-          <label>Current Location:</label>
-          {material.LocationName}
+        <div className="form-line">
+          <label>New location:</label>
+          <select name="locationId" required>
+            {selectLocations.map((location: any, i: number) => (
+              <option key={i} value={location.id}>
+                {location.name}
+              </option>
+            ))}
+          </select>
         </div>
+        <p className="submit-message">{sumbitMessage}</p>
         <div>
-          <label>Type:</label>
-          {material.MaterialType}
+          <button type="button" onClick={() => redirect("/materials/")}>
+            Go back
+          </button>
+          <SubmitButton title="Move Material" />
         </div>
-        <div>
-          <label>Ownership:</label>
-          {material.Owner}
-        </div>
-        <div>
-          <label>Allow for use:</label>
-          {material.IsActive ? "Yes" : "No"}
-        </div>
-        <div>
-          <label>Descripion:</label>
-          {material.Notes}
-        </div>
-        <div>
-          <label>Current Qty:</label>
-          {material.Quantity}
-        </div>
-        <label>Quantity to Move:</label>
-        <input type="number" name="quantity" placeholder="Quantity" required />
-        <label>New location:</label>
-        <select name="locationId" required>
-          {selectLocations.map((location: any, i: number) => (
-            <option key={i} value={location.id}>
-              {location.name}
-            </option>
-          ))}
-        </select>
-        <p>{sumbitMessage}</p>
-        <SubmitButton title="Move Material" />
       </form>
     </section>
   );
@@ -643,53 +695,68 @@ export function RemoveMaterialForm(props: { materialId: string }) {
 
   return (
     <section>
-      <button onClick={() => redirect("/materials/")}>Go back</button>
       <h2>Use Material</h2>
-      <p>Info: An item will be removed from the location</p>
       <form onSubmit={onSubmitForm}>
-        <div>
-          <label>Customer:</label>
-          {material.CustomerName}
+        <div className="form-info">
+          <h3>The Material will be removed from the Location</h3>
+          <div>
+            <label>Customer:</label>
+            {material.CustomerName}
+          </div>
+          <div>
+            <label>Stock ID:</label>
+            {material.StockID}
+          </div>
+          <div>
+            <label>Current Location:</label>
+            {material.LocationName}
+          </div>
+          <div>
+            <label>Type:</label>
+            {material.MaterialType}
+          </div>
+          <div>
+            <label>Ownership:</label>
+            {material.Owner}
+          </div>
+          <div>
+            <label>Allow for use:</label>
+            {material.IsActive ? "Yes" : "No"}
+          </div>
+          <div>
+            <label>Descripion:</label>
+            {material.Notes}
+          </div>
+          <div>
+            <label>Current Qty:</label>
+            {material.Quantity}
+          </div>{" "}
         </div>
-        <div>
-          <label>Stock ID:</label>
-          {material.StockID}
+        <div className="form-line">
+          <label>Quantity to Use:</label>
+          <input
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            required
+          />
         </div>
-        <div>
-          <label>Current Location:</label>
-          {material.LocationName}
+        <div className="form-line">
+          <label>Job Ticket #:</label>
+          <input
+            type="text"
+            name="jobTicket"
+            placeholder="Job Ticket #"
+            required
+          />
         </div>
+        <p className="submit-message">{sumbitMessage}</p>
         <div>
-          <label>Type:</label>
-          {material.MaterialType}
+          <button type="button" onClick={() => redirect("/materials/")}>
+            Go back
+          </button>
+          <SubmitButton title="Use Material" />
         </div>
-        <div>
-          <label>Ownership:</label>
-          {material.Owner}
-        </div>
-        <div>
-          <label>Allow for use:</label>
-          {material.IsActive ? "Yes" : "No"}
-        </div>
-        <div>
-          <label>Descripion:</label>
-          {material.Notes}
-        </div>
-        <div>
-          <label>Current Qty:</label>
-          {material.Quantity}
-        </div>
-        <label>Quantity to Remove:</label>
-        <input type="number" name="quantity" placeholder="Quantity" required />
-        <label>Job Ticket #:</label>
-        <input
-          type="text"
-          name="jobTicket"
-          placeholder="Job Ticket #"
-          required
-        />
-        <p>{sumbitMessage}</p>
-        <SubmitButton title="Use Material" />
       </form>
     </section>
   );

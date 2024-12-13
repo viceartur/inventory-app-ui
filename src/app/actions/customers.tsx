@@ -21,7 +21,7 @@ export async function createCustomer(prevState: any, formData: FormData) {
     if (res.status != 200) {
       return { message: "Error: " + res.statusText };
     }
-    return { message: "Customer Added" };
+    return { message: `Customer "${customer.customerName}" added` };
   } catch (error: any) {
     return { message: "Error: " + error.message };
   }

@@ -13,21 +13,25 @@ export function WarehouseForm() {
     <section>
       <h2>Add Warehouse and Location</h2>
       <form action={formAction}>
-        <label>Warehouse Name:</label>
-        <input
-          type="text"
-          name="warehouseName"
-          placeholder="Warehouse Name"
-          required
-        />
-        <label>Location Name:</label>
-        <input
-          type="text"
-          name="locationName"
-          placeholder="Location Name"
-          required
-        />
-        <p>{state?.message}</p>
+        <div className="form-line">
+          <label>Warehouse Name:</label>
+          <input
+            type="text"
+            name="warehouseName"
+            placeholder="Warehouse Name"
+            required
+          />
+        </div>
+        <div className="form-line">
+          <label>Location Name:</label>
+          <input
+            type="text"
+            name="locationName"
+            placeholder="Location Name"
+            required
+          />
+        </div>
+        <p className="submit-message">{state?.message}</p>
         <SubmitButton title="Add Warehouse" />
       </form>
     </section>

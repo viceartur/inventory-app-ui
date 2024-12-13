@@ -61,49 +61,65 @@ export function Reports() {
   return (
     <section>
       <h2>Financial Reports Page</h2>
-      <p>Description:</p>
-      <p>Transaction Report - all transactions and its prices</p>
-      <p>Balance Report - total prices for a period of time</p>
-      <p>Please enter the filter options:</p>
       <form onChange={onChangeForm}>
-        <label>Customer:</label>
-        <select name="customerId" required>
-          {selectCustomers.map((customer, i) => (
-            <option key={i} value={customer.id}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
-        <input type="text" name="materialType" placeholder="Material Type" />
-        <label>Date From (transactions):</label>
-        <input type="date" name="dateFrom" />
-        <label>Date To (transactions):</label>
-        <input type="date" name="dateTo" />
-        <label>Date As Of (balance):</label>
-        <input type="date" name="dateAsOf" />
+        <div className="form-info">
+          <h3>Transaction Report</h3>
+          <p>Shows the transactions and its cost (Date From/To)</p>
+          <h3>Balance Report</h3>
+          <p>Shows total cost for the current date (Date As Of)</p>
+        </div>
+        <div className="form-line">
+          <label>Customer:</label>
+          <select name="customerId" required>
+            {selectCustomers.map((customer, i) => (
+              <option key={i} value={customer.id}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Material Type:</label>
+          <input type="text" name="materialType" placeholder="Material Type" />
+        </div>
+        <div className="form-line">
+          <label>Date From:</label>
+          <input type="date" name="dateFrom" />
+        </div>
+        <div className="form-line">
+          <label>Date To:</label>
+          <input type="date" name="dateTo" />
+        </div>
+        <div className="form-line">
+          <label>Date As Of:</label>
+          <input type="date" name="dateAsOf" />
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              const { customerId, materialType, dateFrom, dateTo } =
+                searchParams;
+              redirect(
+                `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+              );
+            }}
+          >
+            Get Transactions Report
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const { customerId, materialType, dateAsOf } = searchParams;
+              redirect(
+                `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+              );
+            }}
+          >
+            Get Balance Report
+          </button>{" "}
+        </div>
       </form>
-      <div>
-        <button
-          onClick={() => {
-            const { customerId, materialType, dateFrom, dateTo } = searchParams;
-            redirect(
-              `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
-            );
-          }}
-        >
-          Get Transactions Report
-        </button>
-        <button
-          onClick={() => {
-            const { customerId, materialType, dateAsOf } = searchParams;
-            redirect(
-              `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
-            );
-          }}
-        >
-          Get Balance Report
-        </button>
-      </div>
     </section>
   );
 }
