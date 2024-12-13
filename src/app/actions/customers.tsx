@@ -1,5 +1,7 @@
 "use server";
 
+import { API } from "app/utils/constants";
+
 export async function createCustomer(prevState: any, formData: FormData) {
   const customer = {
     customerName: formData.get("customerName"),
@@ -7,16 +9,13 @@ export async function createCustomer(prevState: any, formData: FormData) {
   };
 
   try {
-    const res = await fetch(
-      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(customer),
-      }
-    );
+    const res = await fetch(`${API}/customers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(customer),
+    });
 
     if (res.status != 200) {
       return { message: "Error: " + res.statusText };

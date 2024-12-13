@@ -9,6 +9,7 @@ import {
   removeMaterial,
   sendMaterial,
 } from "../actions/materials";
+import { API } from "app/utils/constants";
 
 const initialFormState = {
   message: "",
@@ -30,9 +31,7 @@ export function SendMaterialForm() {
 
   useEffect(() => {
     async function fetchCustomers() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`
-      );
+      const res = await fetch(`${API}/customers`);
       const data = await res.json();
       if (!data?.length) setSelectCustomers([]);
 
@@ -47,9 +46,7 @@ export function SendMaterialForm() {
 
   useEffect(() => {
     async function fetchMaterialTypes() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/material_types`
-      );
+      const res = await fetch(`${API}/material_types`);
       if (!res) return;
 
       const data = await res.json();
@@ -145,9 +142,7 @@ export function IncomingMaterials() {
 
   useEffect(() => {
     async function fetchIncomingMaterials() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/incoming_materials`
-      );
+      const res = await fetch(`${API}/incoming_materials`);
       if (!res) return setIncomingMaterialsList([]);
 
       const data = await res.json();
@@ -217,9 +212,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchIncomingMaterials() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/incoming_materials`
-      );
+      const res = await fetch(`${API}/incoming_materials`);
       const data = await res.json();
       if (!data?.length) return;
 
@@ -236,11 +229,21 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchLocations() {
+      if (
+        incomingMaterial.StockID == "Loading..." ||
+        incomingMaterial.Owner == "Loading..."
+      )
+        return;
+
       const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/locations`
+        API +
+          `/available_locations?stockId=${incomingMaterial.StockID}&owner=${incomingMaterial.Owner}`
       );
       const data = await res.json();
-      if (!data?.length) return;
+      if (!data?.length) {
+        setSelectLocations([]);
+        return;
+      }
 
       const locations = data.map((location: any) => ({
         id: location.ID,
@@ -250,7 +253,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
       setSelectLocations(locations);
     }
     fetchLocations();
-  }, []);
+  }, [incomingMaterial]);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -345,9 +348,7 @@ export function Materials() {
 
   useEffect(() => {
     async function fetchMaterials() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials`
-      );
+      const res = await fetch(`${API}/materials`);
       if (!res) return setMaterialsList([]);
 
       const data = await res.json();
@@ -459,6 +460,7 @@ export function Materials() {
           <p>Stock ID</p>
           <p>Quantity</p>
           <p>Location</p>
+          <p>Owner</p>
           <p>Action Buttons</p>
         </div>
         {filteredItems.map((material: any, i) => (
@@ -467,8 +469,9 @@ export function Materials() {
             <p>{material.stockId}</p>
             <p>{material.qty}</p>
             <p>{material.locationName}</p>
-
+            <p>{material.owner}</p>
             <button
+              disabled={material.qty == 0}
               onClick={() =>
                 redirect(`/materials/remove-material/${material.materialId}`)
               }
@@ -476,6 +479,7 @@ export function Materials() {
               Use Material
             </button>
             <button
+              disabled={material.qty == 0}
               onClick={() =>
                 redirect(`/materials/move-material/${material.materialId}`)
               }
@@ -511,9 +515,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchMaterials() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials`
-      );
+      const res = await fetch(`${API}/materials`);
       if (!res) return;
 
       const data = await res.json();
@@ -532,21 +534,27 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchLocations() {
+      if (material.StockID == "Loading..." || material.Owner == "Loading...")
+        return;
+
       const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/locations`
+        API +
+          `/available_locations?stockId=${material.StockID}&owner=${material.Owner}`
       );
       const data = await res.json();
       if (!data?.length) return;
 
-      const locations = data.map((location: any) => ({
-        id: location.ID,
-        name: location.Name,
-      }));
+      const locations = data
+        .map((location: any) => ({
+          id: location.ID,
+          name: location.Name,
+        }))
+        .filter((location: any) => material.LocationID != location.id);
 
       setSelectLocations(locations);
     }
     fetchLocations();
-  }, []);
+  }, [material]);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -657,9 +665,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     async function fetchMaterials() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials`
-      );
+      const res = await fetch(`${API}/materials`);
       if (!res) return;
 
       const data = await res.json();

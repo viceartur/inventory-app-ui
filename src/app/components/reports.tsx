@@ -5,6 +5,7 @@ import { useState, useEffect, FormEvent } from "react";
 
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
+import { API } from "app/utils/constants";
 
 export function Reports() {
   const [searchParams, setSearchParams] = useState({
@@ -24,9 +25,7 @@ export function Reports() {
 
   useEffect(() => {
     async function fetchCustomers() {
-      const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/customers`
-      );
+      const res = await fetch(`${API}/customers`);
       const data = await res.json();
       if (!data?.length) setSelectCustomers([]);
 
@@ -136,7 +135,8 @@ export function Transactions() {
   useEffect(() => {
     async function fetchMaterials() {
       const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        API +
+          `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
       );
       if (!res) return;
 
@@ -241,7 +241,8 @@ export function Balance() {
   useEffect(() => {
     async function fetchMaterials() {
       const res = await fetch(
-        `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+        API +
+          `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
       );
       if (!res) return;
 

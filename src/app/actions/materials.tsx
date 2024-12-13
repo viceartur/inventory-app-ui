@@ -1,5 +1,7 @@
 "use server";
 
+import { API } from "app/utils/constants";
+
 export async function sendMaterial(prevState: any, formData: FormData) {
   const material = {
     customerId: formData.get("customerId"),
@@ -15,16 +17,13 @@ export async function sendMaterial(prevState: any, formData: FormData) {
   };
 
   try {
-    const res = await fetch(
-      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/incoming_materials`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(material),
-      }
-    );
+    const res = await fetch(`${API}/incoming_materials`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(material),
+    });
 
     if (res.status != 200) {
       return { message: res.statusText };
@@ -47,19 +46,17 @@ export async function createMaterial(
   };
 
   try {
-    const res = await fetch(
-      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(incomingMaterial),
-      }
-    );
+    const res = await fetch(`${API}/materials`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(incomingMaterial),
+    });
+    const data = await res.json();
 
     if (res.status != 200) {
-      return { error: "Error: " + res.statusText };
+      return { error: "Error: " + data.message };
     }
     return null;
   } catch (error: any) {
@@ -76,16 +73,13 @@ export async function moveMaterial(materialId: string, formData: FormData) {
   };
 
   try {
-    const res = await fetch(
-      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials/move-to-location`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(material),
-      }
-    );
+    const res = await fetch(`${API}/materials/move-to-location`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(material),
+    });
 
     if (res.status != 200) {
       return { error: "Error: " + res.statusText };
@@ -104,16 +98,13 @@ export async function removeMaterial(materialId: string, formData: FormData) {
   };
 
   try {
-    const res = await fetch(
-      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/materials/remove-from-location`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(material),
-      }
-    );
+    const res = await fetch(`${API}/materials/remove-from-location`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(material),
+    });
 
     if (res.status != 200) {
       return { error: "Error: " + res.statusText };

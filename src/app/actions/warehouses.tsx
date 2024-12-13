@@ -1,5 +1,7 @@
 "use server";
 
+import { API } from "app/utils/constants";
+
 export async function createWarehouse(prevState: any, formData: FormData) {
   const warehouse = {
     warehouseName: formData.get("warehouseName"),
@@ -7,23 +9,20 @@ export async function createWarehouse(prevState: any, formData: FormData) {
   };
 
   try {
-    const res = await fetch(
-      `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/warehouses`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(warehouse),
-      }
-    );
-
-    console.log(res);
+    const res = await fetch(`${API}/warehouses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(warehouse),
+    });
 
     if (res.status != 200) {
       return { message: "Error: " + res.statusText };
     }
-    return { message: `Warehouse "${warehouse.warehouseName}" created` };
+    return {
+      message: `Location "${warehouse.locationName}" attached to the Warehouse "${warehouse.warehouseName}"`,
+    };
   } catch (error: any) {
     return { message: "Error: " + error.message };
   }
