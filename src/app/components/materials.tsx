@@ -206,7 +206,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
     Quantity: "Loading...",
     MinQty: "Loading...",
     MaxQty: "Loading...",
-    Notes: "Loading...",
+    Description: "Loading...",
     IsActive: "Loading...",
     MaterialType: "Loading...",
     Owner: "Loading...",
@@ -301,8 +301,8 @@ export function CreateMaterialForm(props: { materialId: string }) {
             {incomingMaterial.IsActive ? "Yes" : "No"}
           </div>
           <div>
-            <label>Descripion:</label>
-            {incomingMaterial.Notes}
+            <label>Description:</label>
+            {incomingMaterial.Description}
           </div>
         </div>
         <div className="form-line">
@@ -509,6 +509,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
     Quantity: "Loading...",
     MinQty: "Loading...",
     MaxQty: "Loading...",
+    Description: "Loading...",
     Notes: "Loading...",
     IsActive: "Loading...",
     MaterialType: "Loading...",
@@ -591,6 +592,10 @@ export function MoveMaterialForm(props: { materialId: string }) {
             {material.StockID}
           </div>
           <div>
+            <label>Description:</label>
+            {material.Description}
+          </div>
+          <div>
             <label>Current Location:</label>
             {material.LocationName}
           </div>
@@ -607,7 +612,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
             {material.IsActive ? "Yes" : "No"}
           </div>
           <div>
-            <label>Descripion:</label>
+            <label>Notes:</label>
             {material.Notes}
           </div>
           <div>
@@ -717,6 +722,10 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             {material.StockID}
           </div>
           <div>
+            <label>Description:</label>
+            {material.Description}
+          </div>
+          <div>
             <label>Current Location:</label>
             {material.LocationName}
           </div>
@@ -733,7 +742,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             {material.IsActive ? "Yes" : "No"}
           </div>
           <div>
-            <label>Descripion:</label>
+            <label>Notes:</label>
             {material.Notes}
           </div>
           <div>
