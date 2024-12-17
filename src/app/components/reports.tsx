@@ -22,12 +22,22 @@ export function Reports() {
       code: "Loading...",
     },
   ]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState([
+    {
+      id: "",
+      name: "Loading...",
+      code: "Loading...",
+    },
+  ]);
 
   useEffect(() => {
     async function fetchCustomers() {
       const res = await fetch(`${API}/customers`);
       const data = await res.json();
-      if (!data?.length) setSelectCustomers([]);
+      if (!data?.length) {
+        setSelectCustomers([]);
+        return;
+      }
 
       const customers = data.map((customer: any) => ({
         id: customer.ID,
@@ -36,6 +46,23 @@ export function Reports() {
       setSelectCustomers(customers);
     }
     fetchCustomers();
+  }, []);
+
+  useEffect(() => {
+    async function fetchMaterialTypes() {
+      const res = await fetch(`${API}/material_types`);
+      if (!res) return;
+
+      const data = await res.json();
+      if (!data?.length) return;
+
+      const types = data.map((type: any, i: number) => ({
+        id: ++i,
+        name: type,
+      }));
+      setSelectMaterialTypes([{ id: 0, name: "" }, ...types]);
+    }
+    fetchMaterialTypes();
   }, []);
 
   function onChangeForm(event: FormEvent<HTMLFormElement>) {
@@ -79,7 +106,13 @@ export function Reports() {
         </div>
         <div className="form-line">
           <label>Material Type:</label>
-          <input type="text" name="materialType" placeholder="Material Type" />
+          <select name="materialType" required>
+            {selectMaterialTypes.map((type) => (
+              <option key={type.id} value={type.name}>
+                {type.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="form-line">
           <label>Date From:</label>
@@ -251,6 +284,7 @@ export function Balance() {
 
       const transactions = data.map((material: any) => ({
         stockId: material.StockID,
+        locationName: material.LocationName,
         materialType: material.MaterialType,
         qty: material.Qty,
         totalValue: material.TotalValue,
@@ -307,8 +341,9 @@ export function Balance() {
         <thead>
           <tr>
             <th>Stock ID</th>
+            <th>Location</th>
             <th>Material Type</th>
-            <th>Quantity (+/-)</th>
+            <th>Quantity</th>
             <th>Total Value, USD</th>
           </tr>
         </thead>
@@ -316,6 +351,7 @@ export function Balance() {
           {transactions.map((material: any, i) => (
             <tr key={i}>
               <td>{material.stockId}</td>
+              <td>{material.locationName}</td>
               <td>{material.materialType}</td>
               <td>{material.qty}</td>
               <td>{material.totalValue}</td>

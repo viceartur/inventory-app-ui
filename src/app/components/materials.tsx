@@ -33,7 +33,10 @@ export function SendMaterialForm() {
     async function fetchCustomers() {
       const res = await fetch(`${API}/customers`);
       const data = await res.json();
-      if (!data?.length) setSelectCustomers([]);
+      if (!data?.length) {
+        setSelectCustomers([]);
+        return;
+      }
 
       const customers = data.map((customer: any) => ({
         id: customer.ID,
