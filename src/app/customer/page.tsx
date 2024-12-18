@@ -1,4 +1,4 @@
-import { CustomerForm } from "app/components/customers";
+import { CustomerForm } from "../../components/customers";
 
 export default async function CustomerPage() {
   return <CustomerForm />;

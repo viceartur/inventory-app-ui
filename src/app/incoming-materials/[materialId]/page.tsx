@@ -1,4 +1,4 @@
-import { CreateMaterialForm } from "app/components/materials";
+import { CreateMaterialForm } from "../../../components/materials";
 
 export default async function IncomingMaterialPage(props: any) {
   const { materialId } = await props.params;

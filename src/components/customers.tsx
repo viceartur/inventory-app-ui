@@ -1,7 +1,7 @@
 "use client";
-import { SubmitButton } from "app/ui/submit-button";
-import { createCustomer } from "../actions/customers";
+import { SubmitButton } from "ui/submit-button";
 import { useActionState } from "react";
+import { createCustomer } from "actions/customers";
 
 const initialState = {
   message: "",

@@ -1,4 +1,4 @@
-import { WarehouseForm } from "app/components/warehouses";
+import { WarehouseForm } from "../../components/warehouses";
 
 export default async function CustomerPage() {
   return <WarehouseForm />;

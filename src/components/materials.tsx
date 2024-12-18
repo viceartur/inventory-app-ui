@@ -2,14 +2,14 @@
 import { FormEvent, useActionState, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 
-import { SubmitButton } from "app/ui/submit-button";
+import { SubmitButton } from "ui/submit-button";
 import {
   createMaterial,
   moveMaterial,
   removeMaterial,
   sendMaterial,
 } from "../actions/materials";
-import { API } from "app/utils/constants";
+import { API } from "utils/constants";
 
 const initialFormState = {
   message: "",

@@ -1,4 +1,4 @@
-import { IncomingMaterials } from "app/components/materials";
+import { IncomingMaterials } from "../../components/materials";
 
 export default async function IncomingMaterialsPage() {
   return <IncomingMaterials />;

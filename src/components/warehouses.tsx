@@ -1,5 +1,5 @@
 "use client";
-import { SubmitButton } from "app/ui/submit-button";
+import { SubmitButton } from "ui/submit-button";
 import { createWarehouse } from "../actions/warehouses";
 import { useActionState } from "react";
 

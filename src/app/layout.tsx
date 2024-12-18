@@ -1,4 +1,4 @@
-import { NavLinks } from "./components/nav-links";
+import { NavLinks } from "../components/nav-links";
 import "./globals.css";
 
 export const metadata = {

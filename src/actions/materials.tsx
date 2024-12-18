@@ -1,6 +1,6 @@
 "use server";
 
-import { API } from "app/utils/constants";
+import { API } from "utils/constants";
 
 export async function sendMaterial(prevState: any, formData: FormData) {
   const material = {
