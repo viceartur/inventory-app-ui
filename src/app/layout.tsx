@@ -1,3 +1,4 @@
+import { SessionProvider } from "next-auth/react";
 import { NavLinks } from "../components/nav-links";
 import "./globals.css";
 
@@ -10,8 +11,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <NavLinks />
-        {children}
+        <SessionProvider>
+          <NavLinks />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
