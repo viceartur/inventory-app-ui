@@ -459,20 +459,20 @@ export function Materials() {
       <h2>Inventory List: {filteredItems.length} items</h2>
       <div className="material_list">
         <div className="list_header">
-          <p>Customer</p>
           <p>Stock ID</p>
-          <p>Quantity</p>
-          <p>Location</p>
+          <p>Description</p>
           <p>Owner</p>
+          <p>Location</p>
+          <p>Quantity</p>
           <p>Action Buttons</p>
         </div>
         {filteredItems.map((material: any, i) => (
           <div className="material_list-item" key={i}>
-            <p>{material.customerName}</p>
             <p>{material.stockId}</p>
-            <p>{material.qty}</p>
-            <p>{material.locationName}</p>
+            <p>{material.description}</p>
             <p>{material.owner}</p>
+            <p>{material.locationName}</p>
+            <p>{material.qty}</p>
             <button
               disabled={material.qty == 0}
               onClick={() =>
