@@ -190,7 +190,7 @@ button {
 
 /* Reports */
 table {
-  width: 70rem;
+  width: auto;
   border-collapse: collapse;
   margin: 0;
 

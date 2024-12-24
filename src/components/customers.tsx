@@ -1,7 +1,8 @@
 "use client";
 import { SubmitButton } from "ui/submit-button";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createCustomer } from "actions/customers";
+import { API } from "utils/constants";
 
 const initialState = {
   message: "",
@@ -34,6 +35,51 @@ export function CustomerForm() {
         <p className="submit-message">{state?.message}</p>
         <SubmitButton title="Add Customer" />
       </form>
+    </section>
+  );
+}
+
+export function Customers() {
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    async function fetchCustomers() {
+      const res = await fetch(`${API}/customers`);
+      const data = await res.json();
+      if (!data?.length) {
+        setCustomers([]);
+        return;
+      }
+
+      const customers = data.map((customer: any) => ({
+        id: customer.ID,
+        name: customer.Name,
+        code: customer.Code,
+      }));
+      setCustomers(customers);
+    }
+    fetchCustomers();
+  }, []);
+
+  return (
+    <section>
+      <h2>Current Customer List: {customers.length}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Customer Code</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((customer: any, i) => (
+            <tr key={i}>
+              <td>{customer.name}</td>
+              <td>{customer.code}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

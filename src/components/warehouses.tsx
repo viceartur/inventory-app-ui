@@ -67,3 +67,48 @@ export function WarehouseForm() {
     </section>
   );
 }
+
+export function Locations() {
+  const [locations, setLocations] = useState([]);
+
+  useEffect(() => {
+    async function fetchLocations() {
+      const res = await fetch(`${API}/locations`);
+      const data = await res.json();
+      if (!data?.length) {
+        setLocations([]);
+        return;
+      }
+
+      const locations = data.map((location: any) => ({
+        id: location.ID,
+        locationName: location.Name,
+        warehouseName: location.WarehouseName,
+      }));
+      setLocations(locations);
+    }
+    fetchLocations();
+  }, []);
+
+  return (
+    <section>
+      <h2>Current Locations List: {locations.length}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Location Name</th>
+            <th>Warehouse Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {locations.map((location: any, i) => (
+            <tr key={i}>
+              <td>{location.locationName}</td>
+              <td>{location.warehouseName}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}

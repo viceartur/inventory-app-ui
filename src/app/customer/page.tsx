@@ -1,5 +1,10 @@
-import { CustomerForm } from "../../components/customers";
+import { CustomerForm, Customers } from "../../components/customers";
 
 export default async function CustomerPage() {
-  return <CustomerForm />;
+  return (
+    <>
+      <CustomerForm />
+      <Customers />
+    </>
+  );
 }

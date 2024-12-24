@@ -1,5 +1,10 @@
-import { WarehouseForm } from "../../components/warehouses";
+import { WarehouseForm, Locations } from "../../components/warehouses";
 
-export default async function CustomerPage() {
-  return <WarehouseForm />;
+export default async function WarehousePage() {
+  return (
+    <>
+      <WarehouseForm />
+      <Locations />
+    </>
+  );
 }
