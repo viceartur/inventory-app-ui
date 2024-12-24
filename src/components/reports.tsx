@@ -17,16 +17,16 @@ export function Reports() {
   });
   const [selectCustomers, setSelectCustomers] = useState([
     {
-      id: "",
-      name: "Loading...",
-      code: "Loading...",
+      id: 0,
+      name: "all",
+      code: "",
     },
   ]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([
     {
-      id: "",
-      name: "Loading...",
-      code: "Loading...",
+      id: 0,
+      name: "all",
+      code: "",
     },
   ]);
 
@@ -43,7 +43,7 @@ export function Reports() {
         id: customer.ID,
         name: customer.Name,
       }));
-      setSelectCustomers(customers);
+      setSelectCustomers([...selectCustomers, ...customers]);
     }
     fetchCustomers();
   }, []);
@@ -60,7 +60,7 @@ export function Reports() {
         id: ++i,
         name: type,
       }));
-      setSelectMaterialTypes([{ id: 0, name: "" }, ...types]);
+      setSelectMaterialTypes([...selectMaterialTypes, ...types]);
     }
     fetchMaterialTypes();
   }, []);
@@ -149,7 +149,7 @@ export function Reports() {
             }}
           >
             Get Balance Report
-          </button>{" "}
+          </button>
         </div>
       </form>
     </section>

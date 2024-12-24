@@ -9,7 +9,9 @@ const initialState = {
 };
 
 export function WarehouseForm() {
-  const [warehouses, setWarehouses] = useState([]);
+  const [warehouses, setWarehouses] = useState([
+    { warehouseId: 0, warehouseName: "" },
+  ]);
   const [state, formAction] = useActionState(createWarehouse, initialState);
 
   useEffect(() => {
@@ -37,7 +39,13 @@ export function WarehouseForm() {
       <form action={formAction}>
         <div className="form-line">
           <label>Warehouse Name:</label>
-          <input list="warehouses" name="warehouseName" />
+          <input
+            list="warehouses"
+            name="warehouseName"
+            placeholder="Warehouse Name"
+            defaultValue={warehouses[0].warehouseName}
+            key={warehouses[0].warehouseName}
+          />
           <datalist id="warehouses">
             {warehouses.map((w: any, i: number) => (
               <option key={i} value={w.warehouseName} />
