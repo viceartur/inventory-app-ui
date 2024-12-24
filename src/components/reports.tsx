@@ -18,14 +18,14 @@ export function Reports() {
   const [selectCustomers, setSelectCustomers] = useState([
     {
       id: 0,
-      name: "all",
+      name: "",
       code: "",
     },
   ]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([
     {
       id: 0,
-      name: "all",
+      name: "",
       code: "",
     },
   ]);
