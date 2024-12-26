@@ -269,7 +269,8 @@ export function Balance() {
   const customerId = searchParams.get("customerId");
   const materialType = searchParams.get("materialType");
   const dateAsOf = searchParams.get("dateAsOf");
-  const [transactions, setTransaction] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [totalValue, setTotalValue] = useState(0);
 
   useEffect(() => {
     async function fetchMaterials() {
@@ -290,7 +291,12 @@ export function Balance() {
         totalValue: material.TotalValue,
       }));
 
-      setTransaction(transactions);
+      const totalValue = transactions.reduce((acc: number, t: any) => {
+        return acc + +t.totalValue.slice(1).replace(",", "");
+      }, 0);
+
+      setTransactions(transactions);
+      setTotalValue(totalValue);
     }
 
     fetchMaterials();
@@ -336,7 +342,7 @@ export function Balance() {
         <button onClick={() => redirect("/reports")}>Back to Reports</button>
         <button onClick={onClickDownload}>Download this Report</button>
       </div>
-      <h2>Balance Report</h2>
+      <h2>Balance Report: ${totalValue}</h2>
       <table>
         <thead>
           <tr>
