@@ -291,9 +291,11 @@ export function Balance() {
         totalValue: material.TotalValue,
       }));
 
-      const totalValue = transactions.reduce((acc: number, t: any) => {
-        return acc + +t.totalValue.slice(1).replace(",", "");
-      }, 0);
+      const totalValue = transactions
+        .reduce((acc: number, t: any) => {
+          return acc + +t.totalValue.slice(1).replace(",", "");
+        }, 0)
+        .toFixed(2);
 
       setTransactions(transactions);
       setTotalValue(totalValue);
