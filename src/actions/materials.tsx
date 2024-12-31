@@ -69,7 +69,6 @@ export async function moveMaterial(materialId: string, formData: FormData) {
     materialId,
     quantity: formData.get("quantity"),
     locationId: formData.get("locationId"),
-    notes: formData.get("notes"),
   };
 
   try {
