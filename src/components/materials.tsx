@@ -826,9 +826,10 @@ export function ImportData() {
         const workbook = XLSX.read(data, { type: "binary" });
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData: any = XLSX.utils.sheet_to_json(firstSheet);
-        jsonData.forEach(
-          (d: any) => (d["Stock ID"] = d["Stock ID"].toString())
-        );
+        jsonData.forEach((d: any) => {
+          d["Stock ID"] = d["Stock ID"].toString();
+          d["Customer Code"] = d["Customer Code"].toString();
+        });
         setDataToImport(jsonData);
       };
       reader.readAsBinaryString(file);
