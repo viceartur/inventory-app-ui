@@ -349,6 +349,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
 export function Materials() {
   const [materialsList, setMaterialsList] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
+  const [valuesOn, setValuesOn] = useState(false);
 
   useEffect(() => {
     async function fetchMaterials() {
@@ -410,10 +411,10 @@ export function Materials() {
 
     const formData = new FormData(event.currentTarget);
     const stockId = formData.get("stockId");
-    const customerName = formData.get("customerName");
+    const description = formData.get("description");
     const locationName = formData.get("locationName");
 
-    if (!stockId && !customerName && !locationName) {
+    if (!stockId && !description && !locationName) {
       setFilteredItems(materialsList);
       return;
     }
@@ -428,10 +429,10 @@ export function Materials() {
         if (!found) return found;
       }
 
-      if (customerName) {
-        found = material.customerName
+      if (description) {
+        found = material.description
           .toLowerCase()
-          .includes(customerName?.toString().toLowerCase());
+          .includes(description?.toString().toLowerCase());
         if (!found) return found;
       }
 
@@ -453,11 +454,23 @@ export function Materials() {
       <h2>Filter Options</h2>
       <form className="filter" onSubmit={onFilterSubmit}>
         <input type="text" name="stockId" placeholder="Stock ID" />
-        <input type="text" name="customerName" placeholder="Customer Name" />
+        <input type="text" name="description" placeholder="Description" />
         <input type="text" name="locationName" placeholder="Location Name" />
         <SubmitButton title="Filter Items" />
       </form>
-      <h2>Inventory List: {filteredItems.length} items</h2>
+      <h2>Inventory List</h2>
+      <button onClick={() => setValuesOn(!valuesOn)}>Show Info</button>
+      {valuesOn ? (
+        <div>
+          <p>Total items: {filteredItems.length}</p>
+          <p>
+            Total quantity:{" "}
+            {filteredItems.reduce((sum, item: any) => (sum += item.qty), 0)}
+          </p>
+        </div>
+      ) : (
+        ""
+      )}
       <div className="material_list">
         <div className="list_header">
           <p>Stock ID</p>

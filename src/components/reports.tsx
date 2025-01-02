@@ -5,11 +5,12 @@ import { useState, useEffect, FormEvent } from "react";
 
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
-import { API } from "utils/constants";
+import { API, ownerTypes } from "utils/constants";
 
 export function Reports() {
   const [searchParams, setSearchParams] = useState({
     customerId: "",
+    owner: "",
     materialType: "",
     dateFrom: "",
     dateTo: "",
@@ -70,6 +71,7 @@ export function Reports() {
 
     const formData = new FormData(event.currentTarget);
     const customerId = formData.get("customerId")?.toString();
+    const owner = formData.get("owner")?.toString();
     const materialType = formData.get("materialType")?.toString();
     const dateFrom = formData.get("dateFrom")?.toString();
     const dateTo = formData.get("dateTo")?.toString();
@@ -77,6 +79,7 @@ export function Reports() {
 
     setSearchParams({
       customerId: customerId ? customerId : "",
+      owner: owner ? owner : "",
       materialType: materialType ? materialType : "",
       dateFrom: dateFrom ? dateFrom : "",
       dateTo: dateTo ? dateTo : "",
@@ -115,6 +118,16 @@ export function Reports() {
           </select>
         </div>
         <div className="form-line">
+          <label>Owner:</label>
+          <select name="owner" required>
+            {ownerTypes.map((type, i) => (
+              <option key={i} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
           <label>Date From:</label>
           <input type="date" name="dateFrom" />
         </div>
@@ -130,10 +143,10 @@ export function Reports() {
           <button
             type="button"
             onClick={() => {
-              const { customerId, materialType, dateFrom, dateTo } =
+              const { customerId, owner, materialType, dateFrom, dateTo } =
                 searchParams;
               redirect(
-                `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+                `/reports/transactions?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
               );
             }}
           >
@@ -142,9 +155,10 @@ export function Reports() {
           <button
             type="button"
             onClick={() => {
-              const { customerId, materialType, dateAsOf } = searchParams;
+              const { customerId, owner, materialType, dateAsOf } =
+                searchParams;
               redirect(
-                `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+                `/reports/balance?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateAsOf=${dateAsOf}`
               );
             }}
           >
@@ -159,6 +173,7 @@ export function Reports() {
 export function Transactions() {
   const searchParams = useSearchParams();
   const customerId = searchParams.get("customerId");
+  const owner = searchParams.get("owner");
   const materialType = searchParams.get("materialType");
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
@@ -169,7 +184,7 @@ export function Transactions() {
     async function fetchMaterials() {
       const res = await fetch(
         API +
-          `/reports/transactions?customerId=${customerId}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+          `/reports/transactions?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
       );
       if (!res) return;
 
@@ -267,6 +282,7 @@ export function Transactions() {
 export function Balance() {
   const searchParams = useSearchParams();
   const customerId = searchParams.get("customerId");
+  const owner = searchParams.get("owner");
   const materialType = searchParams.get("materialType");
   const dateAsOf = searchParams.get("dateAsOf");
   const [transactions, setTransactions] = useState([]);
@@ -276,7 +292,7 @@ export function Balance() {
     async function fetchMaterials() {
       const res = await fetch(
         API +
-          `/reports/balance?customerId=${customerId}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+          `/reports/balance?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateAsOf=${dateAsOf}`
       );
       if (!res) return;
 
@@ -285,7 +301,6 @@ export function Balance() {
 
       const transactions = data.map((material: any) => ({
         stockId: material.StockID,
-        locationName: material.LocationName,
         materialType: material.MaterialType,
         qty: material.Qty,
         totalValue: material.TotalValue,
@@ -349,7 +364,6 @@ export function Balance() {
         <thead>
           <tr>
             <th>Stock ID</th>
-            <th>Location</th>
             <th>Material Type</th>
             <th>Quantity</th>
             <th>Total Value, USD</th>
@@ -359,7 +373,6 @@ export function Balance() {
           {transactions.map((material: any, i) => (
             <tr key={i}>
               <td>{material.stockId}</td>
-              <td>{material.locationName}</td>
               <td>{material.materialType}</td>
               <td>{material.qty}</td>
               <td>{material.totalValue}</td>
