@@ -46,6 +46,12 @@ export function NavLinks() {
       >
         Reports
       </Link>
+      <Link
+        className={`link ${pathname === "/import_data" ? "active" : ""}`}
+        href="/import_data"
+      >
+        Import Data
+      </Link>
     </nav>
   );
 }

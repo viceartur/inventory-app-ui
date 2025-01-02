@@ -1,6 +1,7 @@
 "use client";
 import { FormEvent, useActionState, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
+import * as XLSX from "xlsx";
 
 import { SubmitButton } from "ui/submit-button";
 import {
@@ -775,6 +776,105 @@ export function RemoveMaterialForm(props: { materialId: string }) {
           </button>
           <SubmitButton title="Use Material" />
         </div>
+      </form>
+    </section>
+  );
+}
+
+export function ImportData() {
+  const [response, setResponse] = useState({
+    message: "",
+    data: {
+      Records: 0,
+      Imported_Records: 0,
+      Not_Imported_Records: 0,
+      Not_Imported_Data: [],
+    },
+  });
+  const [dataToImport, setDataToImport] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFileChange = (e: any) => {
+    setResponse({
+      message: "",
+      data: {
+        Records: 0,
+        Imported_Records: 0,
+        Not_Imported_Records: 0,
+        Not_Imported_Data: [],
+      },
+    });
+
+    const file = e.target.files[0];
+    if (file && file.name.endsWith(".xlsx")) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        const data = event.target.result;
+        const workbook = XLSX.read(data, { type: "binary" });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData: any = XLSX.utils.sheet_to_json(firstSheet);
+        jsonData.forEach(
+          (d: any) => (d["Stock ID"] = d["Stock ID"].toString())
+        );
+        setDataToImport(jsonData);
+      };
+      reader.readAsBinaryString(file);
+    } else {
+      alert("Please upload a valid .xlsx file.");
+    }
+  };
+
+  const handleSumbit = async (e: any) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      const body = JSON.stringify({ data: dataToImport });
+      const res: any = await fetch(`${API}/import_data`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+      const dataResult = await res.json();
+      setResponse(dataResult);
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+      alert("Server Error: " + error.message);
+    }
+  };
+
+  return (
+    <section>
+      <h2>Upload Excel File</h2>
+      <form onSubmit={handleSumbit}>
+        <div className="form-info">
+          <p className="submit-message">
+            This action will DELETE all previous data!!!
+          </p>
+          <p>Keep a backup xlsx file with the actual data before importing</p>
+        </div>
+        <input type="file" accept=".xlsx" onChange={handleFileChange} />
+        <p className="submit-message">{response?.message}</p>
+        {response?.message ? (
+          <div>
+            <p>Total Uploaded: {response?.data.Records}</p>
+            <p>Imported: {response?.data.Imported_Records}</p>
+            <p>Not Imported: {response?.data.Not_Imported_Records}</p>
+            <p className="submit-message">Errors:</p>
+            {response?.data.Not_Imported_Data.map((record: any, i: number) => (
+              <div key={i}>
+                <p>StockID: {record.StockID}</p>
+                <p>Error: {record.ERR_REASON}</p>
+                <br />
+              </div>
+            ))}
+          </div>
+        ) : (
+          ""
+        )}
+        <SubmitButton title={isLoading ? "Importing..." : "Import Data"} />
       </form>
     </section>
   );
