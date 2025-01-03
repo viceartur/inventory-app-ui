@@ -10,6 +10,7 @@ import { API, ownerTypes } from "utils/constants";
 export function Reports() {
   const [searchParams, setSearchParams] = useState({
     customerId: "",
+    customerName: "",
     owner: "",
     materialType: "",
     dateFrom: "",
@@ -66,11 +67,14 @@ export function Reports() {
     fetchMaterialTypes();
   }, []);
 
-  function onChangeForm(event: FormEvent<HTMLFormElement>) {
+  const onChangeForm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const customerId = formData.get("customerId")?.toString();
+    const customer = formData.get("customer")?.toString();
+    const customerArr = customer?.split("%");
+    const customerId = customerArr ? customerArr[0] : "";
+    const customerName = customerArr ? customerArr[1] : "";
     const owner = formData.get("owner")?.toString();
     const materialType = formData.get("materialType")?.toString();
     const dateFrom = formData.get("dateFrom")?.toString();
@@ -79,29 +83,46 @@ export function Reports() {
 
     setSearchParams({
       customerId: customerId ? customerId : "",
+      customerName: customerName ? customerName : "",
       owner: owner ? owner : "",
       materialType: materialType ? materialType : "",
       dateFrom: dateFrom ? dateFrom : "",
       dateTo: dateTo ? dateTo : "",
       dateAsOf: dateAsOf ? dateAsOf : "",
     });
-  }
+  };
+
+  const handleTransactionsRedirect = () => {
+    const { customerId, customerName, owner, materialType, dateFrom, dateTo } =
+      searchParams;
+    redirect(
+      `/reports/transactions?customerId=${customerId}&customerName=${customerName}&owner=${owner}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+    );
+  };
+
+  const handleBalanceRedirect = () => {
+    const { customerId, customerName, owner, materialType, dateAsOf } =
+      searchParams;
+    redirect(
+      `/reports/balance?customerId=${customerId}&customerName=${customerName}&owner=${owner}&materialType=${materialType}&dateAsOf=${dateAsOf}`
+    );
+  };
 
   return (
     <section>
       <h2>Financial Reports Page</h2>
       <form onChange={onChangeForm}>
         <div className="form-info">
-          <h3>Transaction Report</h3>
+          <h3>Transaction Report (T)</h3>
           <p>Shows the transactions and its cost (Date From/To)</p>
-          <h3>Balance Report</h3>
+          <h3>Balance Report (B)</h3>
           <p>Shows total cost for the current date (Date As Of)</p>
         </div>
         <div className="form-line">
           <label>Customer:</label>
-          <select name="customerId" required>
+          <select name="customer" required>
             {selectCustomers.map((customer, i) => (
-              <option key={i} value={customer.id}>
+              <option key={i} value={`${customer.id}%${customer.name}`}>
                 {customer.name}
               </option>
             ))}
@@ -128,40 +149,22 @@ export function Reports() {
           </select>
         </div>
         <div className="form-line">
-          <label>Date From:</label>
+          <label>(T) Date From:</label>
           <input type="date" name="dateFrom" />
         </div>
         <div className="form-line">
-          <label>Date To:</label>
+          <label>(T) Date To:</label>
           <input type="date" name="dateTo" />
         </div>
         <div className="form-line">
-          <label>Date As Of:</label>
+          <label>(B) Date As Of:</label>
           <input type="date" name="dateAsOf" />
         </div>
         <div>
-          <button
-            type="button"
-            onClick={() => {
-              const { customerId, owner, materialType, dateFrom, dateTo } =
-                searchParams;
-              redirect(
-                `/reports/transactions?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
-              );
-            }}
-          >
+          <button type="button" onClick={handleTransactionsRedirect}>
             Get Transactions Report
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              const { customerId, owner, materialType, dateAsOf } =
-                searchParams;
-              redirect(
-                `/reports/balance?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateAsOf=${dateAsOf}`
-              );
-            }}
-          >
+          <button type="button" onClick={handleBalanceRedirect}>
             Get Balance Report
           </button>
         </div>
@@ -173,6 +176,7 @@ export function Reports() {
 export function Transactions() {
   const searchParams = useSearchParams();
   const customerId = searchParams.get("customerId");
+  const customerName = searchParams.get("customerName");
   const owner = searchParams.get("owner");
   const materialType = searchParams.get("materialType");
   const dateFrom = searchParams.get("dateFrom");
@@ -241,7 +245,12 @@ export function Transactions() {
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(blob, `transaction_report_${new Date().toLocaleDateString()}.xlsx`);
+    saveAs(
+      blob,
+      `${
+        customerName || "general"
+      }_transaction_report_${new Date().toLocaleDateString()}.xlsx`
+    );
   };
 
   return (
@@ -250,7 +259,7 @@ export function Transactions() {
         <button onClick={() => redirect("/reports")}>Back to Reports</button>
         <button onClick={onClickDownload}>Download this Report</button>
       </div>
-      <h2>Transaction Report</h2>
+      <h2>{customerName || "General"} Transaction Report</h2>
       <table>
         <thead>
           <tr>
@@ -267,7 +276,7 @@ export function Transactions() {
             <tr key={i}>
               <td>{material.stockId}</td>
               <td>{material.materialType}</td>
-              <td>{material.qty}</td>
+              <td>{new Intl.NumberFormat("en-US").format(material.qty)}</td>
               <td>{material.unitCost}</td>
               <td>{material.cost}</td>
               <td>{material.date}</td>
@@ -282,6 +291,7 @@ export function Transactions() {
 export function Balance() {
   const searchParams = useSearchParams();
   const customerId = searchParams.get("customerId");
+  const customerName = searchParams.get("customerName");
   const owner = searchParams.get("owner");
   const materialType = searchParams.get("materialType");
   const dateAsOf = searchParams.get("dateAsOf");
@@ -350,7 +360,12 @@ export function Balance() {
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(blob, `balance_report_${new Date().toLocaleDateString()}.xlsx`);
+    saveAs(
+      blob,
+      `${
+        customerName || "general"
+      }_balance_report_${new Date().toLocaleDateString()}.xlsx`
+    );
   };
 
   return (
@@ -359,7 +374,11 @@ export function Balance() {
         <button onClick={() => redirect("/reports")}>Back to Reports</button>
         <button onClick={onClickDownload}>Download this Report</button>
       </div>
-      <h2>Balance Report: ${totalValue}</h2>
+      <h2>
+        {customerName || "General"} Balance Report: $
+        {new Intl.NumberFormat("en-US").format(totalValue)}
+      </h2>
+      {dateAsOf ? <h2>As of {dateAsOf}</h2> : ""}
       <table>
         <thead>
           <tr>
@@ -374,7 +393,7 @@ export function Balance() {
             <tr key={i}>
               <td>{material.stockId}</td>
               <td>{material.materialType}</td>
-              <td>{material.qty}</td>
+              <td>{new Intl.NumberFormat("en-US").format(material.qty)}</td>
               <td>{material.totalValue}</td>
             </tr>
           ))}

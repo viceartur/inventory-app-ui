@@ -184,7 +184,7 @@ export function IncomingMaterials() {
                   redirect(`/incoming-materials/${material.shippingId}`)
                 }
               >
-                Accept Material
+                📥
               </button>
             </div>
           ))}
@@ -290,6 +290,10 @@ export function CreateMaterialForm(props: { materialId: string }) {
             {incomingMaterial.StockID}
           </div>
           <div>
+            <label>Description:</label>
+            {incomingMaterial.Description}
+          </div>
+          <div>
             <label>Type: </label>
             {incomingMaterial.MaterialType}
           </div>
@@ -300,10 +304,6 @@ export function CreateMaterialForm(props: { materialId: string }) {
           <div>
             <label>Allow for use:</label>
             {incomingMaterial.IsActive ? "Yes" : "No"}
-          </div>
-          <div>
-            <label>Description:</label>
-            {incomingMaterial.Description}
           </div>
         </div>
         <div className="form-line">
@@ -349,7 +349,6 @@ export function CreateMaterialForm(props: { materialId: string }) {
 export function Materials() {
   const [materialsList, setMaterialsList] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
-  const [valuesOn, setValuesOn] = useState(false);
 
   useEffect(() => {
     async function fetchMaterials() {
@@ -451,34 +450,28 @@ export function Materials() {
 
   return (
     <section>
-      <h2>Filter Options</h2>
-      <form className="filter" onSubmit={onFilterSubmit}>
-        <input type="text" name="stockId" placeholder="Stock ID" />
-        <input type="text" name="description" placeholder="Description" />
-        <input type="text" name="locationName" placeholder="Location Name" />
-        <SubmitButton title="Filter Items" />
-      </form>
       <h2>Inventory List</h2>
-      <button onClick={() => setValuesOn(!valuesOn)}>Show Info</button>
-      {valuesOn ? (
+      <form className="filter" onSubmit={onFilterSubmit}>
         <div>
-          <p>Total items: {filteredItems.length}</p>
-          <p>
-            Total quantity:{" "}
-            {filteredItems.reduce((sum, item: any) => (sum += item.qty), 0)}
-          </p>
+          <input type="text" name="stockId" placeholder="Stock ID" />
+          <input type="text" name="description" placeholder="Description" />
+          <input type="text" name="locationName" placeholder="Location Name" />
+          <SubmitButton title="🔍" />
         </div>
-      ) : (
-        ""
-      )}
+      </form>
       <div className="material_list">
         <div className="list_header">
-          <p>Stock ID</p>
+          <p>Stock ID: {filteredItems.length}</p>
           <p>Description</p>
           <p>Owner</p>
           <p>Location</p>
-          <p>Quantity</p>
-          <p>Action Buttons</p>
+          <p>
+            Quantity:{" "}
+            {new Intl.NumberFormat("en-US").format(
+              filteredItems.reduce((sum, item: any) => (sum += item.qty), 0)
+            )}
+          </p>
+          <p>Actions</p>
         </div>
         {filteredItems.map((material: any, i) => (
           <div className="material_list-item" key={i}>
@@ -486,14 +479,14 @@ export function Materials() {
             <p>{material.description}</p>
             <p>{material.owner}</p>
             <p>{material.locationName}</p>
-            <p>{material.qty}</p>
+            <p>{new Intl.NumberFormat("en-US").format(material.qty)}</p>
             <button
               disabled={material.qty == 0}
               onClick={() =>
                 redirect(`/materials/remove-material/${material.materialId}`)
               }
             >
-              Use Material
+              ❌
             </button>
             <button
               disabled={material.qty == 0}
@@ -501,7 +494,7 @@ export function Materials() {
                 redirect(`/materials/move-material/${material.materialId}`)
               }
             >
-              Move Material
+              🔀
             </button>
           </div>
         ))}
