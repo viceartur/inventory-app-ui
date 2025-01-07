@@ -172,7 +172,6 @@ button {
   }
 
   .material_list-item {
-    margin-top: 0.5rem;
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -180,6 +179,15 @@ button {
     padding: 0.6rem;
     background-color: white;
     border-radius: 5px;
+
+    &.primary {
+      border: 2px solid blue;
+      background-color: rgb(203, 211, 255);
+
+      &.primary:hover {
+        background-color: rgb(175, 182, 222);
+      }
+    }
 
     &:hover {
       border: 2px solid rgb(136, 136, 136);

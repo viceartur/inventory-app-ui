@@ -311,6 +311,7 @@ export function Balance() {
 
       const transactions = data.map((material: any) => ({
         stockId: material.StockID,
+        description: material.Description,
         materialType: material.MaterialType,
         qty: material.Qty,
         totalValue: material.TotalValue,
@@ -332,6 +333,7 @@ export function Balance() {
   const onClickDownload = () => {
     const columns = [
       { title: "Stock ID", dataKey: "stockId" },
+      { title: "Description", dataKey: "description" },
       { title: "Material Type", dataKey: "materialType" },
       { title: "Qty", dataKey: "qty" },
       { title: "Total Value", dataKey: "totalValue" },
@@ -339,6 +341,7 @@ export function Balance() {
 
     const data = transactions.map((transaction: any) => ({
       stockId: transaction.stockId,
+      description: transaction.description,
       materialType: transaction.materialType,
       qty: transaction.qty,
       totalValue: transaction.totalValue,
@@ -383,6 +386,7 @@ export function Balance() {
         <thead>
           <tr>
             <th>Stock ID</th>
+            <th>Description</th>
             <th>Material Type</th>
             <th>Quantity</th>
             <th>Total Value, USD</th>
@@ -392,6 +396,7 @@ export function Balance() {
           {transactions.map((material: any, i) => (
             <tr key={i}>
               <td>{material.stockId}</td>
+              <td>{material.description}</td>
               <td>{material.materialType}</td>
               <td>{new Intl.NumberFormat("en-US").format(material.qty)}</td>
               <td>{material.totalValue}</td>

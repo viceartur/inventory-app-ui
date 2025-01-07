@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import { SubmitButton } from "ui/submit-button";
 import {
   createMaterial,
+  fetchMaterials,
   moveMaterial,
   removeMaterial,
   sendMaterial,
@@ -348,157 +349,142 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
 export function Materials() {
   const [materialsList, setMaterialsList] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
-
-  useEffect(() => {
-    async function fetchMaterials() {
-      const res = await fetch(`${API}/materials`);
-      if (!res) return setMaterialsList([]);
-
-      const data = await res.json();
-      if (!data?.length) return setMaterialsList([]);
-
-      const materials = data.map((material: any) => {
-        const {
-          MaterialID,
-          WarehouseName,
-          StockID,
-          CustomerID,
-          CustomerName,
-          LocationID,
-          LocationName,
-          MaterialType,
-          Description,
-          Notes,
-          Quantity,
-          UpdatedAt,
-          IsActive,
-          Cost,
-          MinQty,
-          MaxQty,
-          Owner,
-        } = material;
-
-        return {
-          materialId: MaterialID,
-          warehouseName: WarehouseName,
-          stockId: StockID,
-          customerId: CustomerID,
-          customerName: CustomerName,
-          locationId: LocationID,
-          locationName: LocationName,
-          materialType: MaterialType,
-          description: Description,
-          notes: Notes,
-          qty: Quantity,
-          updatedAt: UpdatedAt,
-          isActive: IsActive,
-          cost: Cost,
-          minQty: MinQty,
-          maxQty: MaxQty,
-          owner: Owner,
-        };
-      });
-      setMaterialsList(materials);
-      setFilteredItems(materials);
-    }
-    fetchMaterials();
-  }, []);
+  const [filterOpts, setFilterOpts] = useState({
+    stockId: "",
+    customerName: "",
+    description: "",
+    locationName: "",
+  });
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const stockId = formData.get("stockId");
-    const description = formData.get("description");
-    const locationName = formData.get("locationName");
-
-    if (!stockId && !description && !locationName) {
-      setFilteredItems(materialsList);
-      return;
-    }
-
-    const filteredMaterials = materialsList.filter((material: any) => {
-      let found = false;
-
-      if (stockId) {
-        found = material.stockId
-          .toLowerCase()
-          .includes(stockId?.toString().toLowerCase());
-        if (!found) return found;
-      }
-
-      if (description) {
-        found = material.description
-          .toLowerCase()
-          .includes(description?.toString().toLowerCase());
-        if (!found) return found;
-      }
-
-      if (locationName) {
-        found = material.locationName
-          .toLowerCase()
-          .includes(locationName?.toString().toLowerCase());
-        if (!found) return found;
-      }
-
-      return found;
-    });
-
-    setFilteredItems(filteredMaterials);
+    const stockId = formData.get("stockId")?.toString() || "";
+    const customerName = formData.get("customerName")?.toString() || "";
+    const description = formData.get("description")?.toString() || "";
+    const locationName = formData.get("locationName")?.toString() || "";
+    const opts = {
+      stockId,
+      customerName,
+      description,
+      locationName,
+    };
+    setFilterOpts(opts);
+    const materials = await fetchMaterials(opts);
+    setMaterialsList(materials);
   }
+
+  const handlePrimaryItem = async (materialId: string) => {
+    const primaryMaterial: any = materialsList.find(
+      (m: any) => m.materialId == materialId
+    );
+    if (primaryMaterial) {
+      const material = {
+        materialId: materialId.toString(),
+        isPrimary: (!primaryMaterial.isPrimary).toString(),
+      };
+
+      await fetch(`${API}/materials`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(material),
+      });
+
+      const materials = await fetchMaterials(filterOpts);
+      setMaterialsList(materials);
+    }
+  };
 
   return (
     <section>
       <h2>Inventory List</h2>
       <form className="filter" onSubmit={onFilterSubmit}>
         <div>
-          <input type="text" name="stockId" placeholder="Stock ID" />
-          <input type="text" name="description" placeholder="Description" />
-          <input type="text" name="locationName" placeholder="Location Name" />
+          <input
+            type="text"
+            name="stockId"
+            placeholder="Stock ID"
+            defaultValue={filterOpts.stockId}
+          />
+          <input
+            type="text"
+            name="customerName"
+            placeholder="Customer Name"
+            defaultValue={filterOpts.customerName}
+          />
+          <input
+            type="text"
+            name="description"
+            placeholder="Description"
+            defaultValue={filterOpts.description}
+          />
+          <input
+            type="text"
+            name="locationName"
+            placeholder="Location Name"
+            defaultValue={filterOpts.locationName}
+          />
           <SubmitButton title="🔍" />
         </div>
       </form>
-      <div className="material_list">
-        <div className="list_header">
-          <p>Stock ID: {filteredItems.length}</p>
-          <p>Description</p>
-          <p>Owner</p>
-          <p>Location</p>
-          <p>
-            Quantity:{" "}
-            {new Intl.NumberFormat("en-US").format(
-              filteredItems.reduce((sum, item: any) => (sum += item.qty), 0)
-            )}
-          </p>
-          <p>Actions</p>
-        </div>
-        {filteredItems.map((material: any, i) => (
-          <div className="material_list-item" key={i}>
-            <p>{material.stockId}</p>
-            <p>{material.description}</p>
-            <p>{material.owner}</p>
-            <p>{material.locationName}</p>
-            <p>{new Intl.NumberFormat("en-US").format(material.qty)}</p>
-            <button
-              disabled={material.qty == 0}
-              onClick={() =>
-                redirect(`/materials/remove-material/${material.materialId}`)
-              }
-            >
-              ❌
-            </button>
-            <button
-              disabled={material.qty == 0}
-              onClick={() =>
-                redirect(`/materials/move-material/${material.materialId}`)
-              }
-            >
-              🔀
-            </button>
+      {!materialsList.length ? (
+        <p>No items yet. Found Materials will be displayed here</p>
+      ) : (
+        <>
+          <h2>Found Materials:</h2>
+          <div className="material_list">
+            <div className="list_header">
+              <p>Stock ID: {materialsList.length}</p>
+              <p>Description</p>
+              <p>Owner</p>
+              <p>Location</p>
+              <p>
+                Quantity:{" "}
+                {new Intl.NumberFormat("en-US").format(
+                  materialsList.reduce((sum, item: any) => (sum += item.qty), 0)
+                )}
+              </p>
+              <p>Actions</p>
+            </div>
+            {materialsList.map((material: any, i) => (
+              <div
+                className={`material_list-item${
+                  material.isPrimary ? " primary" : ""
+                }`}
+                key={i}
+                onDoubleClick={() => handlePrimaryItem(material.materialId)}
+              >
+                <p>{material.stockId}</p>
+                <p>{material.description}</p>
+                <p>{material.owner}</p>
+                <p>{material.locationName}</p>
+                <p>{new Intl.NumberFormat("en-US").format(material.qty)}</p>
+                <button
+                  disabled={material.qty == 0}
+                  onClick={() =>
+                    redirect(
+                      `/materials/remove-material/${material.materialId}`
+                    )
+                  }
+                >
+                  ❌
+                </button>
+                <button
+                  disabled={material.qty == 0}
+                  onClick={() =>
+                    redirect(`/materials/move-material/${material.materialId}`)
+                  }
+                >
+                  🔀
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </section>
   );
 }

@@ -113,3 +113,61 @@ export async function removeMaterial(materialId: string, formData: FormData) {
     return { error: "Error: " + error.message };
   }
 }
+
+export async function fetchMaterials(filterOpts: any) {
+  const { stockId, customerName, description, locationName } = filterOpts;
+
+  const res = await fetch(
+    `${API}/materials?stockId=${stockId}&customerName=${customerName}&description=${description}&locationName=${locationName}`
+  );
+  if (!res) return [];
+
+  const data = await res.json();
+  if (!data?.length) return [];
+
+  const materials = data.map((material: any) => {
+    const {
+      MaterialID,
+      WarehouseName,
+      StockID,
+      CustomerID,
+      CustomerName,
+      LocationID,
+      LocationName,
+      MaterialType,
+      Description,
+      Notes,
+      Quantity,
+      UpdatedAt,
+      IsActive,
+      Cost,
+      MinQty,
+      MaxQty,
+      Owner,
+      IsPrimary,
+    } = material;
+
+    return {
+      materialId: MaterialID,
+      warehouseName: WarehouseName,
+      stockId: StockID,
+      customerId: CustomerID,
+      customerName: CustomerName,
+      locationId: LocationID,
+      locationName: LocationName,
+      materialType: MaterialType,
+      description: Description,
+      notes: Notes,
+      qty: Quantity,
+      updatedAt: UpdatedAt,
+      isActive: IsActive,
+      cost: Cost,
+      minQty: MinQty,
+      maxQty: MaxQty,
+      owner: Owner,
+      isPrimary: IsPrimary,
+    };
+  });
+
+  return materials;
+}
