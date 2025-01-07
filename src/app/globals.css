@@ -228,6 +228,10 @@ table {
     td {
       padding: 0.5rem;
       border: 1px solid black;
+
+      &.negative {
+        color: rgb(255, 0, 0);
+      }
     }
   }
 }

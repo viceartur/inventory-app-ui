@@ -276,7 +276,9 @@ export function Transactions() {
             <tr key={i}>
               <td>{material.stockId}</td>
               <td>{material.materialType}</td>
-              <td>{new Intl.NumberFormat("en-US").format(material.qty)}</td>
+              <td className={material.qty > 0 ? "" : "negative"}>
+                {new Intl.NumberFormat("en-US").format(material.qty)}
+              </td>
               <td>{material.unitCost}</td>
               <td>{material.cost}</td>
               <td>{material.date}</td>
