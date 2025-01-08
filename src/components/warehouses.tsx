@@ -70,6 +70,7 @@ export function WarehouseForm() {
 
 export function Locations() {
   const [locations, setLocations] = useState([]);
+  const [showLocations, setShowLocations] = useState(false);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -92,23 +93,30 @@ export function Locations() {
 
   return (
     <section>
-      <h2>Current Locations List: {locations.length}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Location Name</th>
-            <th>Warehouse Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {locations.map((location: any, i) => (
-            <tr key={i}>
-              <td>{location.locationName}</td>
-              <td>{location.warehouseName}</td>
+      <h2>Current Locations: {locations.length}</h2>
+      <button onClick={() => setShowLocations(!showLocations)}>
+        {showLocations ? "Hide" : "Show"} Locations
+      </button>
+      {showLocations ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Location Name</th>
+              <th>Warehouse Name</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {locations.map((location: any, i) => (
+              <tr key={i}>
+                <td>{location.locationName}</td>
+                <td>{location.warehouseName}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        ""
+      )}
     </section>
   );
 }

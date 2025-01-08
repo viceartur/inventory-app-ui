@@ -41,6 +41,7 @@ export function CustomerForm() {
 
 export function Customers() {
   const [customers, setCustomers] = useState([]);
+  const [showCustomers, setShowCustomers] = useState(false);
 
   useEffect(() => {
     async function fetchCustomers() {
@@ -63,23 +64,30 @@ export function Customers() {
 
   return (
     <section>
-      <h2>Current Customer List: {customers.length}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Customer Name</th>
-            <th>Customer Code</th>
-          </tr>
-        </thead>
-        <tbody>
-          {customers.map((customer: any, i) => (
-            <tr key={i}>
-              <td>{customer.name}</td>
-              <td>{customer.code}</td>
+      <h2>Current Customers: {customers.length}</h2>
+      <button onClick={() => setShowCustomers(!showCustomers)}>
+        {showCustomers ? "Hide" : "Show"} Customers
+      </button>
+      {showCustomers ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Customer Code</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {customers.map((customer: any, i) => (
+              <tr key={i}>
+                <td>{customer.name}</td>
+                <td>{customer.code}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        ""
+      )}
     </section>
   );
 }
