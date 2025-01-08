@@ -79,9 +79,10 @@ export async function moveMaterial(materialId: string, formData: FormData) {
       },
       body: JSON.stringify(material),
     });
+    const data = await res.json();
 
     if (res.status != 200) {
-      return { error: "Error: " + res.statusText };
+      return { error: "Error: " + data.message };
     }
     return null;
   } catch (error: any) {
@@ -104,9 +105,10 @@ export async function removeMaterial(materialId: string, formData: FormData) {
       },
       body: JSON.stringify(material),
     });
+    const data = await res.json();
 
     if (res.status != 200) {
-      return { error: "Error: " + res.statusText };
+      return { error: "Error: " + data.message };
     }
     return null;
   } catch (error: any) {

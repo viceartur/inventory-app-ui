@@ -382,7 +382,7 @@ export function Materials() {
     if (primaryMaterial) {
       const material = {
         materialId: materialId.toString(),
-        isPrimary: (!primaryMaterial.isPrimary).toString(),
+        isPrimary: !primaryMaterial.isPrimary,
       };
 
       await fetch(`${API}/materials`, {
@@ -844,9 +844,10 @@ export function ImportData() {
       <form onSubmit={handleSumbit}>
         <div className="form-info">
           <p className="submit-message">
-            This action will DELETE all previous data!!!
+            This action will UPDATE the Database with new items
           </p>
-          <p>Keep a backup xlsx file with the actual data before importing</p>
+          <p>The items which already exist will not be imported</p>
+          <p>An error message (if applicable) will be displayed below</p>
         </div>
         <input type="file" accept=".xlsx" onChange={handleFileChange} />
         <p className="submit-message">{response?.message}</p>
@@ -867,7 +868,10 @@ export function ImportData() {
         ) : (
           ""
         )}
-        <SubmitButton title={isLoading ? "Importing..." : "Import Data"} />
+        <SubmitButton
+          title={isLoading ? "Importing..." : "Import Data"}
+          disabled={isLoading}
+        />
       </form>
     </section>
   );
