@@ -16,7 +16,6 @@ import {
   uploadMaterials,
 } from "../actions/materials";
 import {
-  API,
   incomingMaterialState,
   initialState,
   materialState,

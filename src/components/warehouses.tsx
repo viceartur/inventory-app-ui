@@ -6,7 +6,7 @@ import {
   fetchLocations,
   fetchWarehouses,
 } from "../actions/warehouses";
-import { API, initialState } from "utils/constants";
+import { initialState } from "utils/constants";
 
 export function WarehouseForm() {
   const [warehouses, setWarehouses] = useState([
