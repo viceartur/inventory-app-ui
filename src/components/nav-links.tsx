@@ -50,7 +50,7 @@ export function NavLinks() {
         className={`link ${pathname === "/import_data" ? "active" : ""}`}
         href="/import_data"
       >
-        Import Data
+        Import Materials
       </Link>
     </nav>
   );

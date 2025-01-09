@@ -1,36 +1,25 @@
 "use client";
 import { useActionState, useEffect, useState } from "react";
 import { SubmitButton } from "ui/submit-button";
-import { createWarehouse } from "../actions/warehouses";
-import { API } from "utils/constants";
-
-const initialState = {
-  message: "",
-};
+import {
+  createWarehouse,
+  fetchLocations,
+  fetchWarehouses,
+} from "../actions/warehouses";
+import { API, initialState } from "utils/constants";
 
 export function WarehouseForm() {
   const [warehouses, setWarehouses] = useState([
-    { warehouseId: 0, warehouseName: "" },
+    { warehouseId: 0, warehouseName: "Loading..." },
   ]);
   const [state, formAction] = useActionState(createWarehouse, initialState);
 
   useEffect(() => {
-    async function fetchMaterials() {
-      const res = await fetch(`${API}/warehouses`);
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const warehouses = data.map((warehouse: any) => ({
-        warehouseId: warehouse.WarehouseID,
-        warehouseName: warehouse.WarehouseName,
-      }));
-
+    const getWarehouses = async () => {
+      const warehouses = await fetchWarehouses();
       setWarehouses(warehouses);
-    }
-
-    fetchMaterials();
+    };
+    getWarehouses();
   }, []);
 
   return (
@@ -73,22 +62,11 @@ export function Locations() {
   const [showLocations, setShowLocations] = useState(false);
 
   useEffect(() => {
-    async function fetchLocations() {
-      const res = await fetch(`${API}/locations`);
-      const data = await res.json();
-      if (!data?.length) {
-        setLocations([]);
-        return;
-      }
-
-      const locations = data.map((location: any) => ({
-        id: location.ID,
-        locationName: location.Name,
-        warehouseName: location.WarehouseName,
-      }));
+    const getLocations = async () => {
+      const locations = await fetchLocations();
       setLocations(locations);
-    }
-    fetchLocations();
+    };
+    getLocations();
   }, []);
 
   return (

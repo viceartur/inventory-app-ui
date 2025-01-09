@@ -6,64 +6,41 @@ import * as XLSX from "xlsx";
 import { SubmitButton } from "ui/submit-button";
 import {
   createMaterial,
+  fetchIncomingMaterials,
   fetchMaterials,
+  fetchMaterialTypes,
   moveMaterial,
   removeMaterial,
   sendMaterial,
+  updateMaterial,
+  uploadMaterials,
 } from "../actions/materials";
-import { API } from "utils/constants";
-
-const initialFormState = {
-  message: "",
-};
-
-const selectState = {
-  id: "",
-  name: "Loading...",
-  code: "Loading...",
-};
+import {
+  API,
+  incomingMaterialState,
+  initialState,
+  materialState,
+  selectState,
+} from "utils/constants";
+import { fetchCustomers } from "actions/customers";
+import { fetchAvailableLocations } from "actions/warehouses";
 
 export function SendMaterialForm() {
   const [state, materialFormAction] = useActionState(
     sendMaterial,
-    initialFormState
+    initialState
   );
   const [selectCustomers, setSelectCustomers] = useState([selectState]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
 
   useEffect(() => {
-    async function fetchCustomers() {
-      const res = await fetch(`${API}/customers`);
-      const data = await res.json();
-      if (!data?.length) {
-        setSelectCustomers([]);
-        return;
-      }
-
-      const customers = data.map((customer: any) => ({
-        id: customer.ID,
-        name: customer.Name,
-      }));
+    const getMaterialInfo = async () => {
+      const customers = await fetchCustomers();
+      const types = await fetchMaterialTypes();
       setSelectCustomers(customers);
-    }
-    fetchCustomers();
-  }, []);
-
-  useEffect(() => {
-    async function fetchMaterialTypes() {
-      const res = await fetch(`${API}/material_types`);
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const types = data.map((type: any, i: number) => ({
-        id: i,
-        name: type,
-      }));
       setSelectMaterialTypes(types);
-    }
-    fetchMaterialTypes();
+    };
+    getMaterialInfo();
   }, []);
 
   return (
@@ -146,22 +123,11 @@ export function IncomingMaterials() {
   const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
 
   useEffect(() => {
-    async function fetchIncomingMaterials() {
-      const res = await fetch(`${API}/incoming_materials`);
-      if (!res) return setIncomingMaterialsList([]);
-
-      const data = await res.json();
-      if (!data?.length) return setIncomingMaterialsList([]);
-
-      const materials = data.map((material: any) => ({
-        shippingId: material.ShippingID,
-        customerName: material.CustomerName,
-        stockId: material.StockID,
-        qty: material.Quantity,
-      }));
+    const getIncomingMaterials = async () => {
+      const materials = await fetchIncomingMaterials();
       setIncomingMaterialsList(materials);
-    }
-    fetchIncomingMaterials();
+    };
+    getIncomingMaterials();
   }, []);
 
   return (
@@ -179,7 +145,7 @@ export function IncomingMaterials() {
             <div className="material_list-item" key={i}>
               <p>{material.customerName}</p>
               <p>{material.stockId}</p>
-              <p>{material.qty}</p>
+              <p>{material.quantity}</p>
               <button
                 onClick={() =>
                   redirect(`/incoming-materials/${material.shippingId}`)
@@ -199,66 +165,23 @@ export function IncomingMaterials() {
 
 export function CreateMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
-  const [incomingMaterial, setIncomingMaterial] = useState({
-    ShippingID: "Loading...",
-    CustomerName: "Loading...",
-    CustomerID: "Loading...",
-    StockID: "stock123",
-    Cost: "Loading...",
-    Quantity: "Loading...",
-    MinQty: "Loading...",
-    MaxQty: "Loading...",
-    Description: "Loading...",
-    IsActive: "Loading...",
-    MaterialType: "Loading...",
-    Owner: "Loading...",
-  });
+  const [incomingMaterial, setIncomingMaterial] = useState(
+    incomingMaterialState
+  );
   const [selectLocations, setSelectLocations] = useState([selectState]);
 
   useEffect(() => {
-    async function fetchIncomingMaterials() {
-      const res = await fetch(`${API}/incoming_materials`);
-      const data = await res.json();
-      if (!data?.length) return;
+    const getMaterialCard = async () => {
+      const [material] = await fetchIncomingMaterials(props.materialId);
+      const stockId = material.stockId;
+      const owner = material.owner;
+      const locations = await fetchAvailableLocations(stockId, owner);
 
-      const material = data.find(
-        (material: any) => material.ShippingID == props.materialId
-      );
-
-      if (material) {
-        setIncomingMaterial(material);
-      }
-    }
-    fetchIncomingMaterials();
-  }, []);
-
-  useEffect(() => {
-    async function fetchLocations() {
-      if (
-        incomingMaterial.StockID == "Loading..." ||
-        incomingMaterial.Owner == "Loading..."
-      )
-        return;
-
-      const res = await fetch(
-        API +
-          `/available_locations?stockId=${incomingMaterial.StockID}&owner=${incomingMaterial.Owner}`
-      );
-      const data = await res.json();
-      if (!data?.length) {
-        setSelectLocations([]);
-        return;
-      }
-
-      const locations = data.map((location: any) => ({
-        id: location.ID,
-        name: location.Name,
-      }));
-
+      setIncomingMaterial(material);
       setSelectLocations(locations);
-    }
-    fetchLocations();
-  }, [incomingMaterial]);
+    };
+    getMaterialCard();
+  }, []);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -284,27 +207,27 @@ export function CreateMaterialForm(props: { materialId: string }) {
           <h3>Information from CSR:</h3>
           <div>
             <label>Customer: </label>
-            {incomingMaterial.CustomerName}
+            {incomingMaterial.customerName}
           </div>
           <div>
             <label>Stock ID: </label>
-            {incomingMaterial.StockID}
+            {incomingMaterial.stockId}
           </div>
           <div>
             <label>Description:</label>
-            {incomingMaterial.Description}
+            {incomingMaterial.description}
           </div>
           <div>
             <label>Type: </label>
-            {incomingMaterial.MaterialType}
+            {incomingMaterial.materialType}
           </div>
           <div>
             <label>Ownership:</label>
-            {incomingMaterial.Owner}
+            {incomingMaterial.owner}
           </div>
           <div>
             <label>Allow for use:</label>
-            {incomingMaterial.IsActive ? "Yes" : "No"}
+            {incomingMaterial.isActive ? "Yes" : "No"}
           </div>
         </div>
         <div className="form-line">
@@ -313,8 +236,8 @@ export function CreateMaterialForm(props: { materialId: string }) {
             type="number"
             name="quantity"
             placeholder="Quantity"
-            key={incomingMaterial.Quantity}
-            defaultValue={incomingMaterial.Quantity}
+            key={incomingMaterial.quantity}
+            defaultValue={incomingMaterial.quantity}
             required
           />
         </div>
@@ -358,7 +281,6 @@ export function Materials() {
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const formData = new FormData(event.currentTarget);
     const stockId = formData.get("stockId")?.toString() || "";
     const customerName = formData.get("customerName")?.toString() || "";
@@ -384,15 +306,7 @@ export function Materials() {
         materialId: materialId.toString(),
         isPrimary: !primaryMaterial.isPrimary,
       };
-
-      await fetch(`${API}/materials`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(material),
-      });
-
+      await updateMaterial(material);
       const materials = await fetchMaterials(filterOpts);
       setMaterialsList(materials);
     }
@@ -444,7 +358,10 @@ export function Materials() {
               <p>
                 Quantity:{" "}
                 {new Intl.NumberFormat("en-US").format(
-                  materialsList.reduce((sum, item: any) => (sum += item.qty), 0)
+                  materialsList.reduce(
+                    (sum, item: any) => (sum += item.quantity),
+                    0
+                  )
                 )}
               </p>
               <p>Actions</p>
@@ -461,9 +378,10 @@ export function Materials() {
                 <p>{material.description}</p>
                 <p>{material.owner}</p>
                 <p>{material.locationName}</p>
-                <p>{new Intl.NumberFormat("en-US").format(material.qty)}</p>
+                <p>
+                  {new Intl.NumberFormat("en-US").format(material.quantity)}
+                </p>
                 <button
-                  disabled={material.qty == 0}
                   onClick={() =>
                     redirect(
                       `/materials/remove-material/${material.materialId}`
@@ -473,7 +391,6 @@ export function Materials() {
                   ❌
                 </button>
                 <button
-                  disabled={material.qty == 0}
                   onClick={() =>
                     redirect(`/materials/move-material/${material.materialId}`)
                   }
@@ -491,74 +408,25 @@ export function Materials() {
 
 export function MoveMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
-  const [material, setMaterial] = useState({
-    MaterialID: "Loading...",
-    CustomerName: "Loading...",
-    CustomerID: "Loading...",
-    LocationName: "Loading...",
-    LocationID: "Loading...",
-    StockID: "stock123",
-    Cost: "Loading...",
-    Quantity: "Loading...",
-    MinQty: "Loading...",
-    MaxQty: "Loading...",
-    Description: "Loading...",
-    Notes: "Loading...",
-    IsActive: "Loading...",
-    MaterialType: "Loading...",
-    Owner: "Loading...",
-  });
+  const [material, setMaterial] = useState(materialState);
   const [selectLocations, setSelectLocations] = useState([selectState]);
 
   useEffect(() => {
-    async function fetchMaterials() {
-      const res = await fetch(`${API}/materials`);
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const foundMaterial = data.find(
-        (material: any) => material.MaterialID == props.materialId
-      );
-      if (!foundMaterial) return;
-
-      setMaterial(foundMaterial);
-    }
-
-    fetchMaterials();
-  }, []);
-
-  useEffect(() => {
-    async function fetchLocations() {
-      if (material.StockID == "Loading..." || material.Owner == "Loading...")
-        return;
-
-      const res = await fetch(
-        API +
-          `/available_locations?stockId=${material.StockID}&owner=${material.Owner}`
-      );
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const locations = data
-        .map((location: any) => ({
-          id: location.ID,
-          name: location.Name,
-        }))
-        .filter((location: any) => material.LocationID != location.id);
-
+    const getMaterialInfo = async () => {
+      const [material] = await fetchMaterials({ materialId: props.materialId });
+      const stockId = material.stockId;
+      const owner = material.owner;
+      const locations = await fetchAvailableLocations(stockId, owner);
+      setMaterial(material);
       setSelectLocations(locations);
-    }
-    fetchLocations();
-  }, [material]);
+    };
+    getMaterialInfo();
+  }, []);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const formData = new FormData(event.currentTarget);
     const materialId = props.materialId;
-
     const res: any = await moveMaterial(materialId, formData);
     if (res?.error) {
       setSubmitMessage(res.error);
@@ -578,39 +446,39 @@ export function MoveMaterialForm(props: { materialId: string }) {
           <h3>The Material will be moved to a Location</h3>
           <div>
             <label>Customer:</label>
-            {material.CustomerName}
+            {material.customerName}
           </div>
           <div>
             <label>Stock ID:</label>
-            {material.StockID}
+            {material.stockId}
           </div>
           <div>
             <label>Description:</label>
-            {material.Description}
+            {material.description}
           </div>
           <div>
             <label>Current Location:</label>
-            {material.LocationName}
+            {material.locationName}
           </div>
           <div>
             <label>Type:</label>
-            {material.MaterialType}
+            {material.materialType}
           </div>
           <div>
             <label>Ownership:</label>
-            {material.Owner}
+            {material.owner}
           </div>
           <div>
             <label>Allow for use:</label>
-            {material.IsActive ? "Yes" : "No"}
+            {material.isActive ? "Yes" : "No"}
           </div>
           <div>
             <label>Notes:</label>
-            {material.Notes}
+            {material.notes}
           </div>
           <div>
             <label>Current Qty:</label>
-            {material.Quantity}
+            {material.quantity}
           </div>
         </div>
         <div className="form-line">
@@ -646,41 +514,14 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
 export function RemoveMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
-  const [material, setMaterial] = useState({
-    MaterialID: "Loading...",
-    CustomerName: "Loading...",
-    CustomerID: "Loading...",
-    LocationName: "Loading...",
-    LocationID: "Loading...",
-    StockID: "stock123",
-    Cost: "Loading...",
-    Quantity: "Loading...",
-    MinQty: "Loading...",
-    MaxQty: "Loading...",
-    Description: "Loading...",
-    Notes: "Loading...",
-    IsActive: "Loading...",
-    MaterialType: "Loading...",
-    Owner: "Loading...",
-  });
+  const [material, setMaterial] = useState(materialState);
 
   useEffect(() => {
-    async function fetchMaterials() {
-      const res = await fetch(`${API}/materials`);
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const foundMaterial = data.find(
-        (material: any) => material.MaterialID == props.materialId
-      );
-      if (!foundMaterial) return;
-
-      setMaterial(foundMaterial);
-    }
-
-    fetchMaterials();
+    const getMaterial = async () => {
+      const [material] = await fetchMaterials({ materialId: props.materialId });
+      setMaterial(material);
+    };
+    getMaterial();
   }, []);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
@@ -708,39 +549,39 @@ export function RemoveMaterialForm(props: { materialId: string }) {
           <h3>The Material will be removed from the Location</h3>
           <div>
             <label>Customer:</label>
-            {material.CustomerName}
+            {material.customerName}
           </div>
           <div>
             <label>Stock ID:</label>
-            {material.StockID}
+            {material.stockId}
           </div>
           <div>
             <label>Description:</label>
-            {material.Description}
+            {material.description}
           </div>
           <div>
             <label>Current Location:</label>
-            {material.LocationName}
+            {material.locationName}
           </div>
           <div>
             <label>Type:</label>
-            {material.MaterialType}
+            {material.materialType}
           </div>
           <div>
             <label>Ownership:</label>
-            {material.Owner}
+            {material.owner}
           </div>
           <div>
             <label>Allow for use:</label>
-            {material.IsActive ? "Yes" : "No"}
+            {material.isActive ? "Yes" : "No"}
           </div>
           <div>
             <label>Notes:</label>
-            {material.Notes}
+            {material.notes}
           </div>
           <div>
             <label>Current Qty:</label>
-            {material.Quantity}
+            {material.quantity}
           </div>{" "}
         </div>
         <div className="form-line">
@@ -773,7 +614,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   );
 }
 
-export function ImportData() {
+export function ImportMaterials() {
   const [response, setResponse] = useState({
     message: "",
     data: {
@@ -821,20 +662,13 @@ export function ImportData() {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const body = JSON.stringify({ data: dataToImport });
-      const res: any = await fetch(`${API}/import_data`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-      const dataResult = await res.json();
+      const jsonData = JSON.stringify({ data: dataToImport });
+      const dataResult: any = await uploadMaterials(jsonData);
       setResponse(dataResult);
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
-      alert("Server Error: " + error.message);
+      alert("Error: " + error.message);
     }
   };
 

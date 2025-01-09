@@ -25,3 +25,23 @@ export async function createCustomer(prevState: any, formData: FormData) {
     return { message: "Error: " + error.message };
   }
 }
+
+export async function fetchCustomers() {
+  try {
+    const res = await fetch(`${API}/customers`);
+    const data = await res.json();
+    if (!data?.length) {
+      return [];
+    }
+
+    const customers = data.map((customer: any) => ({
+      id: customer.ID,
+      name: customer.Name,
+      code: customer.Code,
+    }));
+    return customers;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}

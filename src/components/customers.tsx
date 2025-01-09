@@ -1,8 +1,7 @@
 "use client";
 import { SubmitButton } from "ui/submit-button";
 import { useActionState, useEffect, useState } from "react";
-import { createCustomer } from "actions/customers";
-import { API } from "utils/constants";
+import { createCustomer, fetchCustomers } from "actions/customers";
 
 const initialState = {
   message: "",
@@ -44,22 +43,11 @@ export function Customers() {
   const [showCustomers, setShowCustomers] = useState(false);
 
   useEffect(() => {
-    async function fetchCustomers() {
-      const res = await fetch(`${API}/customers`);
-      const data = await res.json();
-      if (!data?.length) {
-        setCustomers([]);
-        return;
-      }
-
-      const customers = data.map((customer: any) => ({
-        id: customer.ID,
-        name: customer.Name,
-        code: customer.Code,
-      }));
+    const getCustomers = async () => {
+      const customers = await fetchCustomers();
       setCustomers(customers);
-    }
-    fetchCustomers();
+    };
+    getCustomers();
   }, []);
 
   return (

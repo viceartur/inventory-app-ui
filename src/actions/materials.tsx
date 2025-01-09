@@ -2,6 +2,40 @@
 
 import { API } from "utils/constants";
 
+interface IncomingMaterial {
+  ShippingID: string;
+  CustomerName: string;
+  CustomerID: number;
+  StockID: string;
+  Cost: number;
+  Quantity: number;
+  MinQty: number;
+  MaxQty: number;
+  Description: string;
+  IsActive: boolean;
+  MaterialType: string;
+  Owner: string;
+}
+
+export async function fetchMaterialTypes() {
+  try {
+    const res = await fetch(`${API}/material_types`);
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    const types = data.map((type: any, i: number) => ({
+      id: i,
+      name: type,
+    }));
+    return types;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export async function sendMaterial(prevState: any, formData: FormData) {
   const material = {
     customerId: formData.get("customerId"),
@@ -34,6 +68,39 @@ export async function sendMaterial(prevState: any, formData: FormData) {
   }
 }
 
+export async function fetchIncomingMaterials(materialId = "") {
+  try {
+    const res = await fetch(
+      `${API}/incoming_materials${
+        materialId ? "?materialId=" + materialId : ""
+      }`
+    );
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    const materials = data.map((material: IncomingMaterial) => ({
+      shippingId: material.ShippingID,
+      customerName: material.CustomerName,
+      customerId: material.CustomerID,
+      stockId: material.StockID,
+      cost: material.Cost,
+      quantity: material.Quantity,
+      minQty: material.MinQty,
+      maxQty: material.MaxQty,
+      description: material.Description,
+      isActive: material.IsActive,
+      materialType: material.MaterialType,
+      owner: material.Owner,
+    }));
+    return materials;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export async function createMaterial(
   incomingMaterialId: string,
   formData: FormData
@@ -62,6 +129,16 @@ export async function createMaterial(
   } catch (error: any) {
     return { error: "Error: " + error.message };
   }
+}
+
+export async function updateMaterial(material: any) {
+  await fetch(`${API}/materials`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(material),
+  });
 }
 
 export async function moveMaterial(materialId: string, formData: FormData) {
@@ -117,59 +194,65 @@ export async function removeMaterial(materialId: string, formData: FormData) {
 }
 
 export async function fetchMaterials(filterOpts: any) {
-  const { stockId, customerName, description, locationName } = filterOpts;
+  const {
+    materialId = "",
+    stockId = "",
+    customerName = "",
+    description = "",
+    locationName = "",
+  } = filterOpts;
 
-  const res = await fetch(
-    `${API}/materials?stockId=${stockId}&customerName=${customerName}&description=${description}&locationName=${locationName}`
-  );
-  if (!res) return [];
-
-  const data = await res.json();
-  if (!data?.length) return [];
-
-  const materials = data.map((material: any) => {
-    const {
-      MaterialID,
-      WarehouseName,
-      StockID,
-      CustomerID,
-      CustomerName,
-      LocationID,
-      LocationName,
-      MaterialType,
-      Description,
-      Notes,
-      Quantity,
-      UpdatedAt,
-      IsActive,
-      Cost,
-      MinQty,
-      MaxQty,
-      Owner,
-      IsPrimary,
-    } = material;
-
-    return {
-      materialId: MaterialID,
-      warehouseName: WarehouseName,
-      stockId: StockID,
-      customerId: CustomerID,
-      customerName: CustomerName,
-      locationId: LocationID,
-      locationName: LocationName,
-      materialType: MaterialType,
-      description: Description,
-      notes: Notes,
-      qty: Quantity,
-      updatedAt: UpdatedAt,
-      isActive: IsActive,
-      cost: Cost,
-      minQty: MinQty,
-      maxQty: MaxQty,
-      owner: Owner,
-      isPrimary: IsPrimary,
-    };
+  const queryParams = new URLSearchParams({
+    materialId,
+    stockId,
+    customerName,
+    description,
+    locationName,
   });
+  console.log(`${API}/materials?${queryParams.toString()}`);
+  try {
+    const res = await fetch(`${API}/materials?${queryParams.toString()}`);
+    if (!res) return [];
 
-  return materials;
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    const materials = data.map((material: any) => ({
+      materialId: material.MaterialID,
+      warehouseName: material.WarehouseName,
+      stockId: material.StockID,
+      customerId: material.CustomerID,
+      customerName: material.CustomerName,
+      locationId: material.LocationID,
+      locationName: material.LocationName,
+      materialType: material.MaterialType,
+      description: material.Description,
+      notes: material.Notes,
+      quantity: material.Quantity,
+      updatedAt: material.UpdatedAt,
+      isActive: material.IsActive,
+      cost: material.Cost,
+      minQty: material.MinQty,
+      maxQty: material.MaxQty,
+      owner: material.Owner,
+      isPrimary: material.IsPrimary,
+    }));
+
+    return materials;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function uploadMaterials(jsonData: any) {
+  const res: any = await fetch(`${API}/import_data`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: jsonData,
+  });
+  const dataResult = await res.json();
+  return dataResult;
 }

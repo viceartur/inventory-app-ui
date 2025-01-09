@@ -2,110 +2,93 @@
 
 import { redirect, useSearchParams } from "next/navigation";
 import { useState, useEffect, FormEvent } from "react";
-
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
-import { API, ownerTypes } from "utils/constants";
+
+import { ownerTypes, searchParamsState, selectState } from "utils/constants";
+import { fetchCustomers } from "actions/customers";
+import { fetchMaterialTypes } from "actions/materials";
+import { fetchBalance, fetchTransactions } from "actions/reports";
 
 export function Reports() {
-  const [searchParams, setSearchParams] = useState({
-    customerId: "",
-    customerName: "",
-    owner: "",
-    materialType: "",
-    dateFrom: "",
-    dateTo: "",
-    dateAsOf: "",
-  });
+  const [searchParams, setSearchParams] = useState(searchParamsState);
   const [selectCustomers, setSelectCustomers] = useState([
-    {
-      id: 0,
-      name: "",
-      code: "",
-    },
+    { ...selectState, name: "" },
   ]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([
-    {
-      id: 0,
-      name: "",
-      code: "",
-    },
+    { ...selectState, name: "" },
   ]);
 
   useEffect(() => {
-    async function fetchCustomers() {
-      const res = await fetch(`${API}/customers`);
-      const data = await res.json();
-      if (!data?.length) {
-        setSelectCustomers([]);
-        return;
-      }
-
-      const customers = data.map((customer: any) => ({
-        id: customer.ID,
-        name: customer.Name,
-      }));
+    const getReportInfo = async () => {
+      const customers = await fetchCustomers();
+      const materialTypes = await fetchMaterialTypes();
       setSelectCustomers([...selectCustomers, ...customers]);
-    }
-    fetchCustomers();
-  }, []);
-
-  useEffect(() => {
-    async function fetchMaterialTypes() {
-      const res = await fetch(`${API}/material_types`);
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const types = data.map((type: any, i: number) => ({
-        id: ++i,
-        name: type,
-      }));
-      setSelectMaterialTypes([...selectMaterialTypes, ...types]);
-    }
-    fetchMaterialTypes();
+      setSelectMaterialTypes([...selectMaterialTypes, ...materialTypes]);
+    };
+    getReportInfo();
   }, []);
 
   const onChangeForm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const customer = formData.get("customer")?.toString();
-    const customerArr = customer?.split("%");
-    const customerId = customerArr ? customerArr[0] : "";
-    const customerName = customerArr ? customerArr[1] : "";
-    const owner = formData.get("owner")?.toString();
-    const materialType = formData.get("materialType")?.toString();
-    const dateFrom = formData.get("dateFrom")?.toString();
-    const dateTo = formData.get("dateTo")?.toString();
-    const dateAsOf = formData.get("dateAsOf")?.toString();
+    const customer = formData.get("customer")?.toString().split("%");
+    const customerId = customer ? customer[0] : "";
+    const customerName = customer ? customer[1] : "";
+    const owner = formData.get("owner")?.toString() || "";
+    const materialType = formData.get("materialType")?.toString() || "";
+    const dateFrom = formData.get("dateFrom")?.toString() || "";
+    const dateTo = formData.get("dateTo")?.toString() || "";
+    const dateAsOf = formData.get("dateAsOf")?.toString() || "";
 
     setSearchParams({
-      customerId: customerId ? customerId : "",
-      customerName: customerName ? customerName : "",
-      owner: owner ? owner : "",
-      materialType: materialType ? materialType : "",
-      dateFrom: dateFrom ? dateFrom : "",
-      dateTo: dateTo ? dateTo : "",
-      dateAsOf: dateAsOf ? dateAsOf : "",
+      customerId,
+      customerName,
+      owner,
+      materialType,
+      dateFrom,
+      dateTo,
+      dateAsOf,
     });
   };
 
   const handleTransactionsRedirect = () => {
-    const { customerId, customerName, owner, materialType, dateFrom, dateTo } =
-      searchParams;
-    redirect(
-      `/reports/transactions?customerId=${customerId}&customerName=${customerName}&owner=${owner}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
-    );
+    const {
+      customerId = "",
+      customerName = "",
+      owner = "",
+      materialType = "",
+      dateFrom = "",
+      dateTo = "",
+    } = searchParams;
+    const queryParams = new URLSearchParams({
+      customerId,
+      customerName,
+      owner,
+      materialType,
+      dateFrom,
+      dateTo,
+    });
+    redirect(`/reports/transactions?${queryParams.toString()}`);
   };
 
   const handleBalanceRedirect = () => {
-    const { customerId, customerName, owner, materialType, dateAsOf } =
-      searchParams;
-    redirect(
-      `/reports/balance?customerId=${customerId}&customerName=${customerName}&owner=${owner}&materialType=${materialType}&dateAsOf=${dateAsOf}`
-    );
+    const {
+      customerId = "",
+      customerName = "",
+      owner = "",
+      materialType = "",
+      dateAsOf = "",
+    } = searchParams;
+    const queryParams = new URLSearchParams({
+      customerId,
+      customerName,
+      owner,
+      materialType,
+      dateAsOf,
+    });
+    redirect(`/reports/balance?${queryParams.toString()}`);
   };
 
   return (
@@ -182,32 +165,20 @@ export function Transactions() {
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
 
-  const [transactions, setTransaction] = useState([]);
+  const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
-    async function fetchMaterials() {
-      const res = await fetch(
-        API +
-          `/reports/transactions?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateFrom=${dateFrom}&dateTo=${dateTo}`
-      );
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const transactions = data.map((material: any) => ({
-        stockId: material.StockID,
-        materialType: material.MaterialType,
-        qty: material.Qty,
-        unitCost: material.UnitCost,
-        cost: material.Cost,
-        date: material.Date,
-      }));
-
-      setTransaction(transactions);
-    }
-
-    fetchMaterials();
+    const getTransactions = async () => {
+      const transactions = await fetchTransactions({
+        customerId,
+        owner,
+        materialType,
+        dateFrom,
+        dateTo,
+      });
+      setTransactions(transactions);
+    };
+    getTransactions();
   }, []);
 
   const onClickDownload = () => {
@@ -297,39 +268,26 @@ export function Balance() {
   const owner = searchParams.get("owner");
   const materialType = searchParams.get("materialType");
   const dateAsOf = searchParams.get("dateAsOf");
-  const [transactions, setTransactions] = useState([]);
+  const [balance, setBalance] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
 
   useEffect(() => {
-    async function fetchMaterials() {
-      const res = await fetch(
-        API +
-          `/reports/balance?customerId=${customerId}&owner=${owner}&materialType=${materialType}&dateAsOf=${dateAsOf}`
-      );
-      if (!res) return;
-
-      const data = await res.json();
-      if (!data?.length) return;
-
-      const transactions = data.map((material: any) => ({
-        stockId: material.StockID,
-        description: material.Description,
-        materialType: material.MaterialType,
-        qty: material.Qty,
-        totalValue: material.TotalValue,
-      }));
-
-      const totalValue = transactions
+    const getBalance = async () => {
+      const balance = await fetchBalance({
+        customerId,
+        owner,
+        materialType,
+        dateAsOf,
+      });
+      const totalValue = balance
         .reduce((acc: number, t: any) => {
           return acc + +t.totalValue.slice(1).replace(",", "");
         }, 0)
         .toFixed(2);
-
-      setTransactions(transactions);
+      setBalance(balance);
       setTotalValue(totalValue);
-    }
-
-    fetchMaterials();
+    };
+    getBalance();
   }, []);
 
   const onClickDownload = () => {
@@ -341,12 +299,12 @@ export function Balance() {
       { title: "Total Value", dataKey: "totalValue" },
     ];
 
-    const data = transactions.map((transaction: any) => ({
-      stockId: transaction.stockId,
-      description: transaction.description,
-      materialType: transaction.materialType,
-      qty: transaction.qty,
-      totalValue: transaction.totalValue,
+    const data = balance.map((b: any) => ({
+      stockId: b.stockId,
+      description: b.description,
+      materialType: b.materialType,
+      qty: b.qty,
+      totalValue: b.totalValue,
     }));
 
     const excelData = [
@@ -395,7 +353,7 @@ export function Balance() {
           </tr>
         </thead>
         <tbody>
-          {transactions.map((material: any, i) => (
+          {balance.map((material: any, i) => (
             <tr key={i}>
               <td>{material.stockId}</td>
               <td>{material.description}</td>

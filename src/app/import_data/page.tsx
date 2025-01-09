@@ -1,5 +1,5 @@
-import { ImportData } from "../../components/materials";
+import { ImportMaterials } from "../../components/materials";
 
-export default async function ImportDataPage() {
-  return <ImportData />;
+export default async function ImportMaterialsPage() {
+  return <ImportMaterials />;
 }
