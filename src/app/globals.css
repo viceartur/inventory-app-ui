@@ -1,7 +1,5 @@
 * {
   font-family: "Poppins", sans-serif;
-  justify-content: center;
-  margin: 0.5rem;
 }
 
 h2 {
@@ -9,9 +7,13 @@ h2 {
   width: fit-content;
 }
 
+a {
+  margin: 0.5rem;
+}
+
 nav {
-  height: 2.5rem;
   padding: 1rem;
+  height: 2.5rem;
   background-color: rgb(207, 207, 207);
   border: 1px solid black;
   top: 0;
@@ -20,10 +22,11 @@ nav {
   display: flex;
   align-items: center;
   text-align: center;
+  justify-content: center;
 
   a {
-    border-radius: 4px;
     padding: 0.7rem;
+    border-radius: 4px;
     font-weight: 600;
     color: rgb(0, 0, 145);
     text-decoration: none;
@@ -59,12 +62,14 @@ form {
   background-color: rgb(233, 233, 233);
 
   label {
+    margin: 0.5rem;
     align-content: center;
     font-weight: 600;
     color: rgb(0, 0, 145);
   }
 
   .form-info {
+    margin: 0.5rem;
     padding: 0.5rem;
     border: 2px dashed black;
     border-radius: 4px;
@@ -72,6 +77,10 @@ form {
 
     h3 {
       text-align: center;
+    }
+
+    .form-info-line {
+      margin: 0.5rem;
     }
   }
 
@@ -94,7 +103,6 @@ form {
     display: none;
   }
   p.submit-message {
-    padding: 0.5rem;
     width: fit-content;
     color: rgb(194, 2, 2);
   }
@@ -103,8 +111,10 @@ form {
 select,
 input,
 input:checked {
+  margin: 0.5rem;
   padding: 0.5rem;
   border-radius: 4px;
+  font-size: medium;
 }
 
 select:focus {
@@ -128,8 +138,9 @@ input::-webkit-inner-spin-button {
 }
 
 button {
-  font-size: 1rem;
+  margin: 0.5rem;
   padding: 0.5rem;
+  font-size: 1rem;
   width: fit-content;
   border-radius: 4px;
   background-color: rgb(190, 190, 190);
@@ -165,6 +176,7 @@ button {
   border-radius: 5px;
 
   .list_header {
+    margin: 0.5rem;
     padding: 0.6rem;
     display: flex;
     justify-content: flex-start;
@@ -174,11 +186,13 @@ button {
     font-weight: 600;
 
     p {
+      margin: 0.5rem;
       width: 10rem;
     }
   }
 
   .material_list-item {
+    margin: 0.5rem;
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -202,6 +216,7 @@ button {
     }
 
     p {
+      margin: 0.5rem;
       width: 10rem;
     }
   }

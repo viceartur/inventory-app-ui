@@ -9,6 +9,7 @@ import { ownerTypes, searchParamsState, selectState } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
+import { toUSFormat } from "utils/utils";
 
 export function Reports() {
   const [searchParams, setSearchParams] = useState(searchParamsState);
@@ -248,7 +249,7 @@ export function Transactions() {
               <td>{material.stockId}</td>
               <td>{material.materialType}</td>
               <td className={material.qty > 0 ? "" : "negative"}>
-                {new Intl.NumberFormat("en-US").format(material.qty)}
+                {toUSFormat(material.qty)}
               </td>
               <td>{material.unitCost}</td>
               <td>{material.cost}</td>
@@ -338,8 +339,7 @@ export function Balance() {
         <button onClick={onClickDownload}>Download this Report</button>
       </div>
       <h2>
-        {customerName || "General"} Balance Report: $
-        {new Intl.NumberFormat("en-US").format(totalValue)}
+        {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}
       </h2>
       {dateAsOf ? <h2>As of {dateAsOf}</h2> : ""}
       <table>
@@ -358,7 +358,7 @@ export function Balance() {
               <td>{material.stockId}</td>
               <td>{material.description}</td>
               <td>{material.materialType}</td>
-              <td>{new Intl.NumberFormat("en-US").format(material.qty)}</td>
+              <td>{toUSFormat(material.qty)}</td>
               <td>{material.totalValue}</td>
             </tr>
           ))}

@@ -23,6 +23,7 @@ import {
 } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import { fetchAvailableLocations } from "actions/warehouses";
+import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
 
 export function SendMaterialForm() {
   const [state, materialFormAction] = useActionState(
@@ -31,6 +32,7 @@ export function SendMaterialForm() {
   );
   const [selectCustomers, setSelectCustomers] = useState([selectState]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
+  usePreventNumberInputScroll();
 
   useEffect(() => {
     const getMaterialInfo = async () => {
@@ -144,7 +146,7 @@ export function IncomingMaterials() {
             <div className="material_list-item" key={i}>
               <p>{material.customerName}</p>
               <p>{material.stockId}</p>
-              <p>{material.quantity}</p>
+              <p>{toUSFormat(material.quantity)}</p>
               <button
                 onClick={() =>
                   redirect(`/incoming-materials/${material.shippingId}`)
@@ -168,6 +170,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
     incomingMaterialState
   );
   const [selectLocations, setSelectLocations] = useState([selectState]);
+  usePreventNumberInputScroll();
 
   useEffect(() => {
     const getMaterialCard = async () => {
@@ -204,27 +207,27 @@ export function CreateMaterialForm(props: { materialId: string }) {
       <form onSubmit={onSubmitForm}>
         <div className="form-info">
           <h3>Information from CSR:</h3>
-          <div>
+          <div className="form-info-line">
             <label>Customer: </label>
             {incomingMaterial.customerName}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Stock ID: </label>
             {incomingMaterial.stockId}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Description:</label>
             {incomingMaterial.description}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Type: </label>
             {incomingMaterial.materialType}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Ownership:</label>
             {incomingMaterial.owner}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Allow for use:</label>
             {incomingMaterial.isActive ? "Yes" : "No"}
           </div>
@@ -356,7 +359,7 @@ export function Materials() {
               <p>Location</p>
               <p>
                 Quantity:{" "}
-                {new Intl.NumberFormat("en-US").format(
+                {toUSFormat(
                   materialsList.reduce(
                     (sum, item: any) => (sum += item.quantity),
                     0
@@ -377,9 +380,7 @@ export function Materials() {
                 <p>{material.description}</p>
                 <p>{material.owner}</p>
                 <p>{material.locationName}</p>
-                <p>
-                  {new Intl.NumberFormat("en-US").format(material.quantity)}
-                </p>
+                <p>{toUSFormat(material.quantity)}</p>
                 <button
                   onClick={() =>
                     redirect(
@@ -409,6 +410,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [selectLocations, setSelectLocations] = useState([selectState]);
+  usePreventNumberInputScroll();
 
   useEffect(() => {
     const getMaterialInfo = async () => {
@@ -443,41 +445,41 @@ export function MoveMaterialForm(props: { materialId: string }) {
       <form onSubmit={onSubmitForm}>
         <div className="form-info">
           <h3>The Material will be moved to a Location</h3>
-          <div>
+          <div className="form-info-line">
             <label>Customer:</label>
             {material.customerName}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Stock ID:</label>
             {material.stockId}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Description:</label>
             {material.description}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Current Location:</label>
             {material.locationName}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Type:</label>
             {material.materialType}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Ownership:</label>
             {material.owner}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Allow for use:</label>
             {material.isActive ? "Yes" : "No"}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Notes:</label>
             {material.notes}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Current Qty:</label>
-            {material.quantity}
+            {toUSFormat(+material.quantity)}
           </div>
         </div>
         <div className="form-line">
@@ -514,6 +516,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
 export function RemoveMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
+  usePreventNumberInputScroll();
 
   useEffect(() => {
     const getMaterial = async () => {
@@ -546,42 +549,42 @@ export function RemoveMaterialForm(props: { materialId: string }) {
       <form onSubmit={onSubmitForm}>
         <div className="form-info">
           <h3>The Material will be removed from the Location</h3>
-          <div>
+          <div className="form-info-line">
             <label>Customer:</label>
             {material.customerName}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Stock ID:</label>
             {material.stockId}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Description:</label>
             {material.description}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Current Location:</label>
             {material.locationName}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Type:</label>
             {material.materialType}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Ownership:</label>
             {material.owner}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Allow for use:</label>
             {material.isActive ? "Yes" : "No"}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Notes:</label>
             {material.notes}
           </div>
-          <div>
+          <div className="form-info-line">
             <label>Current Qty:</label>
-            {material.quantity}
-          </div>{" "}
+            {toUSFormat(+material.quantity)}
+          </div>
         </div>
         <div className="form-line">
           <label>Quantity to Use:</label>
