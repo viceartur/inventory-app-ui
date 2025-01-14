@@ -1,6 +1,7 @@
 "use server";
 
 import { API } from "utils/constants";
+import { wsConnect, wsSendMessage } from "utils/websocket";
 
 interface IncomingMaterial {
   ShippingID: string;
@@ -62,6 +63,10 @@ export async function sendMaterial(prevState: any, formData: FormData) {
     if (res.status != 200) {
       return { message: res.statusText };
     }
+
+    // Send web socket
+    const socket = wsConnect();
+    wsSendMessage(socket, "sendMaterial");
     return { message: `Material "${material.stockId}" sent to the Warehouse` };
   } catch (error: any) {
     return { message: "Error: " + error.message };

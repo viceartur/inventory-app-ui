@@ -2,9 +2,22 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { wsConnect, wsOnMessage } from "utils/websocket";
 
 export function NavLinks() {
   const pathname = usePathname();
+  const [qty, setQty] = useState(0);
+
+  useEffect(() => {
+    const socket = wsConnect();
+
+    wsOnMessage(socket, (q: any) => {
+      console.log("QTY", q);
+      setQty(q);
+    });
+  }, []);
+
   return (
     <nav>
       <Link className={`link ${pathname === "/" ? "active" : ""}`} href="/">
@@ -32,7 +45,7 @@ export function NavLinks() {
         className={`link ${pathname === "/incoming-materials" ? "active" : ""}`}
         href="/incoming-materials"
       >
-        Incoming Materials
+        Incoming Materials ({qty})
       </Link>
       <Link
         className={`link ${pathname === "/materials" ? "active" : ""}`}
