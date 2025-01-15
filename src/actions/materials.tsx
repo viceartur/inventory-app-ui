@@ -1,7 +1,7 @@
 "use server";
 
 import { API } from "utils/constants";
-import { wsConnect, wsSendMessage } from "utils/websocket";
+import { useSocket } from "hooks/websocket";
 
 interface IncomingMaterial {
   ShippingID: string;
@@ -37,20 +37,7 @@ export async function fetchMaterialTypes() {
   }
 }
 
-export async function sendMaterial(prevState: any, formData: FormData) {
-  const material = {
-    customerId: formData.get("customerId"),
-    stockId: formData.get("stockId"),
-    type: formData.get("materialType"),
-    quantity: formData.get("qty"),
-    cost: formData.get("cost"),
-    minQuantity: formData.get("minQty"),
-    maxQuantity: formData.get("maxQty"),
-    description: formData.get("description"),
-    owner: formData.get("owner") == "on" ? "Tag" : "Customer",
-    isActive: formData.get("isActive") == "on",
-  };
-
+export async function sendMaterial(material: any) {
   try {
     const res = await fetch(`${API}/incoming_materials`, {
       method: "POST",
@@ -64,12 +51,9 @@ export async function sendMaterial(prevState: any, formData: FormData) {
       return { message: res.statusText };
     }
 
-    // Send web socket
-    const socket = wsConnect();
-    wsSendMessage(socket, "sendMaterial");
     return { message: `Material "${material.stockId}" sent to the Warehouse` };
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Error: " + error.message };
   }
 }
 

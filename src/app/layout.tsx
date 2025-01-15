@@ -1,19 +1,38 @@
-import { SessionProvider } from "next-auth/react";
-import { NavLinks } from "../components/nav-links";
-import "./globals.css";
+"use client";
 
-export const metadata = {
-  title: "Inventory Management App",
-  description: "Manage inventory in the warehouse properly!",
-};
+import "./globals.css";
+import { useEffect, useState } from "react";
+import { SessionProvider } from "next-auth/react";
+import { SocketProvider } from "context/socket-context";
+import { NavLinks } from "../components/nav-links";
+import { WS } from "utils/constants";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+
+  useEffect(() => {
+    const ws = new WebSocket(WS);
+    ws.onopen = () => {
+      console.log("WS connection openned");
+      ws.send("materialsUpdated");
+    };
+    ws.onclose = () => {
+      console.log("WS connection closed");
+    };
+    setSocket(ws);
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   return (
     <html lang="en">
       <body>
         <SessionProvider>
-          <NavLinks />
-          {children}
+          <SocketProvider socket={socket}>
+            <NavLinks />
+            {children}
+          </SocketProvider>
         </SessionProvider>
       </body>
     </html>
