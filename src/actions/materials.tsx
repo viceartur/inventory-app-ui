@@ -36,20 +36,7 @@ export async function fetchMaterialTypes() {
   }
 }
 
-export async function sendMaterial(prevState: any, formData: FormData) {
-  const material = {
-    customerId: formData.get("customerId"),
-    stockId: formData.get("stockId"),
-    type: formData.get("materialType"),
-    quantity: formData.get("qty"),
-    cost: formData.get("cost"),
-    minQuantity: formData.get("minQty"),
-    maxQuantity: formData.get("maxQty"),
-    description: formData.get("description"),
-    owner: formData.get("owner") == "on" ? "Tag" : "Customer",
-    isActive: formData.get("isActive") == "on",
-  };
-
+export async function sendMaterial(material: any) {
   try {
     const res = await fetch(`${API}/incoming_materials`, {
       method: "POST",
@@ -62,9 +49,10 @@ export async function sendMaterial(prevState: any, formData: FormData) {
     if (res.status != 200) {
       return { message: res.statusText };
     }
+
     return { message: `Material "${material.stockId}" sent to the Warehouse` };
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Error: " + error.message };
   }
 }
 
@@ -209,7 +197,7 @@ export async function fetchMaterials(filterOpts: any) {
     description,
     locationName,
   });
-  console.log(`${API}/materials?${queryParams.toString()}`);
+
   try {
     const res = await fetch(`${API}/materials?${queryParams.toString()}`);
     if (!res) return [];

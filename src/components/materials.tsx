@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useActionState, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { redirect } from "next/navigation";
 import * as XLSX from "xlsx";
 
@@ -17,21 +17,20 @@ import {
 } from "../actions/materials";
 import {
   incomingMaterialState,
-  initialState,
   materialState,
   selectState,
 } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import { fetchAvailableLocations } from "actions/warehouses";
 import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
+import { useSocket } from "context/socket-context";
 
 export function SendMaterialForm() {
-  const [state, materialFormAction] = useActionState(
-    sendMaterial,
-    initialState
-  );
+  const socket = useSocket();
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [selectCustomers, setSelectCustomers] = useState([selectState]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
+  const [sumbitMessage, setSubmitMessage] = useState("");
   usePreventNumberInputScroll();
 
   useEffect(() => {
@@ -44,10 +43,39 @@ export function SendMaterialForm() {
     getMaterialInfo();
   }, []);
 
+  const submitForm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    const material = {
+      customerId: formData.get("customerId"),
+      stockId: formData.get("stockId"),
+      type: formData.get("materialType"),
+      quantity: formData.get("qty"),
+      cost: formData.get("cost"),
+      minQuantity: formData.get("minQty"),
+      maxQuantity: formData.get("maxQty"),
+      description: formData.get("description"),
+      owner: formData.get("owner") == "on" ? "Tag" : "Customer",
+      isActive: formData.get("isActive") == "on",
+    };
+
+    const res: any = await sendMaterial(material);
+    if (res?.error) {
+      setSubmitMessage(res.error);
+    } else {
+      setSubmitMessage(res.message);
+      socket?.send("materialsUpdated");
+      if (formRef.current) {
+        formRef.current.reset();
+      }
+    }
+  };
+
   return (
     <section>
       <h2>Send Material to Incoming</h2>
-      <form action={materialFormAction}>
+      <form ref={formRef} onSubmit={submitForm}>
         <div className="form-info">
           <p>
             CSR Staff may fill out the material information below and then send
@@ -113,7 +141,7 @@ export function SendMaterialForm() {
             <input type="checkbox" name="isActive" />
           </label>
         </div>
-        <p className="submit-message">{state?.message}</p>
+        <p className="submit-message">{sumbitMessage}</p>
         <SubmitButton title="Send Material" />
       </form>
     </section>
