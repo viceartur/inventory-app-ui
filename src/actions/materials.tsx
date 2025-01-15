@@ -197,7 +197,7 @@ export async function fetchMaterials(filterOpts: any) {
     description,
     locationName,
   });
-  console.log(`${API}/materials?${queryParams.toString()}`);
+
   try {
     const res = await fetch(`${API}/materials?${queryParams.toString()}`);
     if (!res) return [];
