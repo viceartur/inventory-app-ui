@@ -440,6 +440,8 @@ export function MoveMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [selectLocations, setSelectLocations] = useState([selectState]);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   usePreventNumberInputScroll();
 
   useEffect(() => {
@@ -457,6 +459,12 @@ export function MoveMaterialForm(props: { materialId: string }) {
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    setFormData(formData);
+    setShowConfirmation(true);
+  }
+
+  async function confirmAction() {
+    setShowConfirmation(false);
     const materialId = props.materialId;
     const res: any = await moveMaterial(materialId, formData);
     if (res?.error) {
@@ -467,6 +475,11 @@ export function MoveMaterialForm(props: { materialId: string }) {
         redirect("/materials/");
       }, 2000);
     }
+  }
+
+  function cancelAction() {
+    setShowConfirmation(false);
+    setFormData(null);
   }
 
   return (
@@ -539,6 +552,24 @@ export function MoveMaterialForm(props: { materialId: string }) {
           <SubmitButton title="Move Material" />
         </div>
       </form>
+
+      {showConfirmation && (
+        <div className="confirmation-window">
+          <p>
+            Are you sure you want to move this material to another location?
+          </p>
+          <p>
+            The quantity after moving will be{" "}
+            {toUSFormat(+material.quantity - Number(formData?.get("quantity")))}
+          </p>
+          <button type="button" onClick={confirmAction}>
+            Yes
+          </button>
+          <button type="button" onClick={cancelAction}>
+            No
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -546,6 +577,8 @@ export function MoveMaterialForm(props: { materialId: string }) {
 export function RemoveMaterialForm(props: { materialId: string }) {
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   usePreventNumberInputScroll();
 
   useEffect(() => {
@@ -558,10 +591,14 @@ export function RemoveMaterialForm(props: { materialId: string }) {
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const formData = new FormData(event.currentTarget);
-    const materialId = props.materialId;
+    setFormData(formData);
+    setShowConfirmation(true);
+  }
 
+  async function confirmAction() {
+    setShowConfirmation(false);
+    const materialId = props.materialId;
     const response: any = await removeMaterial(materialId, formData);
     if (response?.error) {
       setSubmitMessage(response.error);
@@ -571,6 +608,11 @@ export function RemoveMaterialForm(props: { materialId: string }) {
         redirect("/materials/");
       }, 2000);
     }
+  }
+
+  function cancelAction() {
+    setShowConfirmation(false);
+    setFormData(null);
   }
 
   return (
@@ -642,6 +684,22 @@ export function RemoveMaterialForm(props: { materialId: string }) {
           <SubmitButton title="Use Material" />
         </div>
       </form>
+
+      {showConfirmation && (
+        <div className="confirmation-window">
+          <p>Are you sure you want to use this material?</p>
+          <p>
+            The quantity after using will be{" "}
+            {toUSFormat(+material.quantity - Number(formData?.get("quantity")))}
+          </p>
+          <button type="button" onClick={confirmAction}>
+            Yes
+          </button>
+          <button type="button" onClick={cancelAction}>
+            No
+          </button>
+        </div>
+      )}
     </section>
   );
 }

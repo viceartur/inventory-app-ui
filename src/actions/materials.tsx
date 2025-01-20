@@ -129,7 +129,12 @@ export async function updateMaterial(material: any) {
   });
 }
 
-export async function moveMaterial(materialId: string, formData: FormData) {
+export async function moveMaterial(
+  materialId: string,
+  formData: FormData | null
+) {
+  if (!formData) return { error: "Error: No Form Data" };
+
   const material = {
     materialId,
     quantity: formData.get("quantity"),
@@ -155,7 +160,12 @@ export async function moveMaterial(materialId: string, formData: FormData) {
   }
 }
 
-export async function removeMaterial(materialId: string, formData: FormData) {
+export async function removeMaterial(
+  materialId: string,
+  formData: FormData | null
+) {
+  if (!formData) return { error: "Error: No Form Data" };
+
   const material = {
     materialId,
     quantity: formData.get("quantity"),
