@@ -1,13 +1,11 @@
-import { signOut } from "../auth";
+import { signOutFn } from "actions/authorization";
 
 export function SignOutButton() {
+  const handleSignOut = async () => {
+    await signOutFn();
+  };
   return (
-    <button
-      onClick={async () => {
-        "use server";
-        await signOut();
-      }}
-    >
+    <button className="sign-out" onClick={handleSignOut}>
       Sign Out
     </button>
   );

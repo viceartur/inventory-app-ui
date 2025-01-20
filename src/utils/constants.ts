@@ -1,6 +1,55 @@
 export const API = `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}`;
 export const WS = `ws://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/ws`;
 
+export interface Route {
+  path: string;
+  label: string;
+  restrict: string[];
+}
+
+export const APP_ROUTES: Route[] = [
+  {
+    path: "/",
+    label: "Main Page",
+    restrict: ["admin", "csr", "warehouse", "production"],
+  },
+  {
+    path: "/customer",
+    label: "Customers",
+    restrict: ["admin", "csr"],
+  },
+  {
+    path: "/warehouse",
+    label: "Warehouses & Locations",
+    restrict: ["admin", "warehouse"],
+  },
+  {
+    path: "/send-material",
+    label: "Send Material",
+    restrict: ["admin", "csr"],
+  },
+  {
+    path: "/incoming-materials",
+    label: "Incoming Materials",
+    restrict: ["admin", "warehouse"],
+  },
+  {
+    path: "/materials",
+    label: "Inventory",
+    restrict: ["admin", "warehouse"],
+  },
+  {
+    path: "/reports",
+    label: "Reports",
+    restrict: ["admin", "csr"],
+  },
+  {
+    path: "/import_data",
+    label: "Import Materials",
+    restrict: ["admin", "csr", "warehouse"],
+  },
+];
+
 export const ownerTypes = ["", "Tag", "Customer"];
 
 export const initialState = {

@@ -8,7 +8,6 @@ export default function MainPage() {
         If you have any questions please reach me out on
         <a href="https://outlook.office.com/mail/">asopov@tagsystems.net</a>
       </p>
-      <SignOutButton />
     </section>
   );
 }

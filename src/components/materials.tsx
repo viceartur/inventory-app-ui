@@ -193,6 +193,7 @@ export function IncomingMaterials() {
 }
 
 export function CreateMaterialForm(props: { materialId: string }) {
+  const socket = useSocket();
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [incomingMaterial, setIncomingMaterial] = useState(
     incomingMaterialState
@@ -223,6 +224,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
       setSubmitMessage(res.error);
     } else {
       setSubmitMessage("Material Added. Redirecting to Incoming Materials...");
+      socket?.send("materialsUpdated");
       setTimeout(() => {
         redirect("/incoming-materials/");
       }, 2000);

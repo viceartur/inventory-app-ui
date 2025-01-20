@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { API } from "utils/constants";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -10,15 +11,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const { username = "", password = "" } = credentials;
-        const appUsername = process.env.NEXT_PUBLIC_AUTH_USERNAME;
-        const appPassword = process.env.NEXT_PUBLIC_AUTH_PASSWORD;
+        try {
+          const { username = "", password = "" } = credentials;
+          if (!username || !password) return null;
 
-        if (username != appUsername || password != appPassword) {
+          const res: any = await fetch(`${API}/users/auth`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(credentials),
+          });
+          if (!res) return null;
+
+          const data = await res.json();
+          if (!data?.data) return null;
+
+          const {
+            data: { username: name, role },
+          } = data;
+          return { name, role };
+        } catch (error: any) {
+          console.error(error.message);
           return null;
         }
-        return { name: "user" };
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
+  },
 });

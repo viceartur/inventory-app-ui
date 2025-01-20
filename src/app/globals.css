@@ -43,6 +43,26 @@ nav {
       background-color: grey;
     }
   }
+
+  .user-info {
+    padding: 0.1rem;
+    left: 1rem;
+    position: absolute;
+    text-align: left;
+    color: rgb(0, 0, 145);
+    border: 1px solid rgb(0, 0, 145);
+    border-radius: 5px;
+
+    p {
+      margin: 0.3rem;
+    }
+  }
+
+  .sign-out {
+    padding: 0.5rem;
+    right: 1rem;
+    position: absolute;
+  }
 }
 
 section {
