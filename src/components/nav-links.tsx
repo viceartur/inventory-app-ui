@@ -41,7 +41,7 @@ export function NavLinks() {
           href={route.path}
         >
           {route.label}{" "}
-          {route.path === "/incoming-materials"
+          {["/incoming-materials", "/pending-materials"].includes(route.path)
             ? quantity && "(" + quantity + ")"
             : ""}
         </Link>

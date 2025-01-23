@@ -148,6 +148,47 @@ export function SendMaterialForm() {
   );
 }
 
+export function PendingMaterials() {
+  const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
+
+  useEffect(() => {
+    const getIncomingMaterials = async () => {
+      const materials = await fetchIncomingMaterials();
+      setIncomingMaterialsList(materials);
+    };
+    getIncomingMaterials();
+  }, []);
+
+  return (
+    <section>
+      <h2>Pending Materials:</h2>
+      <p>List of submitted Materials awaiting acceptance</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Description</th>
+            <th>Stock ID</th>
+            <th>Quantity</th>
+            <th>Unit Cost, USD</th>
+          </tr>
+        </thead>
+        <tbody>
+          {incomingMaterialsList.map((material: any, i) => (
+            <tr key={i}>
+              <td>{material.customerName}</td>
+              <td>{material.description}</td>
+              <td>{material.stockId}</td>
+              <td>{toUSFormat(material.quantity)}</td>
+              <td>{material.cost}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
 export function IncomingMaterials() {
   const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
 
