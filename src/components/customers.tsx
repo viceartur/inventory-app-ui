@@ -68,7 +68,7 @@ export function Customers() {
             {customers.map((customer: any, i) => (
               <tr key={i}>
                 <td>{customer.name}</td>
-                <td>{customer.code}</td>
+                <td>{customer.code.padStart(3, "0")}</td>
               </tr>
             ))}
           </tbody>
