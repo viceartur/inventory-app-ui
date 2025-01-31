@@ -31,6 +31,7 @@ export async function fetchTransactions(params: any) {
       unitCost: material.UnitCost,
       cost: material.Cost,
       date: material.Date,
+      serialNumberRange: material.SerialNumberRange,
     }));
     return transactions;
   } catch (error) {

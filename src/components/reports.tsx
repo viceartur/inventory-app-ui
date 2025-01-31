@@ -97,10 +97,14 @@ export function Reports() {
       <h2>Financial Reports Page</h2>
       <form onChange={onChangeForm}>
         <div className="form-info">
-          <h3>Transaction Report (T)</h3>
-          <p>Shows the transactions and its cost (Date From/To)</p>
-          <h3>Balance Report (B)</h3>
-          <p>Shows total cost for the current date (Date As Of)</p>
+          <h3>Transaction Report (T):</h3>
+          <p>- Shows the transactions and its cost (Date From/To).</p>
+          <p>
+            - When "CHIPS" Material Type is chosen, "Serial # Range" is
+            displayed.
+          </p>
+          <h3>Balance Report (B):</h3>
+          <p>- Shows total cost for the specific date (Date As Of).</p>
         </div>
         <div className="form-line">
           <label>Customer:</label>
@@ -187,6 +191,7 @@ export function Transactions() {
       { title: "Stock ID", dataKey: "stockId" },
       { title: "Material Type", dataKey: "materialType" },
       { title: "Qty", dataKey: "qty" },
+      { title: "Serial # Range", dataKey: "serialNumberRange" },
       { title: "Unit Cost", dataKey: "unitCost" },
       { title: "Cost", dataKey: "cost" },
       { title: "Date", dataKey: "date" },
@@ -199,6 +204,7 @@ export function Transactions() {
       unitCost: transaction.unitCost,
       cost: transaction.cost,
       date: transaction.date,
+      serialNumberRange: transaction.serialNumberRange,
     }));
 
     const excelData = [
@@ -238,6 +244,7 @@ export function Transactions() {
             <th>Stock ID</th>
             <th>Material Type</th>
             <th>Quantity (+/-)</th>
+            {materialType === "CHIPS" && <th>Serial # Range</th>}
             <th>Unit Cost, USD</th>
             <th>Cost, USD</th>
             <th>Date</th>
@@ -251,6 +258,9 @@ export function Transactions() {
               <td className={material.qty > 0 ? "" : "negative"}>
                 {toUSFormat(material.qty)}
               </td>
+              {materialType === "CHIPS" && (
+                <td>{material.serialNumberRange}</td>
+              )}
               <td>{material.unitCost}</td>
               <td>{material.cost}</td>
               <td>{material.date}</td>
