@@ -2,11 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSocket } from "context/socket-context";
 import { useSession } from "next-auth/react";
 import { APP_ROUTES, Route } from "utils/constants";
 import { SignOutButton } from "ui/signout-button";
+import logoPic from "../utils/logo.png";
 
 export function NavLinks() {
   const { data: session } = useSession();
@@ -27,6 +29,13 @@ export function NavLinks() {
 
   return (
     <nav>
+      <Image
+        className="image-logo"
+        src={logoPic}
+        width={130}
+        height={43}
+        alt="logo"
+      />
       <div className="user-info">
         <p>Group: {session?.user.role}</p>
         <p>User: {session?.user.name}</p>

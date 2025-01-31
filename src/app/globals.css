@@ -27,9 +27,9 @@ section {
 nav {
   padding: 1rem;
   width: var(--nav-width);
-  height: 100vh;
+  height: 100%;
   background-color: rgb(233, 233, 233);
-  border-right: 1px solid black;
+  border-right: 1px solid grey;
   position: fixed;
   top: 0;
   left: 0;
@@ -61,8 +61,15 @@ nav {
     }
   }
 
+  .image-logo {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 5px;
+  }
+
   .user-info {
-    margin-bottom: auto;
+    margin-bottom: 1rem;
     width: 100%;
     padding: 0.5rem;
     text-align: center;
