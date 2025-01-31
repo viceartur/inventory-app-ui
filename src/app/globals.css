@@ -16,6 +16,8 @@ a {
 }
 
 section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   margin-left: calc(var(--nav-width) + 2rem);
   display: flex;
   flex-direction: column;
@@ -89,7 +91,6 @@ nav {
   .sign-out {
     margin-top: auto;
     padding: 0.5rem;
-    width: 100%;
     text-align: center;
   }
 }
