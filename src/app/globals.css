@@ -1,3 +1,7 @@
+:root {
+  --nav-width: 8rem;
+}
+
 * {
   font-family: "Poppins", sans-serif;
 }
@@ -11,11 +15,18 @@ a {
   margin: 0.5rem;
 }
 
+section {
+  margin-left: calc(var(--nav-width) + 2rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 nav {
   padding: 1rem;
-  width: 8rem;
+  width: var(--nav-width);
   height: 100vh;
-  background-color: rgb(207, 207, 207);
+  background-color: rgb(233, 233, 233);
   border-right: 1px solid black;
   position: fixed;
   top: 0;
@@ -26,7 +37,7 @@ nav {
   overflow-y: auto;
 
   a {
-    width: 100%;
+    width: 90%;
     padding: 0.7rem;
     border-radius: 4px;
     font-weight: 600;
@@ -81,13 +92,6 @@ nav {
     width: 100%;
     text-align: center;
   }
-}
-
-section {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 form {
