@@ -30,6 +30,8 @@ export function SendMaterialForm() {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [selectCustomers, setSelectCustomers] = useState([selectState]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [sumbitMessage, setSubmitMessage] = useState("");
   usePreventNumberInputScroll();
 
@@ -46,21 +48,13 @@ export function SendMaterialForm() {
   const submitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    setFormData(formData);
+    setShowConfirmation(true);
+  };
 
-    const material = {
-      customerId: formData.get("customerId"),
-      stockId: formData.get("stockId"),
-      type: formData.get("materialType"),
-      quantity: formData.get("qty"),
-      cost: formData.get("cost"),
-      minQuantity: formData.get("minQty"),
-      maxQuantity: formData.get("maxQty"),
-      description: formData.get("description"),
-      owner: formData.get("owner") == "on" ? "Tag" : "Customer",
-      isActive: formData.get("isActive") == "on",
-    };
-
-    const res: any = await sendMaterial(material);
+  const confirmAction = async () => {
+    setShowConfirmation(false);
+    const res: any = await sendMaterial(formData);
     if (res?.error) {
       setSubmitMessage(res.error);
     } else {
@@ -71,6 +65,11 @@ export function SendMaterialForm() {
       }
     }
   };
+
+  function cancelAction() {
+    setShowConfirmation(false);
+    setFormData(null);
+  }
 
   return (
     <section>
@@ -159,6 +158,20 @@ export function SendMaterialForm() {
         <p className="submit-message">{sumbitMessage}</p>
         <SubmitButton title="Send Material" />
       </form>
+
+      {showConfirmation && (
+        <div className="confirmation-window">
+          <p>Do you want to send this material?</p>
+          <p>Stock ID: "{String(formData?.get("stockId"))}"</p>
+          <p>Quantity: {toUSFormat(Number(formData?.get("qty")))}</p>
+          <button type="button" onClick={confirmAction}>
+            Yes
+          </button>
+          <button type="button" onClick={cancelAction}>
+            No
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -250,11 +263,13 @@ export function IncomingMaterials() {
 
 export function CreateMaterialForm(props: { materialId: string }) {
   const socket = useSocket();
-  const [sumbitMessage, setSubmitMessage] = useState("");
   const [incomingMaterial, setIncomingMaterial] = useState(
     incomingMaterialState
   );
   const [selectLocations, setSelectLocations] = useState([selectState]);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [sumbitMessage, setSubmitMessage] = useState("");
   usePreventNumberInputScroll();
 
   useEffect(() => {
@@ -270,11 +285,16 @@ export function CreateMaterialForm(props: { materialId: string }) {
     getMaterialCard();
   }, []);
 
-  async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
+  const submitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const incomingMaterialId = props.materialId;
+    setFormData(formData);
+    setShowConfirmation(true);
+  };
 
+  const confirmAction = async () => {
+    setShowConfirmation(false);
+    const incomingMaterialId = props.materialId;
     const res: any = await createMaterial(incomingMaterialId, formData);
     if (res?.error) {
       setSubmitMessage(res.error);
@@ -285,12 +305,17 @@ export function CreateMaterialForm(props: { materialId: string }) {
         redirect("/incoming-materials/");
       }, 2000);
     }
+  };
+
+  function cancelAction() {
+    setShowConfirmation(false);
+    setFormData(null);
   }
 
   return (
     <section>
       <h2>Adding the Material to the Location</h2>
-      <form onSubmit={onSubmitForm}>
+      <form onSubmit={submitForm}>
         <div className="form-info">
           <h3>Information from CSR:</h3>
           <div className="form-info-line">
@@ -365,6 +390,20 @@ export function CreateMaterialForm(props: { materialId: string }) {
           <SubmitButton title="Add Material" />
         </div>
       </form>
+
+      {showConfirmation && (
+        <div className="confirmation-window">
+          <p>Do you want to accept this material?</p>
+          <p>Stock ID: "{incomingMaterial.stockId}"</p>
+          <p>Quantity: {toUSFormat(Number(formData?.get("quantity")))}</p>
+          <button type="button" onClick={confirmAction}>
+            Yes
+          </button>
+          <button type="button" onClick={cancelAction}>
+            No
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -762,8 +801,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
           <input
             type="text"
             name="jobTicket"
-            placeholder="Job Ticket #"
-            required
+            placeholder="Job Ticket # (optional)"
           />
         </div>
         <p className="submit-message">{sumbitMessage}</p>

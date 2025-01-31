@@ -25,10 +25,13 @@ export async function fetchMaterialTypes() {
     const data = await res.json();
     if (!data?.length) return [];
 
-    const types = data.map((type: any, i: number) => ({
-      id: i,
-      name: type,
-    }));
+    const types = data
+      .map((type: any, i: number) => ({
+        id: i,
+        name: type,
+      }))
+      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+
     return types;
   } catch (error) {
     console.error(error);
@@ -36,7 +39,22 @@ export async function fetchMaterialTypes() {
   }
 }
 
-export async function sendMaterial(material: any) {
+export async function sendMaterial(formData: FormData | null) {
+  if (!formData) return { error: "Error: No Form Data" };
+
+  const material = {
+    customerId: formData.get("customerId"),
+    stockId: formData.get("stockId"),
+    type: formData.get("materialType"),
+    quantity: formData.get("qty"),
+    cost: formData.get("cost"),
+    minQuantity: formData.get("minQty"),
+    maxQuantity: formData.get("maxQty"),
+    description: formData.get("description"),
+    owner: formData.get("owner") == "on" ? "Tag" : "Customer",
+    isActive: formData.get("isActive") == "on",
+  };
+
   try {
     const res = await fetch(`${API}/incoming_materials`, {
       method: "POST",
@@ -91,8 +109,10 @@ export async function fetchIncomingMaterials(materialId = "") {
 
 export async function createMaterial(
   incomingMaterialId: string,
-  formData: FormData
+  formData: FormData | null
 ) {
+  if (!formData) return { error: "Error: No Form Data" };
+
   const incomingMaterial = {
     materialId: incomingMaterialId,
     quantity: formData.get("quantity"),

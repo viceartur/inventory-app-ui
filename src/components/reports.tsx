@@ -292,7 +292,7 @@ export function Balance() {
       });
       const totalValue = balance
         .reduce((acc: number, t: any) => {
-          return acc + +t.totalValue.slice(1).replace(",", "");
+          return acc + +t.totalValue.slice(1).replaceAll(",", "");
         }, 0)
         .toFixed(2);
       setBalance(balance);
