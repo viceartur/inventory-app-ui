@@ -28,10 +28,9 @@ export function NavLinks() {
   return (
     <nav>
       <div className="user-info">
-        <p className="user-info__username">User: {session?.user.name}</p>
-        <p className="user-info__unit">Role: {session?.user.role}</p>
+        <p>Group: {session?.user.role}</p>
+        <p>User: {session?.user.name}</p>
       </div>
-
       {APP_ROUTES.filter((route: Route) =>
         route.restrict.includes(session?.user.role)
       ).map((route: Route, i) => (
@@ -41,12 +40,12 @@ export function NavLinks() {
           href={route.path}
         >
           {route.label}{" "}
-          {["/incoming-materials", "/pending-materials"].includes(route.path)
-            ? quantity && "(" + quantity + ")"
+          {["/incoming-materials", "/pending-materials"].includes(route.path) &&
+          quantity
+            ? "(" + quantity + ")"
             : ""}
         </Link>
       ))}
-
       <SignOutButton />
     </nav>
   );

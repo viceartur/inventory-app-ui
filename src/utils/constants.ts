@@ -98,6 +98,7 @@ export const materialState = {
   isActive: "Loading...",
   materialType: "Loading...",
   owner: "Loading...",
+  serialNumberRange: "Loading...",
 };
 
 export const searchParamsState = {

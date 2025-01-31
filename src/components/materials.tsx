@@ -74,7 +74,7 @@ export function SendMaterialForm() {
 
   return (
     <section>
-      <h2>Send Material to Incoming</h2>
+      <h2>Send Material to Warehouse</h2>
       <form ref={formRef} onSubmit={submitForm}>
         <div className="form-info">
           <p>
@@ -85,6 +85,15 @@ export function SendMaterialForm() {
         <div className="form-line">
           <label>Stock ID:</label>
           <input type="text" name="stockId" placeholder="Stock ID" required />
+        </div>
+        <div className="form-line">
+          <label>Descrption:</label>
+          <input
+            type="text"
+            name="description"
+            placeholder="Description"
+            required
+          />
         </div>
         <div className="form-line">
           <label>Quantity:</label>
@@ -121,15 +130,21 @@ export function SendMaterialForm() {
         </div>
         <div className="form-line">
           <label>Min Qty:</label>
-          <input type="number" name="minQty" placeholder="Min Quantity" />
+          <input
+            type="number"
+            name="minQty"
+            placeholder="Min Quantity"
+            required
+          />
         </div>
         <div className="form-line">
           <label>Max Qty:</label>
-          <input type="number" name="maxQty" placeholder="Max Quantity" />
-        </div>
-        <div className="form-line">
-          <label>Descrption:</label>
-          <input type="text" name="description" placeholder="Description" />
+          <input
+            type="number"
+            name="maxQty"
+            placeholder="Max Quantity"
+            required
+          />
         </div>
         <div>
           <label>
@@ -202,7 +217,7 @@ export function IncomingMaterials() {
 
   return (
     <section>
-      <h2>Incoming Materials List: {incomingMaterialsList.length} items</h2>
+      <h2>Incoming Materials List:</h2>
       {incomingMaterialsList.length ? (
         <div className="material_list">
           <div className="list_header">
@@ -314,6 +329,17 @@ export function CreateMaterialForm(props: { materialId: string }) {
             required
           />
         </div>
+        {incomingMaterial.materialType === "CHIPS" && (
+          <div className="form-line">
+            <label>Serial # range:</label>
+            <input
+              type="text"
+              name="serialNumberRange"
+              placeholder="Serial # range to accept (ex. 1-1000)"
+              required
+            />
+          </div>
+        )}
         <div className="form-line">
           <label>Location:</label>
           <select name="locationId" required>
@@ -549,6 +575,12 @@ export function MoveMaterialForm(props: { materialId: string }) {
             <label>Type:</label>
             {material.materialType}
           </div>
+          {material.materialType === "CHIPS" && (
+            <div className="form-info-line">
+              <label>Serial # range:</label>
+              {material.serialNumberRange}
+            </div>
+          )}
           <div className="form-info-line">
             <label>Ownership:</label>
             {material.owner}
@@ -682,6 +714,12 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             <label>Type:</label>
             {material.materialType}
           </div>
+          {material.materialType === "CHIPS" && (
+            <div className="form-info-line">
+              <label>Serial # range:</label>
+              {material.serialNumberRange}
+            </div>
+          )}
           <div className="form-info-line">
             <label>Ownership:</label>
             {material.owner}
@@ -708,6 +746,17 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             required
           />
         </div>
+        {material.materialType === "CHIPS" && (
+          <div className="form-line">
+            <label>Serial # range:</label>
+            <input
+              type="text"
+              name="serialNumberRange"
+              placeholder="Serial # range to use (ex. 101-200)"
+              required
+            />
+          </div>
+        )}
         <div className="form-line">
           <label>Job Ticket #:</label>
           <input

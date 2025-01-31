@@ -98,6 +98,7 @@ export async function createMaterial(
     quantity: formData.get("quantity"),
     locationId: formData.get("locationId"),
     notes: formData.get("notes"),
+    serialNumberRange: formData.get("serialNumberRange"),
   };
 
   try {
@@ -170,6 +171,7 @@ export async function removeMaterial(
     materialId,
     quantity: formData.get("quantity"),
     jobTicket: formData.get("jobTicket"),
+    serialNumberRange: formData.get("serialNumberRange"),
   };
 
   try {
@@ -234,6 +236,7 @@ export async function fetchMaterials(filterOpts: any) {
       maxQty: material.MaxQty,
       owner: material.Owner,
       isPrimary: material.IsPrimary,
+      serialNumberRange: material.SerialNumberRange,
     }));
 
     return materials;

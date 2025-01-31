@@ -32,8 +32,7 @@ export function WarehouseForm() {
             list="warehouses"
             name="warehouseName"
             placeholder="Warehouse Name"
-            defaultValue={warehouses[0].warehouseName}
-            key={warehouses[0].warehouseName}
+            required
           />
           <datalist id="warehouses">
             {warehouses.map((w: any, i: number) => (
