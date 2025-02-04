@@ -24,6 +24,7 @@ import { fetchCustomers } from "actions/customers";
 import { fetchAvailableLocations } from "actions/warehouses";
 import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
 import { useSocket } from "context/socket-context";
+import { useSession } from "next-auth/react";
 
 export function SendMaterialForm() {
   const socket = useSocket();
@@ -416,6 +417,7 @@ export function Materials() {
     description: "",
     locationName: "",
   });
+  const { data: session } = useSession();
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -502,7 +504,9 @@ export function Materials() {
                   )
                 )}
               </p>
-              <p>Actions</p>
+              {["warehouse", "admin"].includes(session?.user.role) && (
+                <p>Actions</p>
+              )}
             </div>
             {materialsList.map((material: any, i) => (
               <div
@@ -517,22 +521,28 @@ export function Materials() {
                 <p>{material.owner}</p>
                 <p>{material.locationName}</p>
                 <p>{toUSFormat(material.quantity)}</p>
-                <button
-                  onClick={() =>
-                    redirect(
-                      `/materials/remove-material/${material.materialId}`
-                    )
-                  }
-                >
-                  ❌
-                </button>
-                <button
-                  onClick={() =>
-                    redirect(`/materials/move-material/${material.materialId}`)
-                  }
-                >
-                  🔀
-                </button>
+                {["warehouse", "admin"].includes(session?.user.role) && (
+                  <>
+                    <button
+                      onClick={() =>
+                        redirect(
+                          `/materials/remove-material/${material.materialId}`
+                        )
+                      }
+                    >
+                      ❌
+                    </button>
+                    <button
+                      onClick={() =>
+                        redirect(
+                          `/materials/move-material/${material.materialId}`
+                        )
+                      }
+                    >
+                      🔀
+                    </button>
+                  </>
+                )}
               </div>
             ))}
           </div>
