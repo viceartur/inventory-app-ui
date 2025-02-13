@@ -277,3 +277,26 @@ export async function uploadMaterials(jsonData: any) {
   const dataResult = await res.json();
   return dataResult;
 }
+
+export async function fetchRequestedMaterials() {
+  try {
+    const res = await fetch(`${API}/requested_materials`);
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.data?.length) return [];
+
+    const materials = data.data.map((material: any) => ({
+      requestId: material.RequestID,
+      stockId: material.StockID,
+      description: material.Description,
+      quantity: material.Quantity,
+      username: material.UserName,
+    }));
+
+    return materials;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}

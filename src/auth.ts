@@ -28,9 +28,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!data?.data) return null;
 
           const {
-            data: { username: name, role },
+            data: { userId: id, username: name, role },
           } = data;
-          return { name, role };
+          return { id, name, role };
         } catch (error: any) {
           console.error(error.message);
           return null;
@@ -42,12 +42,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.userId = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
         session.user.role = token.role as string;
+        session.user.id = token.userId as number;
       }
       return session;
     },
