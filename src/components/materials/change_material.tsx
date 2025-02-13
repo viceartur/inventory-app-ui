@@ -1,413 +1,20 @@
 "use client";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { redirect } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { redirect, useSearchParams } from "next/navigation";
 import * as XLSX from "xlsx";
+import { useSession } from "next-auth/react";
 
 import { SubmitButton } from "ui/submit-button";
 import {
-  createMaterial,
-  fetchIncomingMaterials,
   fetchMaterials,
-  fetchMaterialTypes,
   moveMaterial,
   removeMaterial,
-  sendMaterial,
   updateMaterial,
   uploadMaterials,
-} from "../actions/materials";
-import {
-  incomingMaterialState,
-  materialState,
-  selectState,
-} from "utils/constants";
-import { fetchCustomers } from "actions/customers";
+} from "../../actions/materials";
+import { materialState, selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
-import { useSocket } from "context/socket-context";
-import { useSession } from "next-auth/react";
-
-export function SendMaterialForm() {
-  const socket = useSocket();
-  const formRef = useRef<HTMLFormElement | null>(null);
-  const [selectCustomers, setSelectCustomers] = useState([selectState]);
-  const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
-  const [formData, setFormData] = useState<FormData | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [sumbitMessage, setSubmitMessage] = useState("");
-  usePreventNumberInputScroll();
-
-  useEffect(() => {
-    const getMaterialInfo = async () => {
-      const customers = await fetchCustomers();
-      const types = await fetchMaterialTypes();
-      setSelectCustomers(customers);
-      setSelectMaterialTypes(types);
-    };
-    getMaterialInfo();
-  }, []);
-
-  const submitForm = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    setFormData(formData);
-    setShowConfirmation(true);
-  };
-
-  const confirmAction = async () => {
-    setShowConfirmation(false);
-    const res: any = await sendMaterial(formData);
-    if (res?.error) {
-      setSubmitMessage(res.error);
-    } else {
-      setSubmitMessage(res.message);
-      socket?.send("materialsUpdated");
-      if (formRef.current) {
-        formRef.current.reset();
-      }
-    }
-  };
-
-  function cancelAction() {
-    setShowConfirmation(false);
-    setFormData(null);
-  }
-
-  return (
-    <section>
-      <h2>Send Material to Warehouse</h2>
-      <form ref={formRef} onSubmit={submitForm}>
-        <div className="form-info">
-          <p>
-            CSR Staff may fill out the material information below and then send
-            it to the Warehouse
-          </p>
-        </div>
-        <div className="form-line">
-          <label>Stock ID:</label>
-          <input type="text" name="stockId" placeholder="Stock ID" required />
-        </div>
-        <div className="form-line">
-          <label>Descrption:</label>
-          <input
-            type="text"
-            name="description"
-            placeholder="Description"
-            required
-          />
-        </div>
-        <div className="form-line">
-          <label>Quantity:</label>
-          <input type="number" name="qty" placeholder="Quantity" required />
-        </div>
-        <div className="form-line">
-          <label>Unit Cost (USD):</label>
-          <input
-            type="decimal"
-            name="cost"
-            placeholder="Unit Cost (USD)"
-            required
-          />
-        </div>
-        <div className="form-line">
-          <label>Customer:</label>
-          <select name="customerId" required>
-            {selectCustomers.map((customer, i) => (
-              <option key={i} value={customer.id}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-line">
-          <label>Material Type:</label>
-          <select name="materialType" required>
-            {selectMaterialTypes.map((type) => (
-              <option key={type.id} value={type.name}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-line">
-          <label>Min Qty:</label>
-          <input
-            type="number"
-            name="minQty"
-            placeholder="Min Quantity"
-            required
-          />
-        </div>
-        <div className="form-line">
-          <label>Max Qty:</label>
-          <input
-            type="number"
-            name="maxQty"
-            placeholder="Max Quantity"
-            required
-          />
-        </div>
-        <div>
-          <label>
-            Tag Owned:
-            <input type="checkbox" name="owner" />
-          </label>
-          <label>
-            Allow for Use:
-            <input type="checkbox" name="isActive" />
-          </label>
-        </div>
-        <p className="submit-message">{sumbitMessage}</p>
-        <SubmitButton title="Send Material" />
-      </form>
-
-      {showConfirmation && (
-        <div className="confirmation-window">
-          <p>Do you want to send this material?</p>
-          <p>Stock ID: "{String(formData?.get("stockId"))}"</p>
-          <p>Quantity: {toUSFormat(Number(formData?.get("qty")))}</p>
-          <button type="button" onClick={confirmAction}>
-            Yes
-          </button>
-          <button type="button" onClick={cancelAction}>
-            No
-          </button>
-        </div>
-      )}
-    </section>
-  );
-}
-
-export function PendingMaterials() {
-  const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
-
-  useEffect(() => {
-    const getIncomingMaterials = async () => {
-      const materials = await fetchIncomingMaterials();
-      setIncomingMaterialsList(materials);
-    };
-    getIncomingMaterials();
-  }, []);
-
-  return (
-    <section>
-      <h2>Pending Materials:</h2>
-      <p>List of submitted Materials awaiting acceptance</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Description</th>
-            <th>Stock ID</th>
-            <th>Quantity</th>
-            <th>Unit Cost, USD</th>
-          </tr>
-        </thead>
-        <tbody>
-          {incomingMaterialsList.map((material: any, i) => (
-            <tr key={i}>
-              <td>{material.customerName}</td>
-              <td>{material.description}</td>
-              <td>{material.stockId}</td>
-              <td>{toUSFormat(material.quantity)}</td>
-              <td>{material.cost}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
-  );
-}
-
-export function IncomingMaterials() {
-  const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
-
-  useEffect(() => {
-    const getIncomingMaterials = async () => {
-      const materials = await fetchIncomingMaterials();
-      setIncomingMaterialsList(materials);
-    };
-    getIncomingMaterials();
-  }, []);
-
-  return (
-    <section>
-      <h2>Incoming Materials List:</h2>
-      {incomingMaterialsList.length ? (
-        <div className="material_list">
-          <div className="list_header">
-            <p>Customer</p>
-            <p>Stock ID</p>
-            <p>Quantity</p>
-            <p>Action</p>
-          </div>
-          {incomingMaterialsList.map((material: any, i) => (
-            <div className="material_list-item" key={i}>
-              <p>{material.customerName}</p>
-              <p>{material.stockId}</p>
-              <p>{toUSFormat(material.quantity)}</p>
-              <button
-                onClick={() =>
-                  redirect(`/incoming-materials/${material.shippingId}`)
-                }
-              >
-                📥
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>List is empty</p>
-      )}
-    </section>
-  );
-}
-
-export function CreateMaterialForm(props: { materialId: string }) {
-  const socket = useSocket();
-  const [incomingMaterial, setIncomingMaterial] = useState(
-    incomingMaterialState
-  );
-  const [selectLocations, setSelectLocations] = useState([selectState]);
-  const [formData, setFormData] = useState<FormData | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [sumbitMessage, setSubmitMessage] = useState("");
-  usePreventNumberInputScroll();
-
-  useEffect(() => {
-    const getMaterialCard = async () => {
-      const [material] = await fetchIncomingMaterials(props.materialId);
-      const stockId = material.stockId;
-      const owner = material.owner;
-      const locations = await fetchAvailableLocations(stockId, owner);
-
-      setIncomingMaterial(material);
-      setSelectLocations(locations);
-    };
-    getMaterialCard();
-  }, []);
-
-  const submitForm = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    setFormData(formData);
-    setShowConfirmation(true);
-  };
-
-  const confirmAction = async () => {
-    setShowConfirmation(false);
-    const incomingMaterialId = props.materialId;
-    const res: any = await createMaterial(incomingMaterialId, formData);
-    if (res?.error) {
-      setSubmitMessage(res.error);
-    } else {
-      setSubmitMessage("Material Added. Redirecting to Incoming Materials...");
-      socket?.send("materialsUpdated");
-      setTimeout(() => {
-        redirect("/incoming-materials/");
-      }, 2000);
-    }
-  };
-
-  function cancelAction() {
-    setShowConfirmation(false);
-    setFormData(null);
-  }
-
-  return (
-    <section>
-      <h2>Adding the Material to the Location</h2>
-      <form onSubmit={submitForm}>
-        <div className="form-info">
-          <h3>Information from CSR:</h3>
-          <div className="form-info-line">
-            <label>Customer: </label>
-            {incomingMaterial.customerName}
-          </div>
-          <div className="form-info-line">
-            <label>Stock ID: </label>
-            {incomingMaterial.stockId}
-          </div>
-          <div className="form-info-line">
-            <label>Description:</label>
-            {incomingMaterial.description}
-          </div>
-          <div className="form-info-line">
-            <label>Type: </label>
-            {incomingMaterial.materialType}
-          </div>
-          <div className="form-info-line">
-            <label>Ownership:</label>
-            {incomingMaterial.owner}
-          </div>
-          <div className="form-info-line">
-            <label>Allow for use:</label>
-            {incomingMaterial.isActive ? "Yes" : "No"}
-          </div>
-        </div>
-        <div className="form-line">
-          <label>Quantity:</label>
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            key={incomingMaterial.quantity}
-            defaultValue={incomingMaterial.quantity}
-            required
-          />
-        </div>
-        {incomingMaterial.materialType === "CHIPS" && (
-          <div className="form-line">
-            <label>Serial # range:</label>
-            <input
-              type="text"
-              name="serialNumberRange"
-              placeholder="Serial # range to accept (ex. 1-1000)"
-              required
-            />
-          </div>
-        )}
-        <div className="form-line">
-          <label>Location:</label>
-          <select name="locationId" required>
-            {selectLocations.map((location: any, i: number) => (
-              <option key={i} value={location.id}>
-                {location.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-line">
-          <label>Notes:</label>
-          <input type="text" name="notes" placeholder="Notes" />
-        </div>
-        <p className="submit-message">{sumbitMessage}</p>
-        <div>
-          <button
-            type="button"
-            onClick={() => redirect("/incoming-materials/")}
-          >
-            Go back
-          </button>
-          <SubmitButton title="Add Material" />
-        </div>
-      </form>
-
-      {showConfirmation && (
-        <div className="confirmation-window">
-          <p>Do you want to accept this material?</p>
-          <p>Stock ID: "{incomingMaterial.stockId}"</p>
-          <p>Quantity: {toUSFormat(Number(formData?.get("quantity")))}</p>
-          <button type="button" onClick={confirmAction}>
-            Yes
-          </button>
-          <button type="button" onClick={cancelAction}>
-            No
-          </button>
-        </div>
-      )}
-    </section>
-  );
-}
 
 export function Materials() {
   const [materialsList, setMaterialsList] = useState([]);
@@ -702,6 +309,9 @@ export function MoveMaterialForm(props: { materialId: string }) {
 }
 
 export function RemoveMaterialForm(props: { materialId: string }) {
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get("requestId");
+  const requestedQty = searchParams.get("quantity");
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -797,6 +407,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             type="number"
             name="quantity"
             placeholder="Quantity"
+            defaultValue={requestedQty || ""}
             required
           />
         </div>
@@ -821,7 +432,14 @@ export function RemoveMaterialForm(props: { materialId: string }) {
         </div>
         <p className="submit-message">{sumbitMessage}</p>
         <div>
-          <button type="button" onClick={() => redirect("/materials/")}>
+          <button
+            type="button"
+            onClick={() => {
+              requestedQty
+                ? redirect(`/requested-materials/${requestId}`)
+                : redirect("/materials/");
+            }}
+          >
             Go back
           </button>
           <SubmitButton title="Use Material" />
