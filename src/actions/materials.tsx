@@ -220,6 +220,7 @@ export async function fetchMaterials(filterOpts: any) {
     customerName = "",
     description = "",
     locationName = "",
+    userRole = "",
   } = filterOpts;
 
   const queryParams = new URLSearchParams({
@@ -237,7 +238,7 @@ export async function fetchMaterials(filterOpts: any) {
     const data = await res.json();
     if (!data?.length) return [];
 
-    const materials = data.map((material: any) => ({
+    let materials = data.map((material: any) => ({
       materialId: material.MaterialID,
       warehouseName: material.WarehouseName,
       stockId: material.StockID,
@@ -258,6 +259,12 @@ export async function fetchMaterials(filterOpts: any) {
       isPrimary: material.IsPrimary,
       serialNumberRange: material.SerialNumberRange,
     }));
+
+    // Do include 0 qty only for the CSR and Admin Role
+    if (!["csr", "admin"].includes(userRole)) {
+      materials = materials.filter((m: any) => m.quantity);
+      return materials;
+    }
 
     return materials;
   } catch (error) {
