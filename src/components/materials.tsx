@@ -419,6 +419,7 @@ export function Materials() {
     userRole: "",
   });
   const { data: session } = useSession();
+  console.log("test");
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
