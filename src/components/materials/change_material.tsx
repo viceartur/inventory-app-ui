@@ -26,8 +26,10 @@ export function Materials() {
     customerName: "",
     description: "",
     locationName: "",
+    userRole: "",
   });
   const { data: session } = useSession();
+  console.log("test");
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,6 +43,7 @@ export function Materials() {
       customerName,
       description,
       locationName,
+      userRole: session?.user.role,
     };
     setFilterOpts(opts);
     const materials = await fetchMaterials(opts);
@@ -124,7 +127,10 @@ export function Materials() {
                   material.isPrimary ? " primary" : ""
                 }`}
                 key={i}
-                onDoubleClick={() => handlePrimaryItem(material.materialId)}
+                onDoubleClick={() =>
+                  ["warehouse", "admin"].includes(session?.user.role) &&
+                  handlePrimaryItem(material.materialId)
+                }
               >
                 <p>{material.stockId}</p>
                 <p>{material.description}</p>
