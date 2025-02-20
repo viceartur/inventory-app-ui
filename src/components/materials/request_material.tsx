@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import {
   fetchMaterials,
   fetchRequestedMaterials,
+  updateRequestedMaterial,
 } from "../../actions/materials";
 import { toUSFormat } from "utils/utils";
 import { SubmitButton } from "ui/submit-button";
@@ -14,7 +15,7 @@ export function RequestedMaterials() {
 
   useEffect(() => {
     const getRequestedMaterials = async () => {
-      const materials = await fetchRequestedMaterials();
+      const materials = await fetchRequestedMaterials({ status: "pending" });
       setRequestedMaterials(materials);
     };
     getRequestedMaterials();
@@ -58,6 +59,7 @@ export function RequestedMaterials() {
 
 export function RequestedMaterialForm(props: { requestId: string }) {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
   const [declineReason, setDeclineReason] = useState<string | null>(null);
   const [requestedMaterial, setRequestedMaterial] = useState<any>({});
   const [foundMaterials, setFoundMaterials] = useState([]);
@@ -65,7 +67,9 @@ export function RequestedMaterialForm(props: { requestId: string }) {
 
   useEffect(() => {
     const getRequestedMaterialInfo = async () => {
-      const requestedMaterials = await fetchRequestedMaterials();
+      const requestedMaterials = await fetchRequestedMaterials({
+        status: "pending",
+      });
       const requestedMaterial = requestedMaterials.find(
         (m: any) => m.requestId === Number(props.requestId)
       );
@@ -79,6 +83,8 @@ export function RequestedMaterialForm(props: { requestId: string }) {
         if (materials.length > 0) {
           setFoundMaterials(materials);
           setMaterialToUse(materials[0]);
+        } else {
+          setSubmitMessage("Material Not Found");
         }
       }
     };
@@ -88,7 +94,6 @@ export function RequestedMaterialForm(props: { requestId: string }) {
   const onLocationChange = (event: any) => {
     event.preventDefault();
     const locId = event.target.value;
-    console.log(locId);
     const materialToUse = foundMaterials.find(
       (m: any) => m.locationId === Number(locId)
     );
@@ -100,12 +105,34 @@ export function RequestedMaterialForm(props: { requestId: string }) {
     setShowConfirmation(true);
   };
 
-  const confirmAction = async () => {
-    setShowConfirmation(false);
-    console.log("API request.Reason", declineReason);
+  const handleUseButton = () => {
+    redirect(
+      `/materials/remove-material/${materialToUse.materialId}?quantity=${
+        requestedMaterial.quantity < materialToUse.quantity // check whether the destination location has enough quantity
+          ? requestedMaterial.quantity // send the requested quantity
+          : materialToUse.quantity // send the location quantity
+      }&requestId=${requestedMaterial.requestId}`
+    );
   };
 
-  function cancelAction() {
+  const confirmDeclineAction = async () => {
+    setShowConfirmation(false);
+    try {
+      await updateRequestedMaterial(requestedMaterial.requestId, {
+        notes: declineReason,
+      });
+      setSubmitMessage(
+        "Material Declined. Redirecting to Requested Materials..."
+      );
+      setTimeout(() => {
+        redirect("/requested-materials");
+      }, 2000);
+    } catch (error: any) {
+      setSubmitMessage(error.message);
+    }
+  };
+
+  function cancelDeclineAction() {
     setShowConfirmation(false);
     setDeclineReason(null);
   }
@@ -134,11 +161,10 @@ export function RequestedMaterialForm(props: { requestId: string }) {
             <label>Requested Qty:</label>
             {requestedMaterial.quantity}
           </div>
-        </div>{" "}
-        {foundMaterials.length ? (
+        </div>
+        {!!foundMaterials.length && (
           <div className="form-line">
             <label>Location to Use:</label>
-
             <select name="locationId" required onChange={onLocationChange}>
               {foundMaterials.map((material: any, i: number) => (
                 <option key={i} value={material.locationId}>
@@ -147,26 +173,13 @@ export function RequestedMaterialForm(props: { requestId: string }) {
               ))}
             </select>
           </div>
-        ) : (
-          <p className="submit-message">Not Found</p>
         )}
-        <div>
-          {foundMaterials.length &&
-          requestedMaterial.quantity < materialToUse.quantity ? (
-            <button
-              type="button"
-              onClick={() =>
-                redirect(
-                  `/materials/remove-material/${materialToUse.materialId}?quantity=${requestedMaterial.quantity}&requestId=${requestedMaterial.requestId}`
-                )
-              }
-            >
+        <p className="submit-message">{submitMessage}</p>
+        <div className="form-buttons">
+          {!!foundMaterials.length && (
+            <button type="button" onClick={handleUseButton}>
               Go to Use
             </button>
-          ) : (
-            <p className="submit-message">
-              Insufficient Amount on the Location: {materialToUse.quantity}
-            </p>
           )}
           <SubmitButton title="Decline" />
         </div>
@@ -184,15 +197,63 @@ export function RequestedMaterialForm(props: { requestId: string }) {
             }}
           />
           <div>
-            <button type="button" onClick={confirmAction}>
+            <button type="button" onClick={confirmDeclineAction}>
               Confirm
             </button>
-            <button type="button" onClick={cancelAction}>
+            <button type="button" onClick={cancelDeclineAction}>
               Cancel
             </button>
           </div>
         </div>
       )}
+    </section>
+  );
+}
+
+export function ProcessedRequests() {
+  const [requestedMaterials, setRequestedMaterials] = useState([]);
+
+  useEffect(() => {
+    const getRequestedMaterials = async () => {
+      const materials = await fetchRequestedMaterials({});
+      setRequestedMaterials(materials);
+    };
+    getRequestedMaterials();
+  }, []);
+
+  return (
+    <section>
+      <h2>Processed Materials Requests:</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Stock ID</th>
+            <th>Description</th>
+            <th>Requested Qty</th>
+            <th>Used Qty</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Updated At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requestedMaterials.map((material: any, i) => (
+            <tr key={i}>
+              <td>{material.stockId}</td>
+              <td>{material.description}</td>
+              <td>{toUSFormat(material.qtyRequested)}</td>
+              <td>{toUSFormat(material.qtyUsed)}</td>
+              <td className={material.status === "declined" ? "negative" : ""}>
+                {material.status}
+              </td>
+              <td>{material.notes}</td>
+              <td>
+                {new Date(material.updatedAt).toISOString().split("T")[0]}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

@@ -185,17 +185,17 @@ export async function removeMaterial(
   materialId: string,
   formData: FormData | null
 ) {
-  if (!formData) return { error: "Error: No Form Data" };
-
-  const material = {
-    materialId,
-    quantity: formData.get("quantity"),
-    jobTicket: formData.get("jobTicket"),
-    serialNumberRange: formData.get("serialNumberRange"),
-  };
-
   try {
-    const res = await fetch(`${API}/materials/remove-from-location`, {
+    if (!formData) return { error: "Error: No Form Data" };
+
+    const material = {
+      materialId,
+      quantity: formData.get("quantity"),
+      jobTicket: formData.get("jobTicket"),
+      serialNumberRange: formData.get("serialNumberRange"),
+    };
+
+    const res: any = await fetch(`${API}/materials/remove-from-location`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -203,13 +203,9 @@ export async function removeMaterial(
       body: JSON.stringify(material),
     });
     const data = await res.json();
-
-    if (res.status != 200) {
-      return { error: "Error: " + data.message };
-    }
-    return null;
+    if (res.status != 200) throw new Error(data.message);
   } catch (error: any) {
-    return { error: "Error: " + error.message };
+    throw new Error(error.message);
   }
 }
 
@@ -285,9 +281,14 @@ export async function uploadMaterials(jsonData: any) {
   return dataResult;
 }
 
-export async function fetchRequestedMaterials() {
+export async function fetchRequestedMaterials(filterOpts: any) {
   try {
-    const res = await fetch(`${API}/requested_materials`);
+    const { status = "", requestId = "" } = filterOpts;
+    const queryParams = new URLSearchParams({ status, requestId });
+
+    const res = await fetch(
+      `${API}/requested_materials?${queryParams.toString()}`
+    );
     if (!res) return [];
 
     const data = await res.json();
@@ -297,13 +298,46 @@ export async function fetchRequestedMaterials() {
       requestId: material.RequestID,
       stockId: material.StockID,
       description: material.Description,
-      quantity: material.Quantity,
+      qtyRequested: material.QtyRequested,
+      qtyUsed: material.QtyUsed,
+      quantity: material.QtyRequested - material.QtyUsed,
       username: material.UserName,
+      status: material.Status,
+      notes: material.Notes,
+      updatedAt: material.UpdatedAt,
     }));
 
     return materials;
   } catch (error) {
     console.error(error);
     return [];
+  }
+}
+
+export async function updateRequestedMaterial(
+  requestId: string,
+  requestInfo: any | null
+) {
+  try {
+    const { quantity = "0", status = "declined", notes = "" } = requestInfo;
+
+    const data = {
+      materialId: String(requestId),
+      quantity,
+      status,
+      notes,
+    };
+
+    const res: any = await fetch(`${API}/requested_materials`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (res.status != 200) throw new Error(json.message);
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }

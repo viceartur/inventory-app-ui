@@ -148,7 +148,7 @@ export function Reports() {
           <label>(B) Date As Of:</label>
           <input type="date" name="dateAsOf" />
         </div>
-        <div>
+        <div className="form-buttons">
           <button type="button" onClick={handleTransactionsRedirect}>
             Get Transactions Report
           </button>

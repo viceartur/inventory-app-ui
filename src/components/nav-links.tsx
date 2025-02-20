@@ -35,7 +35,6 @@ export function NavLinks() {
         width={130}
         height={43}
         alt="logo"
-        priority={true}
       />
       <div className="user-info">
         <p>Group: {session?.user.role}</p>

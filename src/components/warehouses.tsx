@@ -50,7 +50,9 @@ export function WarehouseForm() {
           />
         </div>
         <p className="submit-message">{state?.message}</p>
-        <SubmitButton title="Add Location" />
+        <div className="form-buttons">
+          <SubmitButton title="Add Location" />
+        </div>
       </form>
     </section>
   );

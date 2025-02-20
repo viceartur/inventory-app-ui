@@ -143,7 +143,9 @@ export function SendMaterialForm() {
           </label>
         </div>
         <p className="submit-message">{sumbitMessage}</p>
-        <SubmitButton title="Send Material" />
+        <div className="form-buttons">
+          <SubmitButton title="Send Material" />
+        </div>
       </form>
 
       {showConfirmation && (

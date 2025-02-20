@@ -175,7 +175,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
           <input type="text" name="notes" placeholder="Notes" />
         </div>
         <p className="submit-message">{sumbitMessage}</p>
-        <div>
+        <div className="form-buttons">
           <button
             type="button"
             onClick={() => redirect("/incoming-materials/")}
