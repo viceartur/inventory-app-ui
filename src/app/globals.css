@@ -149,6 +149,16 @@ form {
     }
   }
 
+  .form-buttons {
+    display: flex;
+    justify-content: center;
+
+    button {
+      min-width: 8rem;
+      max-width: fit-content;
+    }
+  }
+
   p.submit-message:empty {
     display: none;
   }
@@ -165,7 +175,8 @@ form {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: fit-content;
+  min-width: 20rem;
+  max-width: fit-content;
   background-color: #f3f3f3;
   box-shadow: 0 4rem 6rem rgba(0, 0, 0, 0.3);
   border: 2px solid black;
@@ -174,6 +185,10 @@ form {
   transition: all 0.5s;
   text-align: center;
   font-size: large;
+
+  input {
+    width: 15rem;
+  }
 
   button {
     width: 5rem;

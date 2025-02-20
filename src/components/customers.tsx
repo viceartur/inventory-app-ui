@@ -32,7 +32,9 @@ export function CustomerForm() {
           />
         </div>
         <p className="submit-message">{state?.message}</p>
-        <SubmitButton title="Add Customer" />
+        <div className="form-buttons">
+          <SubmitButton title="Add Customer" />
+        </div>
       </form>
     </section>
   );

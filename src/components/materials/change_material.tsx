@@ -7,14 +7,17 @@ import { useSession } from "next-auth/react";
 import { SubmitButton } from "ui/submit-button";
 import {
   fetchMaterials,
+  fetchRequestedMaterials,
   moveMaterial,
   removeMaterial,
   updateMaterial,
+  updateRequestedMaterial,
   uploadMaterials,
 } from "../../actions/materials";
 import { materialState, selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
+import { request } from "http";
 
 export function Materials() {
   const [materialsList, setMaterialsList] = useState([]);
@@ -274,7 +277,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
           </select>
         </div>
         <p className="submit-message">{sumbitMessage}</p>
-        <div>
+        <div className="form-buttons">
           <button type="button" onClick={() => redirect("/materials/")}>
             Go back
           </button>
@@ -307,7 +310,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   const searchParams = useSearchParams();
   const requestId = searchParams.get("requestId");
   const requestedQty = searchParams.get("quantity");
-  const [sumbitMessage, setSubmitMessage] = useState("");
+  const [submitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -329,16 +332,49 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   }
 
   async function confirmAction() {
-    setShowConfirmation(false);
-    const materialId = props.materialId;
-    const response: any = await removeMaterial(materialId, formData);
-    if (response?.error) {
-      setSubmitMessage(response.error);
-    } else {
-      setSubmitMessage("Material Removed. Redirecting to Inventory...");
-      setTimeout(() => {
-        redirect("/materials/");
-      }, 2000);
+    try {
+      setShowConfirmation(false);
+      const materialId = props.materialId;
+      await removeMaterial(materialId, formData);
+
+      // If the Request ID was provided, then update the Request Material
+      if (requestId) {
+        const quantity = String(formData?.get("quantity"));
+
+        // Check the removing quantity
+        const [requestedMaterial] = await fetchRequestedMaterials({
+          requestId,
+        });
+        if (requestedMaterial.quantity > quantity) {
+          await updateRequestedMaterial(requestId, {
+            requestId,
+            quantity,
+            status: "pending",
+            notes: "Used partially",
+          });
+        } else {
+          await updateRequestedMaterial(requestId, {
+            requestId,
+            quantity,
+            status: "sent",
+            notes: "Used fully",
+          });
+        }
+
+        setSubmitMessage(
+          "Material Removed. Redirecting to Requested Materials..."
+        );
+        setTimeout(() => {
+          redirect("/requested-materials");
+        }, 2000);
+      } else {
+        setSubmitMessage("Material Removed. Redirecting to Inventory...");
+        setTimeout(() => {
+          redirect("/materials/");
+        }, 2000);
+      }
+    } catch (error: any) {
+      setSubmitMessage(error.message);
     }
   }
 
@@ -425,8 +461,8 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             placeholder="Job Ticket # (optional)"
           />
         </div>
-        <p className="submit-message">{sumbitMessage}</p>
-        <div>
+        <p className="submit-message">{submitMessage}</p>
+        <div className="form-buttons">
           <button
             type="button"
             onClick={() => {
@@ -548,10 +584,12 @@ export function ImportMaterials() {
         ) : (
           ""
         )}
-        <SubmitButton
-          title={isLoading ? "Importing..." : "Import Data"}
-          disabled={isLoading}
-        />
+        <div className="form-buttons">
+          <SubmitButton
+            title={isLoading ? "Importing..." : "Import Data"}
+            disabled={isLoading}
+          />
+        </div>
       </form>
     </section>
   );
