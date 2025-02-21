@@ -1,6 +1,6 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 
 import {
   fetchMaterials,
@@ -9,6 +9,7 @@ import {
 } from "../../actions/materials";
 import { toUSFormat } from "utils/utils";
 import { SubmitButton } from "ui/submit-button";
+import { requestStatusClassName, requestStatuses } from "utils/constants";
 
 export function RequestedMaterials() {
   const [requestedMaterials, setRequestedMaterials] = useState([]);
@@ -210,12 +211,90 @@ export function RequestedMaterialForm(props: { requestId: string }) {
   );
 }
 
+export function Requests() {
+  const [searchParams, setSearchParams] = useState({
+    stockId: "",
+    status: "",
+    requestedAt: "",
+  });
+
+  useEffect(() => {}, []);
+
+  const onChangeForm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const stockId = formData.get("stockId")?.toString() || "";
+    const status = formData.get("status")?.toString() || "";
+    const requestedAt = formData.get("requestedAt")?.toString() || "";
+
+    setSearchParams({
+      stockId,
+      status,
+      requestedAt,
+    });
+  };
+
+  const handleRequestsHistory = () => {
+    const { stockId, status, requestedAt } = searchParams;
+    const queryParams = new URLSearchParams({
+      stockId,
+      status,
+      requestedAt,
+    });
+    redirect(`/processed-requests/requests-history?${queryParams.toString()}`);
+  };
+
+  return (
+    <section>
+      <h2>Processed Requests Page</h2>
+      <form onChange={onChangeForm}>
+        <div className="form-info">
+          <p>You may filter out Requested Materials and see its information</p>
+        </div>
+        <div className="form-line">
+          <label>Stock ID:</label>
+          <input type="text" name="stockId" />
+        </div>
+        <div className="form-line">
+          <label>Status:</label>
+          <select name="status">
+            {requestStatuses.map((status: any, i: number) => (
+              <option key={i} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Requested As Of:</label>
+          <input type="date" name="requestedAt" />
+        </div>
+        <div className="form-buttons">
+          <button type="button" onClick={handleRequestsHistory}>
+            Go To Requests
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
 export function ProcessedRequests() {
+  const searchParams = useSearchParams();
+  const stockId = searchParams.get("stockId");
+  const status = searchParams.get("status");
+  const requestedAt = searchParams.get("requestedAt");
+
   const [requestedMaterials, setRequestedMaterials] = useState([]);
 
   useEffect(() => {
     const getRequestedMaterials = async () => {
-      const materials = await fetchRequestedMaterials({});
+      const materials = await fetchRequestedMaterials({
+        stockId,
+        status,
+        requestedAt,
+      });
       setRequestedMaterials(materials);
     };
     getRequestedMaterials();
@@ -223,6 +302,9 @@ export function ProcessedRequests() {
 
   return (
     <section>
+      <button onClick={() => redirect("/processed-requests")}>
+        Back to Filter
+      </button>
       <h2>Processed Materials Requests:</h2>
       <table>
         <thead>
@@ -234,6 +316,7 @@ export function ProcessedRequests() {
             <th>Status</th>
             <th>Notes</th>
             <th>Updated At</th>
+            <th>Requested At</th>
           </tr>
         </thead>
         <tbody>
@@ -243,12 +326,15 @@ export function ProcessedRequests() {
               <td>{material.description}</td>
               <td>{toUSFormat(material.qtyRequested)}</td>
               <td>{toUSFormat(material.qtyUsed)}</td>
-              <td className={material.status === "declined" ? "negative" : ""}>
+              <td className={requestStatusClassName[material.status]}>
                 {material.status}
               </td>
               <td>{material.notes}</td>
               <td>
                 {new Date(material.updatedAt).toISOString().split("T")[0]}
+              </td>
+              <td>
+                {new Date(material.requestedAt).toISOString().split("T")[0]}
               </td>
             </tr>
           ))}

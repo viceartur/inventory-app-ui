@@ -5,14 +5,18 @@ import { useState, useEffect, FormEvent } from "react";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
-import { ownerTypes, searchParamsState, selectState } from "utils/constants";
+import {
+  ownerTypes,
+  reportsSearchParamsState,
+  selectState,
+} from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
 import { toUSFormat } from "utils/utils";
 
 export function Reports() {
-  const [searchParams, setSearchParams] = useState(searchParamsState);
+  const [searchParams, setSearchParams] = useState(reportsSearchParamsState);
   const [selectCustomers, setSelectCustomers] = useState([
     { ...selectState, name: "" },
   ]);

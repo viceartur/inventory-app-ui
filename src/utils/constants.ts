@@ -111,7 +111,7 @@ export const materialState = {
   serialNumberRange: "Loading...",
 };
 
-export const searchParamsState = {
+export const reportsSearchParamsState = {
   customerId: "",
   customerName: "",
   owner: "",
@@ -120,3 +120,11 @@ export const searchParamsState = {
   dateTo: "",
   dateAsOf: "",
 };
+
+export const requestStatusClassName: any = {
+  declined: "negative",
+  sent: "positive",
+  pending: "neutral",
+};
+
+export const requestStatuses: any = ["", "declined", "sent", "pending"];

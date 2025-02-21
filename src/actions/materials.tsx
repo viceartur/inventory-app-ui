@@ -283,8 +283,18 @@ export async function uploadMaterials(jsonData: any) {
 
 export async function fetchRequestedMaterials(filterOpts: any) {
   try {
-    const { status = "", requestId = "" } = filterOpts;
-    const queryParams = new URLSearchParams({ status, requestId });
+    const {
+      requestId = "",
+      stockId = "",
+      status = "",
+      requestedAt = "",
+    } = filterOpts;
+    const queryParams = new URLSearchParams({
+      requestId,
+      stockId,
+      status,
+      requestedAt,
+    });
 
     const res = await fetch(
       `${API}/requested_materials?${queryParams.toString()}`
@@ -305,6 +315,7 @@ export async function fetchRequestedMaterials(filterOpts: any) {
       status: material.Status,
       notes: material.Notes,
       updatedAt: material.UpdatedAt,
+      requestedAt: material.RequestedAt,
     }));
 
     return materials;
