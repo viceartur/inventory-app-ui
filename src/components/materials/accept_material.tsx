@@ -9,7 +9,11 @@ import {
 } from "../../actions/materials";
 import { incomingMaterialState, selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
-import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
+import {
+  formatUserName,
+  toUSFormat,
+  usePreventNumberInputScroll,
+} from "utils/utils";
 import { useSocket } from "context/socket-context";
 
 export function IncomingMaterials() {
@@ -32,6 +36,7 @@ export function IncomingMaterials() {
             <p>Customer</p>
             <p>Stock ID</p>
             <p>Quantity</p>
+            <p>Sent By</p>
             <p>Action</p>
           </div>
           {incomingMaterialsList.map((material: any, i) => (
@@ -39,6 +44,7 @@ export function IncomingMaterials() {
               <p>{material.customerName}</p>
               <p>{material.stockId}</p>
               <p>{toUSFormat(material.quantity)}</p>
+              <p>{formatUserName(material.username)}</p>
               <button
                 onClick={() =>
                   redirect(`/incoming-materials/${material.shippingId}`)

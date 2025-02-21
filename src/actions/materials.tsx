@@ -15,6 +15,7 @@ interface IncomingMaterial {
   IsActive: boolean;
   MaterialType: string;
   Owner: string;
+  UserName: string;
 }
 
 export async function fetchMaterialTypes() {
@@ -39,8 +40,9 @@ export async function fetchMaterialTypes() {
   }
 }
 
-export async function sendMaterial(formData: FormData | null) {
+export async function sendMaterial(formData: FormData | null, userId: number) {
   if (!formData) return { error: "Error: No Form Data" };
+  if (!userId) return { error: "Error: User Not Detected" };
 
   const material = {
     customerId: formData.get("customerId"),
@@ -51,8 +53,9 @@ export async function sendMaterial(formData: FormData | null) {
     minQuantity: formData.get("minQty"),
     maxQuantity: formData.get("maxQty"),
     description: formData.get("description"),
-    owner: formData.get("owner") == "on" ? "Tag" : "Customer",
-    isActive: formData.get("isActive") == "on",
+    owner: formData.get("owner") === "on" ? "Tag" : "Customer",
+    isActive: formData.get("isActive") === "on",
+    userId,
   };
 
   try {
@@ -74,12 +77,14 @@ export async function sendMaterial(formData: FormData | null) {
   }
 }
 
-export async function fetchIncomingMaterials(materialId = "") {
+export async function fetchIncomingMaterials(shippingId = "") {
   try {
+    const queryParams = new URLSearchParams({
+      materialId: shippingId,
+    });
+
     const res = await fetch(
-      `${API}/incoming_materials${
-        materialId ? "?materialId=" + materialId : ""
-      }`
+      `${API}/incoming_materials?${queryParams.toString()}`
     );
     if (!res) return [];
 
@@ -99,11 +104,50 @@ export async function fetchIncomingMaterials(materialId = "") {
       isActive: material.IsActive,
       materialType: material.MaterialType,
       owner: material.Owner,
+      username: material.UserName,
     }));
     return materials;
   } catch (error) {
     console.error(error);
     return [];
+  }
+}
+
+export async function updateIncomingMaterial(
+  formData: FormData | null,
+  shippingId: number
+) {
+  if (!formData) return { error: "Error: No Form Data" };
+
+  const material = {
+    shippingId: shippingId,
+    customerId: formData.get("customerId"),
+    stockId: formData.get("stockId"),
+    type: formData.get("materialType"),
+    quantity: formData.get("qty"),
+    cost: formData.get("cost"),
+    minQuantity: formData.get("minQty"),
+    maxQuantity: formData.get("maxQty"),
+    description: formData.get("description"),
+    owner: formData.get("owner") === "on" ? "Tag" : "Customer",
+    isActive: formData.get("isActive") === "on",
+  };
+
+  try {
+    const res = await fetch(`${API}/incoming_materials`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(material),
+    });
+
+    if (res.status != 200) {
+      return { message: res.statusText };
+    }
+    return null;
+  } catch (error: any) {
+    return { error: "Error: " + error.message };
   }
 }
 

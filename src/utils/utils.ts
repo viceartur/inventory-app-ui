@@ -19,3 +19,11 @@ export const usePreventNumberInputScroll = () => {
 export const toUSFormat = (num: number): string => {
   return new Intl.NumberFormat("en-US").format(num);
 };
+
+// Formats a User Name provided in the nice format: "J. Doe"
+export const formatUserName = (username: string) => {
+  const firstInitial = username[0].toUpperCase();
+  const lastName =
+    username.slice(1).charAt(0).toUpperCase() + username.slice(2);
+  return `${firstInitial}. ${lastName}`;
+};
