@@ -101,13 +101,13 @@ export function Reports() {
       <h2>Financial Reports Page</h2>
       <form onChange={onChangeForm}>
         <div className="form-info">
-          <h3>Transaction Report (T):</h3>
+          <h3>📊Transaction Report (T):</h3>
           <p>- Shows the transactions and its cost (Date From/To).</p>
           <p>
             - When "CHIPS" Material Type is chosen, "Serial # Range" is
             displayed.
           </p>
-          <h3>Balance Report (B):</h3>
+          <h3>💰Balance Report (B):</h3>
           <p>- Shows total cost for the specific date (Date As Of).</p>
         </div>
         <div className="form-line">

@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import { SocketProvider } from "context/socket-context";
 import { NavLinks } from "../components/nav-links";
 import { WS } from "utils/constants";
+import { Footer } from "components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -30,8 +31,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <SessionProvider>
           <SocketProvider socket={socket}>
-            <NavLinks />
-            {children}
+            <div className="layout-container">
+              <NavLinks />
+              <main className="main-content">{children}</main>
+              <Footer />
+            </div>
           </SocketProvider>
         </SessionProvider>
       </body>

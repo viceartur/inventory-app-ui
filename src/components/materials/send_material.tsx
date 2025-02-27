@@ -188,8 +188,13 @@ export function PendingMaterials() {
   return (
     <section>
       <h2>Pending Materials:</h2>
-      <p>List of submitted Materials awaiting acceptance</p>
-      <p>In order to make any changes double-click on the specific material</p>
+      <div className="section-description">
+        <p>📌⏳List of submitted Materials awaiting acceptance</p>
+        <p>
+          ✏️In order to make any changes just double-click🖱️👆on the specific
+          material
+        </p>
+      </div>
       <table>
         <thead>
           <tr>

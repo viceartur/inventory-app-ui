@@ -25,7 +25,9 @@ export function RequestedMaterials() {
   return (
     <section>
       <h2>Requested Materials:</h2>
-      <p>The list shows the Materials are requested by Production.</p>
+      <div className="section-description">
+        <p>The list shows the Materials📦are requested by Production.</p>
+      </div>
       {requestedMaterials.length ? (
         <div className="material_list">
           <div className="list_header">
