@@ -1,3 +1,5 @@
+Inventory System Application: Frontend.
+
 Development Server: http://localhost:3000
 ```bash
 npm run dev
