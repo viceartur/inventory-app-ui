@@ -1,5 +1,3 @@
-import { SignOutButton } from "ui/signout-button";
-
 export default function MainPage() {
   return (
     <section>
