@@ -1,6 +1,7 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 import { SubmitButton } from "ui/submit-button";
 import {
@@ -16,12 +17,19 @@ import {
 } from "utils/utils";
 import { useSocket } from "context/socket-context";
 
-export function IncomingMaterials() {
+export function IncomingMaterials(props: any) {
+  const { data: session } = useSession();
   const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
 
   useEffect(() => {
     const getIncomingMaterials = async () => {
-      const materials = await fetchIncomingMaterials();
+      const incomingMaterials = await fetchIncomingMaterials();
+      // Displays only the CARDS material type if the parameter provided,
+      // Otherwise display other types.
+      const materials = incomingMaterials.filter((m: any) =>
+        props.isCards ? m.materialType === "CARDS" : m.materialType !== "CARDS"
+      );
+
       setIncomingMaterialsList(materials);
     };
     getIncomingMaterials();
@@ -29,7 +37,11 @@ export function IncomingMaterials() {
 
   return (
     <section>
-      <h2>Incoming Materials List:</h2>
+      {props.isCards ? (
+        <h2>Incoming Vault Cards:</h2>
+      ) : (
+        <h2>Incoming Materials List:</h2>
+      )}
       {incomingMaterialsList.length ? (
         <div className="material_list">
           <div className="list_header">
@@ -45,13 +57,23 @@ export function IncomingMaterials() {
               <p>{material.stockId}</p>
               <p>{toUSFormat(material.quantity)}</p>
               <p>{formatUserName(material.username)}</p>
-              <button
-                onClick={() =>
-                  redirect(`/incoming-materials/${material.shippingId}`)
-                }
-              >
-                📥
-              </button>
+              {props.isCards &&
+              session?.user.role !== "admin" &&
+              session?.user.name !== "jcardullo" ? (
+                "Restricted"
+              ) : (
+                <button
+                  onClick={() => {
+                    if (props.isCards) {
+                      redirect(`/vault-cards/${material.shippingId}`);
+                    } else {
+                      redirect(`/incoming-materials/${material.shippingId}`);
+                    }
+                  }}
+                >
+                  📥
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -62,7 +84,10 @@ export function IncomingMaterials() {
   );
 }
 
-export function CreateMaterialForm(props: { materialId: string }) {
+export function CreateMaterialForm(props: {
+  materialId: string;
+  isCards: boolean;
+}) {
   const socket = useSocket();
   const [incomingMaterial, setIncomingMaterial] = useState(
     incomingMaterialState
@@ -78,7 +103,12 @@ export function CreateMaterialForm(props: { materialId: string }) {
       const [material] = await fetchIncomingMaterials(props.materialId);
       const stockId = material.stockId;
       const owner = material.owner;
-      const locations = await fetchAvailableLocations(stockId, owner);
+      let locations = await fetchAvailableLocations(stockId, owner);
+      if (props.isCards) {
+        locations = locations.filter((l: any) =>
+          l.warehouseName.toLowerCase().includes("vault")
+        );
+      }
 
       setIncomingMaterial(material);
       setSelectLocations(locations);
@@ -103,7 +133,11 @@ export function CreateMaterialForm(props: { materialId: string }) {
       setSubmitMessage("Material Added. Redirecting to Incoming Materials...");
       socket?.send("materialsUpdated");
       setTimeout(() => {
-        redirect("/incoming-materials/");
+        if (props.isCards) {
+          redirect("/vault-cards/");
+        } else {
+          redirect("/incoming-materials/");
+        }
       }, 2000);
     }
   };
@@ -184,7 +218,13 @@ export function CreateMaterialForm(props: { materialId: string }) {
         <div className="form-buttons">
           <button
             type="button"
-            onClick={() => redirect("/incoming-materials/")}
+            onClick={() => {
+              if (props.isCards) {
+                redirect("/vault-cards/");
+              } else {
+                redirect("/incoming-materials/");
+              }
+            }}
           >
             Go back
           </button>

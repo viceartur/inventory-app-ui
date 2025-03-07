@@ -24,6 +24,11 @@ export const APP_ROUTES: Route[] = [
     restrict: ["admin", "warehouse"],
   },
   {
+    path: "/order-needed",
+    label: "Order Needed",
+    restrict: ["admin", "csr"],
+  },
+  {
     path: "/send-material",
     label: "Send Material",
     restrict: ["admin", "csr"],
@@ -31,6 +36,11 @@ export const APP_ROUTES: Route[] = [
   {
     path: "/pending-materials",
     label: "Pending Materials",
+    restrict: ["admin", "csr"],
+  },
+  {
+    path: "/vault-cards",
+    label: "Incoming Vault Cards",
     restrict: ["admin", "csr"],
   },
   {

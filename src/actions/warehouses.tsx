@@ -76,6 +76,8 @@ export async function fetchAvailableLocations(stockId: string, owner: string) {
     const locations = data.map((location: any) => ({
       id: location.ID,
       name: location.Name,
+      warehouseId: location.WarehouseID,
+      warehouseName: location.WarehouseName,
     }));
     return locations;
   } catch (error) {

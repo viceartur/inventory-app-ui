@@ -17,19 +17,16 @@ import {
 import { materialState, selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
-import { request } from "http";
 
 export function Materials() {
+  const { data: session } = useSession();
   const [materialsList, setMaterialsList] = useState([]);
   const [filterOpts, setFilterOpts] = useState({
     stockId: "",
     customerName: "",
     description: "",
     locationName: "",
-    userRole: "",
   });
-  const { data: session } = useSession();
-  console.log("test");
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,7 +40,6 @@ export function Materials() {
       customerName,
       description,
       locationName,
-      userRole: session?.user.role,
     };
     setFilterOpts(opts);
     const materials = await fetchMaterials(opts);
@@ -109,7 +105,7 @@ export function Materials() {
               <p>Owner</p>
               <p>Location</p>
               <p>
-                Quantity:{" "}
+                Quantity:
                 {toUSFormat(
                   materialsList.reduce(
                     (sum, item: any) => (sum += item.quantity),
@@ -117,9 +113,7 @@ export function Materials() {
                   )
                 )}
               </p>
-              {["warehouse", "admin"].includes(session?.user.role) && (
-                <p>Actions</p>
-              )}
+              <p>Actions</p>
             </div>
             {materialsList.map((material: any, i) => (
               <div
@@ -128,7 +122,7 @@ export function Materials() {
                 }`}
                 key={i}
                 onDoubleClick={() =>
-                  ["warehouse", "admin"].includes(session?.user.role) &&
+                  session?.user.role == "warehouse" &&
                   handlePrimaryItem(material.materialId)
                 }
               >
@@ -137,28 +131,26 @@ export function Materials() {
                 <p>{material.owner}</p>
                 <p>{material.locationName}</p>
                 <p>{toUSFormat(material.quantity)}</p>
-                {["warehouse", "admin"].includes(session?.user.role) && (
-                  <>
-                    <button
-                      onClick={() =>
-                        redirect(
-                          `/materials/remove-material/${material.materialId}`
-                        )
-                      }
-                    >
-                      ❌
-                    </button>
-                    <button
-                      onClick={() =>
-                        redirect(
-                          `/materials/move-material/${material.materialId}`
-                        )
-                      }
-                    >
-                      🔀
-                    </button>
-                  </>
-                )}
+                <>
+                  <button
+                    onClick={() =>
+                      redirect(
+                        `/materials/remove-material/${material.materialId}`
+                      )
+                    }
+                  >
+                    ❌
+                  </button>
+                  <button
+                    onClick={() =>
+                      redirect(
+                        `/materials/move-material/${material.materialId}`
+                      )
+                    }
+                  >
+                    🔀
+                  </button>
+                </>
               </div>
             ))}
           </div>
