@@ -220,8 +220,6 @@ export function Requests() {
     requestedAt: "",
   });
 
-  useEffect(() => {}, []);
-
   const onChangeForm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
