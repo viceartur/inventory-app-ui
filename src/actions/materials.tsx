@@ -300,7 +300,7 @@ export async function fetchMaterials(filterOpts: any) {
       serialNumberRange: material.SerialNumberRange,
     }));
 
-    // Do include 0 qty only for the CSR and Admin Role
+    // CSR and Admin users can only see materials with zero quantity
     if (!["csr", "admin"].includes(userRole)) {
       materials = materials.filter((m: any) => m.quantity);
       return materials;
@@ -394,5 +394,29 @@ export async function updateRequestedMaterial(
     if (res.status != 200) throw new Error(json.message);
   } catch (error: any) {
     throw new Error(error.message);
+  }
+}
+
+export async function fetchMaterialDescription(filterOpts: {
+  stockId: string;
+}) {
+  try {
+    const { stockId = "" } = filterOpts;
+    const queryParams = new URLSearchParams({
+      stockId,
+    });
+
+    const res = await fetch(
+      `${API}/materials/description?${queryParams.toString()}`
+    );
+    if (!res) return "";
+
+    const data = await res.json();
+    if (!data?.data) return "";
+
+    return data.data;
+  } catch (error) {
+    console.error(error);
+    return "";
   }
 }

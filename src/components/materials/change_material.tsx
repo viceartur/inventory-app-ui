@@ -65,33 +65,31 @@ export function Materials() {
     <section>
       <h2>Inventory List</h2>
       <form className="filter" onSubmit={onFilterSubmit}>
-        <div>
-          <input
-            type="text"
-            name="stockId"
-            placeholder="Stock ID"
-            defaultValue={filterOpts.stockId}
-          />
-          <input
-            type="text"
-            name="customerName"
-            placeholder="Customer Name"
-            defaultValue={filterOpts.customerName}
-          />
-          <input
-            type="text"
-            name="description"
-            placeholder="Description"
-            defaultValue={filterOpts.description}
-          />
-          <input
-            type="text"
-            name="locationName"
-            placeholder="Location Name"
-            defaultValue={filterOpts.locationName}
-          />
-          <SubmitButton title="🔍" />
-        </div>
+        <input
+          type="text"
+          name="stockId"
+          placeholder="Stock ID"
+          defaultValue={filterOpts.stockId}
+        />
+        <input
+          type="text"
+          name="customerName"
+          placeholder="Customer Name"
+          defaultValue={filterOpts.customerName}
+        />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          defaultValue={filterOpts.description}
+        />
+        <input
+          type="text"
+          name="locationName"
+          placeholder="Location Name"
+          defaultValue={filterOpts.locationName}
+        />
+        <SubmitButton title="Look Up" />
       </form>
       {!materialsList.length ? (
         <p>No items yet. Found Materials will be displayed here</p>
@@ -105,7 +103,7 @@ export function Materials() {
               <p>Owner</p>
               <p>Location</p>
               <p>
-                Quantity:
+                Quantity:{" "}
                 {toUSFormat(
                   materialsList.reduce(
                     (sum, item: any) => (sum += item.quantity),

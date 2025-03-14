@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { SubmitButton } from "ui/submit-button";
 import {
   fetchIncomingMaterials,
+  fetchMaterialDescription,
   fetchMaterialTypes,
   sendMaterial,
   updateIncomingMaterial,
@@ -27,9 +28,13 @@ export function SendMaterialForm() {
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [sumbitMessage, setSubmitMessage] = useState("");
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [stockId, setStockId] = useState("");
+  const [description, setDescription] = useState("");
+  const [isDescriptionLocked, setIsDescriptionLocked] = useState(false);
   usePreventNumberInputScroll();
 
+  // Fetch customers and material types for the select options
   useEffect(() => {
     const getMaterialInfo = async () => {
       const customers = await fetchCustomers();
@@ -40,13 +45,43 @@ export function SendMaterialForm() {
     getMaterialInfo();
   }, []);
 
+  // Check if the stock ID exists in the database
+  // Set the description if it exists
+  const checkStockId = async (id: string) => {
+    if (!id.trim()) {
+      setDescription("");
+      setIsDescriptionLocked(false);
+      return;
+    }
+    const description = await fetchMaterialDescription({ stockId: id });
+    if (description) {
+      setDescription(description);
+      setIsDescriptionLocked(true);
+    } else {
+      setDescription("");
+      setIsDescriptionLocked(false);
+    }
+  };
+
+  const handleStockIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStockId(event.target.value);
+  };
+
+  const handleStockIdBlur = () => {
+    checkStockId(stockId);
+  };
+
+  // Submit the form and show confirmation
   const submitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    formData.set("stockId", stockId);
+    formData.set("description", description);
     setFormData(formData);
     setShowConfirmation(true);
   };
 
+  // Confirm the action and send the material
   const confirmAction = async () => {
     setShowConfirmation(false);
     const userId = session?.user.id;
@@ -55,13 +90,19 @@ export function SendMaterialForm() {
       setSubmitMessage(res.error);
     } else {
       setSubmitMessage(res.message);
+
+      // Reset the form
+      setStockId("");
+      setDescription("");
+      setIsDescriptionLocked(false);
+      formRef.current?.reset();
+
+      // Send a message to the socket
       socket?.send("materialsUpdated");
-      if (formRef.current) {
-        formRef.current.reset();
-      }
     }
   };
 
+  // Cancel the action
   function cancelAction() {
     setShowConfirmation(false);
     setFormData(null);
@@ -69,25 +110,42 @@ export function SendMaterialForm() {
 
   return (
     <section>
-      <h2>Send Material to Warehouse</h2>
+      <h2>Send a Material to the Warehouse</h2>
+      <div className="section-description">
+        <p>
+          📦 CSR Staff may fill out the material information below and then send
+          it to the Warehouse 🚛
+        </p>
+        <p>
+          📝 The Description field is auto-populated based on the Stock ID
+          provided 🔍
+        </p>
+        <p>
+          ✍️ If the Stock ID is completely new, the Description must be filled
+          in manually while maintaining CAPITAL LETTERS notation 🔠
+        </p>
+      </div>
       <form ref={formRef} onSubmit={submitForm}>
-        <div className="form-info">
-          <p>
-            CSR Staff may fill out the material information below and then send
-            it to the Warehouse
-          </p>
-        </div>
         <div className="form-line">
           <label>Stock ID:</label>
-          <input type="text" name="stockId" placeholder="Stock ID" required />
-        </div>
-        <div className="form-line">
-          <label>Descrption:</label>
           <input
             type="text"
-            name="description"
+            placeholder="Stock ID"
+            required
+            value={stockId}
+            onChange={handleStockIdChange}
+            onBlur={handleStockIdBlur}
+          />
+        </div>
+        <div className="form-line">
+          <label>Description:</label>
+          <input
+            type="text"
             placeholder="Description"
             required
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={isDescriptionLocked}
           />
         </div>
         <div className="form-line">
@@ -151,7 +209,7 @@ export function SendMaterialForm() {
             <input type="checkbox" name="isActive" />
           </label>
         </div>
-        <p className="submit-message">{sumbitMessage}</p>
+        <p className="submit-message">{submitMessage}</p>
         <div className="form-buttons">
           <SubmitButton title="Send Material" />
         </div>
