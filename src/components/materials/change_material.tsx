@@ -206,7 +206,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
   return (
     <section>
-      <h2>Move Material to Location</h2>
+      <h2>Move a Material to the Location</h2>
       <form onSubmit={onSubmitForm}>
         <div className="form-info">
           <h3>The Material will be moved to a Location</h3>
@@ -381,7 +381,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
 
   return (
     <section>
-      <h2>Use Material</h2>
+      <h2>Use a Material</h2>
       <form onSubmit={onSubmitForm}>
         <div className="form-info">
           <h3>The Material will be removed from the Location</h3>
@@ -552,7 +552,7 @@ export function ImportMaterials() {
 
   return (
     <section>
-      <h2>Upload Excel File</h2>
+      <h2>Upload an Excel File</h2>
       <form onSubmit={handleSumbit}>
         <div className="form-info">
           <p className="submit-message">

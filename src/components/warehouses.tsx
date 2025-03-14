@@ -24,7 +24,7 @@ export function WarehouseForm() {
 
   return (
     <section>
-      <h2>Add a Location to a Warehouse</h2>
+      <h2>Add a Location to the Warehouse</h2>
       <form action={formAction}>
         <div className="form-line">
           <label>Warehouse Name:</label>

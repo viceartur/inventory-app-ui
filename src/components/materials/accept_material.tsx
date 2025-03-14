@@ -149,7 +149,7 @@ export function CreateMaterialForm(props: {
 
   return (
     <section>
-      <h2>Adding the Material to the Location</h2>
+      <h2>Adding a Material to the Location</h2>
       <form onSubmit={submitForm}>
         <div className="form-info">
           <h3>Information from CSR:</h3>

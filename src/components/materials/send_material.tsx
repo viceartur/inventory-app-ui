@@ -335,7 +335,7 @@ export function EditIncomingMaterial(props: any) {
 
   return (
     <section>
-      <h2>Edit Sent Material</h2>
+      <h2>Edit the Sent Material</h2>
       <form ref={formRef} onSubmit={submitForm}>
         <div className="form-info">
           <p>You may change the fields needed to be updated only</p>

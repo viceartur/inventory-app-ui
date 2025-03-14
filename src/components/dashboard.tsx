@@ -37,7 +37,7 @@ export function OrderNeeded() {
 
   return (
     <section>
-      <h1>Order Needed Materials</h1>
+      <h2>Order Needed Materials</h2>
       <div className="section-description">
         <p>
           The Dashboard displays the materials📦that need to be ordered🛒because

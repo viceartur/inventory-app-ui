@@ -11,7 +11,7 @@ export function CustomerForm() {
   const [state, formAction] = useActionState(createCustomer, initialState);
   return (
     <section>
-      <h2>Add Customer</h2>
+      <h2>Add a Customer</h2>
       <form action={formAction}>
         <div className="form-line">
           <label>Customer Code:</label>

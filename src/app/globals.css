@@ -23,14 +23,27 @@ body {
 }
 
 h2 {
-  color: rgb(0, 0, 86);
-  width: fit-content;
+  color: rgb(0, 51, 102); /* Darker blue text */
+  background: linear-gradient(
+    to right,
+    rgb(224, 240, 255),
+    rgb(200, 230, 255)
+  ); /* Very light blue gradient */
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  padding: 0.8rem 0;
+  margin-bottom: 1.5rem;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+  border-bottom: 3px solid rgb(176, 224, 255); /* Even lighter blue border */
 }
 
 a {
   margin: 0.5rem;
 }
 
+/* Sections */
 .section-description {
   text-align: center;
   margin: 1rem;
@@ -41,7 +54,6 @@ a {
 }
 
 section {
-  margin-top: 1rem;
   margin-bottom: 1rem;
   margin-left: calc(var(--nav-width) + 2rem);
   display: flex;
@@ -49,12 +61,13 @@ section {
   align-items: center;
 }
 
+/* Navigation */
 nav {
-  padding: 1rem;
+  padding: 1.5rem;
   width: var(--nav-width);
   height: 100%;
-  background-color: rgb(233, 233, 233);
-  border-right: 1px solid grey;
+  background-color: rgb(245, 245, 245); /* Softer background */
+  border-right: 1px solid rgb(200, 200, 200); /* Softer border */
   position: fixed;
   top: 0;
   left: 0;
@@ -62,6 +75,12 @@ nav {
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
+  box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+
+  nav:hover {
+    background-color: rgb(240, 240, 240); /* Lighter shade on hover */
+  }
 
   a {
     width: 90%;
@@ -73,29 +92,39 @@ nav {
     background-color: white;
     text-align: center;
     display: block;
+    margin-bottom: 0.5rem; /* Spacing between links */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover transition */
 
     &:hover {
-      background-color: lightgray;
+      background-color: rgb(220, 220, 220); /* Light gray hover */
+      transform: scale(1.05); /* Slight scale-up effect */
     }
 
     &.active {
       text-decoration: none;
       color: white;
-      background-color: rgb(150, 150, 150);
+      background-color: rgb(70, 130, 180); /* Blue active background */
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for active state */
     }
   }
 
   .image-logo {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     padding: 0.5rem;
     background-color: white;
     border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Logo shadow */
+    transition: transform 0.3s ease; /* Smooth logo transition */
+  }
+
+  .image-logo:hover {
+    transform: scale(1.05); /* Slightly grow logo on hover */
   }
 
   .user-info {
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     width: 100%;
-    padding: 0.5rem;
+    padding: 1rem;
     text-align: center;
     color: rgb(0, 0, 145);
     border-radius: 5px;
@@ -104,28 +133,38 @@ nav {
     flex-direction: column;
     align-items: center;
     gap: 0.3rem;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for user info */
+  }
 
-    p {
-      margin: 0;
-      font-size: 0.9rem;
-    }
+  .user-info p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
 
-    p:first-child {
-      font-weight: bold;
-    }
+  .user-info p:first-child {
+    font-weight: bold;
+  }
 
-    p:last-child {
-      font-style: italic;
-    }
+  .user-info p:last-child {
+    font-style: italic;
   }
 
   .sign-out {
     margin-top: auto;
-    padding: 0.5rem;
+    padding: 0.8rem;
     text-align: center;
+    background-color: rgb(200, 200, 200);
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .sign-out:hover {
+    background-color: rgb(180, 180, 180); /* Sign-out hover effect */
   }
 }
 
+/* Selectors and Inputs */
 select,
 input,
 input:checked {
@@ -161,6 +200,7 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* Buttons */
 button {
   margin: 0.5rem;
   padding: 0.7rem;
@@ -182,6 +222,7 @@ button {
   }
 }
 
+/* Forms */
 form {
   display: flex;
   flex-direction: column;
@@ -296,6 +337,7 @@ form {
   }
 }
 
+/* Confirmation Window */
 .confirmation-window {
   color: rgb(194, 2, 2);
   padding: 2.5rem;
@@ -363,23 +405,32 @@ form {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background-color: rgb(233, 233, 233);
-  border: 1px solid rgb(71, 71, 71);
-  border-radius: 5px;
+  background-color: rgb(
+    245,
+    245,
+    245
+  ); /* Lighter grey for a softer background */
+  border: 1px solid rgb(200, 200, 200); /* Subtle border */
+  border-radius: 8px; /* Slightly rounded corners for modern look */
 
   .list_header {
     margin: 0.5rem;
-    padding: 0.6rem;
+    padding: 0.8rem;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    background-color: rgb(190, 190, 190);
-    color: rgb(0, 0, 145);
+    background: linear-gradient(
+      to right,
+      rgb(224, 240, 255),
+      rgb(200, 230, 255)
+    ); /* Very light blue gradient */
+    color: rgb(30, 60, 120); /* Darker blue for better contrast */
     font-weight: 600;
+    border-radius: 6px;
 
     p {
       margin: 0.5rem;
-      width: 10rem;
+      width: 11rem; /* Adjusted width for better spacing */
     }
   }
 
@@ -389,72 +440,104 @@ form {
     justify-content: flex-start;
     align-items: center;
     border: 2px solid transparent;
-    padding: 0.6rem;
+    padding: 0.8rem;
     background-color: white;
-    border-radius: 5px;
+    border-radius: 6px; /* Slightly rounded corners */
+    transition: background-color 0.3s ease, border 0.3s ease; /* Smooth hover transition */
 
     &.primary {
-      border: 2px solid blue;
-      background-color: rgb(203, 211, 255);
+      border: 2px solid rgb(70, 130, 180); /* Steel blue for primary items */
+      background-color: rgb(
+        230,
+        240,
+        255
+      ); /* Light background with blue tint */
+      transition: background-color 0.3s ease, border 0.3s ease;
 
-      &.primary:hover {
-        background-color: rgb(175, 182, 222);
+      &:hover {
+        background-color: rgb(190, 200, 255); /* Subtle hover effect */
+        border-color: rgb(30, 144, 255); /* Darker blue on hover */
       }
     }
 
     &:hover {
-      border: 2px solid rgb(136, 136, 136);
-      background-color: bisque;
+      border: 2px solid rgb(180, 180, 180); /* Light grey border on hover */
+      background-color: rgb(255, 239, 204); /* Soft beige on hover */
     }
 
     p {
       margin: 0.5rem;
-      width: 10rem;
+      width: 11rem; /* Adjusted width for better spacing */
+      color: rgb(50, 50, 50); /* Darker text for better readability */
     }
   }
 }
 
-/* Reports */
+/* Table Styles */
 table {
-  width: fit-content;
+  max-width: 1200px;
   border-collapse: collapse;
+  margin: 1rem auto;
+  font-family: Arial, sans-serif;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 
   thead {
-    border: 1px solid black;
-    background-color: rgb(190, 190, 190);
+    border: 1px solid rgb(180, 180, 180); /* Lighter border color */
+    background: linear-gradient(
+      to right,
+      rgb(224, 240, 255),
+      rgb(200, 230, 255)
+    ); /* Very light blue gradient */
 
     tr {
       text-align: center;
 
       th {
+        min-width: fit-content;
         border: 1px solid black;
-        color: rgb(0, 0, 145);
-        padding: 0.7rem;
+        color: rgb(0, 0, 110);
+        padding: 0.8rem 1rem;
+        font-weight: bold;
+        letter-spacing: 1px;
       }
     }
   }
 
   tbody {
     tr {
+      transition: background-color 0.3s ease;
+
       &:hover {
-        background-color: bisque;
+        background-color: rgba(255, 228, 196, 0.7);
+        cursor: pointer;
       }
     }
 
     td {
-      padding: 0.5rem;
+      padding: 0.6rem 1rem;
       border: 1px solid black;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 500;
 
       &.negative {
         color: #d32f2f;
+        font-weight: bold;
+        background-color: rgba(211, 47, 47, 0.1);
       }
 
       &.positive {
         color: #2e7d32;
+        font-weight: bold;
+        background-color: rgba(46, 125, 50, 0.1);
       }
 
       &.neutral {
         color: #e67e22;
+        font-weight: bold;
+        background-color: rgba(230, 126, 34, 0.1);
       }
     }
   }
