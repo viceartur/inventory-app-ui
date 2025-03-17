@@ -23,20 +23,16 @@ body {
 }
 
 h2 {
-  color: rgb(0, 51, 102); /* Darker blue text */
-  background: linear-gradient(
-    to right,
-    rgb(224, 240, 255),
-    rgb(200, 230, 255)
-  ); /* Very light blue gradient */
+  color: rgb(0, 51, 102);
+  background: linear-gradient(to right, rgb(224, 240, 255), rgb(200, 230, 255));
   width: 100%;
   text-align: center;
   font-weight: bold;
   letter-spacing: 1.5px;
   padding: 0.8rem 0;
   margin-bottom: 1.5rem;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.05); /* Lighter shadow */
-  border-bottom: 3px solid rgb(176, 224, 255); /* Even lighter blue border */
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.05);
+  border-bottom: 3px solid rgb(176, 224, 255);
 }
 
 a {
@@ -66,8 +62,8 @@ nav {
   padding: 1.5rem;
   width: var(--nav-width);
   height: 100%;
-  background-color: rgb(245, 245, 245); /* Softer background */
-  border-right: 1px solid rgb(200, 200, 200); /* Softer border */
+  background-color: rgb(245, 245, 245);
+  border-right: 1px solid rgb(200, 200, 200);
   position: fixed;
   top: 0;
   left: 0;
@@ -75,11 +71,11 @@ nav {
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
-  box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
-  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+  box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
   nav:hover {
-    background-color: rgb(240, 240, 240); /* Lighter shade on hover */
+    background-color: rgb(240, 240, 240);
   }
 
   a {
@@ -92,19 +88,19 @@ nav {
     background-color: white;
     text-align: center;
     display: block;
-    margin-bottom: 0.5rem; /* Spacing between links */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover transition */
+    margin-bottom: 0.5rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 
     &:hover {
-      background-color: rgb(220, 220, 220); /* Light gray hover */
-      transform: scale(1.05); /* Slight scale-up effect */
+      background-color: rgb(220, 220, 220);
+      transform: scale(1.05);
     }
 
     &.active {
       text-decoration: none;
       color: white;
-      background-color: rgb(70, 130, 180); /* Blue active background */
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for active state */
+      background-color: rgb(70, 130, 180);
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     }
   }
 
@@ -113,12 +109,12 @@ nav {
     padding: 0.5rem;
     background-color: white;
     border-radius: 5px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Logo shadow */
-    transition: transform 0.3s ease; /* Smooth logo transition */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
   }
 
   .image-logo:hover {
-    transform: scale(1.05); /* Slightly grow logo on hover */
+    transform: scale(1.05);
   }
 
   .user-info {
@@ -133,7 +129,7 @@ nav {
     flex-direction: column;
     align-items: center;
     gap: 0.3rem;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for user info */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   .user-info p {
@@ -160,7 +156,7 @@ nav {
   }
 
   .sign-out:hover {
-    background-color: rgb(180, 180, 180); /* Sign-out hover effect */
+    background-color: rgb(180, 180, 180);
   }
 }
 
@@ -405,13 +401,9 @@ form {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background-color: rgb(
-    245,
-    245,
-    245
-  ); /* Lighter grey for a softer background */
-  border: 1px solid rgb(200, 200, 200); /* Subtle border */
-  border-radius: 8px; /* Slightly rounded corners for modern look */
+  background-color: rgb(245, 245, 245);
+  border: 1px solid rgb(200, 200, 200);
+  border-radius: 8px;
 
   .list_header {
     margin: 0.5rem;
@@ -423,14 +415,14 @@ form {
       to right,
       rgb(224, 240, 255),
       rgb(200, 230, 255)
-    ); /* Very light blue gradient */
-    color: rgb(30, 60, 120); /* Darker blue for better contrast */
+    );
+    color: rgb(30, 60, 120);
     font-weight: 600;
     border-radius: 6px;
 
     p {
       margin: 0.5rem;
-      width: 11rem; /* Adjusted width for better spacing */
+      width: 11rem;
     }
   }
 
@@ -442,33 +434,29 @@ form {
     border: 2px solid transparent;
     padding: 0.8rem;
     background-color: white;
-    border-radius: 6px; /* Slightly rounded corners */
-    transition: background-color 0.3s ease, border 0.3s ease; /* Smooth hover transition */
+    border-radius: 6px;
+    transition: background-color 0.3s ease, border 0.3s ease;
 
     &.primary {
-      border: 2px solid rgb(70, 130, 180); /* Steel blue for primary items */
-      background-color: rgb(
-        230,
-        240,
-        255
-      ); /* Light background with blue tint */
+      border: 2px solid rgb(70, 130, 180);
+      background-color: rgb(230, 240, 255);
       transition: background-color 0.3s ease, border 0.3s ease;
 
       &:hover {
-        background-color: rgb(190, 200, 255); /* Subtle hover effect */
-        border-color: rgb(30, 144, 255); /* Darker blue on hover */
+        background-color: rgb(190, 200, 255);
+        border-color: rgb(30, 144, 255);
       }
     }
 
     &:hover {
-      border: 2px solid rgb(180, 180, 180); /* Light grey border on hover */
-      background-color: rgb(255, 239, 204); /* Soft beige on hover */
+      border: 2px solid rgb(180, 180, 180);
+      background-color: rgb(255, 239, 204);
     }
 
     p {
       margin: 0.5rem;
-      width: 11rem; /* Adjusted width for better spacing */
-      color: rgb(50, 50, 50); /* Darker text for better readability */
+      width: 11rem;
+      color: rgb(50, 50, 50);
     }
   }
 }
@@ -484,12 +472,12 @@ table {
   overflow: hidden;
 
   thead {
-    border: 1px solid rgb(180, 180, 180); /* Lighter border color */
+    border: 1px solid rgb(180, 180, 180);
     background: linear-gradient(
       to right,
       rgb(224, 240, 255),
       rgb(200, 230, 255)
-    ); /* Very light blue gradient */
+    );
 
     tr {
       text-align: center;
