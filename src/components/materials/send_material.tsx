@@ -64,7 +64,7 @@ export function SendMaterialForm() {
   };
 
   const handleStockIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStockId(event.target.value);
+    setStockId(event.target.value.trim());
   };
 
   const handleStockIdBlur = () => {
