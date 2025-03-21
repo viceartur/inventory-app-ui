@@ -13,7 +13,7 @@ import {
 import { fetchCustomers } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
-import { toUSFormat } from "utils/utils";
+import { toUSFormat } from "utils/client_utils";
 
 export function Reports() {
   const [searchParams, setSearchParams] = useState(reportsSearchParamsState);

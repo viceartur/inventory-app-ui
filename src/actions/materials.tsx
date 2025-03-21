@@ -1,6 +1,7 @@
 "use server";
 
 import { API } from "utils/constants";
+import { filterMaterialsByUserRole } from "utils/server_utils";
 
 interface IncomingMaterial {
   ShippingID: string;
@@ -300,11 +301,8 @@ export async function fetchMaterials(filterOpts: any) {
       serialNumberRange: material.SerialNumberRange,
     }));
 
-    // CSR and Admin users can only see materials with zero quantity
-    if (!["csr", "admin"].includes(userRole)) {
-      materials = materials.filter((m: any) => m.quantity);
-      return materials;
-    }
+    // Filter materials based on user role
+    materials = filterMaterialsByUserRole(materials, userRole);
 
     return materials;
   } catch (error) {

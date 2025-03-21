@@ -7,7 +7,7 @@ import {
   fetchRequestedMaterials,
   updateRequestedMaterial,
 } from "../../actions/materials";
-import { toUSFormat } from "utils/utils";
+import { toUSFormat } from "utils/client_utils";
 import { SubmitButton } from "ui/submit-button";
 import { requestStatusClassName, requestStatuses } from "utils/constants";
 

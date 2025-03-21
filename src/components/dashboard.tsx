@@ -3,7 +3,7 @@
 import { fetchMaterials } from "actions/materials";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { toUSFormat } from "utils/utils";
+import { toUSFormat } from "utils/client_utils";
 
 export function OrderNeeded() {
   const { data: session } = useSession();
@@ -17,6 +17,7 @@ export function OrderNeeded() {
         });
         const mappedMaterials: any = {};
 
+        // Combine materials with the same stockId
         materials.forEach((m: any) => {
           if (!mappedMaterials[m.stockId]) {
             mappedMaterials[m.stockId] = m;

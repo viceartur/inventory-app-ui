@@ -11,7 +11,7 @@ export const APP_ROUTES: Route[] = [
   {
     path: "/",
     label: "Main Page",
-    restrict: ["admin", "csr", "warehouse", "production"],
+    restrict: ["admin", "csr", "warehouse", "production", "vault"],
   },
   {
     path: "/customer",
@@ -39,9 +39,9 @@ export const APP_ROUTES: Route[] = [
     restrict: ["admin", "csr"],
   },
   {
-    path: "/vault-cards",
-    label: "Incoming Vault Cards",
-    restrict: ["admin", "csr"],
+    path: "/incoming-vault",
+    label: "Incoming Vault",
+    restrict: ["admin", "csr", "vault"],
   },
   {
     path: "/incoming-materials",
@@ -61,7 +61,7 @@ export const APP_ROUTES: Route[] = [
   {
     path: "/materials",
     label: "Inventory",
-    restrict: ["admin", "warehouse", "csr"],
+    restrict: ["admin", "warehouse", "csr", "vault"],
   },
   {
     path: "/reports",
@@ -138,3 +138,5 @@ export const requestStatusClassName: any = {
 };
 
 export const requestStatuses: any = ["", "declined", "sent", "pending"];
+
+export const vaultMaterialTypes = ["CARDS", "CHIPS"];

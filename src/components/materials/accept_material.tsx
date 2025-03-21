@@ -8,28 +8,32 @@ import {
   createMaterial,
   fetchIncomingMaterials,
 } from "../../actions/materials";
-import { incomingMaterialState, selectState } from "utils/constants";
+import {
+  incomingMaterialState,
+  selectState,
+  vaultMaterialTypes,
+} from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import {
   formatUserName,
   toUSFormat,
   usePreventNumberInputScroll,
-} from "utils/utils";
+} from "utils/client_utils";
 import { useSocket } from "context/socket-context";
 
-export function IncomingMaterials(props: any) {
+export function IncomingMaterials(props: { isVault: boolean }) {
   const { data: session } = useSession();
   const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
 
   useEffect(() => {
     const getIncomingMaterials = async () => {
       const incomingMaterials = await fetchIncomingMaterials();
-      // Displays only the CARDS material type if the parameter provided,
-      // Otherwise display other types.
+      // Filter materials based on vault status
       const materials = incomingMaterials.filter((m: any) =>
-        props.isCards ? m.materialType === "CARDS" : m.materialType !== "CARDS"
+        props.isVault
+          ? vaultMaterialTypes.includes(m.materialType)
+          : !vaultMaterialTypes.includes(m.materialType)
       );
-
       setIncomingMaterialsList(materials);
     };
     getIncomingMaterials();
@@ -37,8 +41,8 @@ export function IncomingMaterials(props: any) {
 
   return (
     <section>
-      {props.isCards ? (
-        <h2>Incoming Vault Cards:</h2>
+      {props.isVault ? (
+        <h2>Incoming Vault Materials:</h2>
       ) : (
         <h2>Incoming Materials List:</h2>
       )}
@@ -57,15 +61,17 @@ export function IncomingMaterials(props: any) {
               <p>{material.stockId}</p>
               <p>{toUSFormat(material.quantity)}</p>
               <p>{formatUserName(material.username)}</p>
-              {props.isCards &&
+
+              {/* TEMP: Check if the user is restricted from accessing vault materials */}
+              {props.isVault &&
               session?.user.role !== "admin" &&
               session?.user.name !== "jcardullo" ? (
                 "Restricted"
               ) : (
                 <button
                   onClick={() => {
-                    if (props.isCards) {
-                      redirect(`/vault-cards/${material.shippingId}`);
+                    if (props.isVault) {
+                      redirect(`/incoming-vault/${material.shippingId}`);
                     } else {
                       redirect(`/incoming-materials/${material.shippingId}`);
                     }
@@ -86,7 +92,7 @@ export function IncomingMaterials(props: any) {
 
 export function CreateMaterialForm(props: {
   materialId: string;
-  isCards: boolean;
+  isVault: boolean;
 }) {
   const socket = useSocket();
   const [incomingMaterial, setIncomingMaterial] = useState(
@@ -104,7 +110,7 @@ export function CreateMaterialForm(props: {
       const stockId = material.stockId;
       const owner = material.owner;
       let locations = await fetchAvailableLocations(stockId, owner);
-      if (props.isCards) {
+      if (props.isVault) {
         locations = locations.filter((l: any) =>
           l.warehouseName.toLowerCase().includes("vault")
         );
@@ -131,10 +137,16 @@ export function CreateMaterialForm(props: {
       setSubmitMessage(res.error);
     } else {
       setSubmitMessage("Material Added. Redirecting to Incoming Materials...");
-      socket?.send("materialsUpdated");
+
+      if (props.isVault) {
+        socket?.send("vaultUpdated");
+      } else {
+        socket?.send("materialsUpdated");
+      }
+
       setTimeout(() => {
-        if (props.isCards) {
-          redirect("/vault-cards/");
+        if (props.isVault) {
+          redirect("/incoming-vault/");
         } else {
           redirect("/incoming-materials/");
         }
@@ -219,8 +231,8 @@ export function CreateMaterialForm(props: {
           <button
             type="button"
             onClick={() => {
-              if (props.isCards) {
-                redirect("/vault-cards/");
+              if (props.isVault) {
+                redirect("/incoming-vault/");
               } else {
                 redirect("/incoming-materials/");
               }

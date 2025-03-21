@@ -16,6 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     ws.onopen = () => {
       console.log("WS connection openned");
       ws.send("materialsUpdated");
+      ws.send("vaultUpdated");
     };
     ws.onclose = () => {
       console.log("WS connection closed");

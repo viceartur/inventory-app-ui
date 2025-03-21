@@ -10,13 +10,13 @@ import {
   sendMaterial,
   updateIncomingMaterial,
 } from "../../actions/materials";
-import { selectState } from "utils/constants";
+import { selectState, vaultMaterialTypes } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import {
   formatUserName,
   toUSFormat,
   usePreventNumberInputScroll,
-} from "utils/utils";
+} from "utils/client_utils";
 import { useSocket } from "context/socket-context";
 import { redirect } from "next/navigation";
 
@@ -98,7 +98,14 @@ export function SendMaterialForm() {
       formRef.current?.reset();
 
       // Send a message to the socket
-      socket?.send("materialsUpdated");
+      const isVault = vaultMaterialTypes.includes(
+        String(formData?.get("materialType"))
+      );
+      if (isVault) {
+        socket?.send("vaultUpdated");
+      } else {
+        socket?.send("materialsUpdated");
+      }
     }
   };
 

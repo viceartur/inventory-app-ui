@@ -2,5 +2,5 @@ import { CreateMaterialForm } from "../../../components/materials/accept_materia
 
 export default async function VaultMaterialPage(props: any) {
   const { materialId } = await props.params;
-  return <CreateMaterialForm materialId={materialId} isCards={true} />;
+  return <CreateMaterialForm materialId={materialId} isVault={true} />;
 }

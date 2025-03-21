@@ -16,7 +16,7 @@ import {
 } from "../../actions/materials";
 import { materialState, selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
-import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
+import { toUSFormat, usePreventNumberInputScroll } from "utils/client_utils";
 
 export function Materials() {
   const { data: session } = useSession();
@@ -40,6 +40,7 @@ export function Materials() {
       customerName,
       description,
       locationName,
+      userRole: session?.user.role,
     };
     setFilterOpts(opts);
     const materials = await fetchMaterials(opts);

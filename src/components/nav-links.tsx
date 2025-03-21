@@ -14,14 +14,17 @@ export function NavLinks() {
   const { data: session } = useSession();
   const socket = useSocket();
   const pathname = usePathname();
-  const [quantity, setQuantity] = useState(0);
+  const [qtyIncoming, setQtyIncoming] = useState(0);
+  const [qtyVault, setQtyVault] = useState(0);
 
   useEffect(() => {
     if (socket) {
       socket.onmessage = (event: any) => {
         const response = JSON.parse(event.data);
         if (response.type === "incomingMaterialsQty") {
-          setQuantity(response.data);
+          setQtyIncoming(response.data);
+        } else if (response.type === "incomingVaultQty") {
+          setQtyVault(response.data);
         }
       };
     }
@@ -49,9 +52,10 @@ export function NavLinks() {
           href={route.path}
         >
           {route.label}{" "}
-          {["/incoming-materials"].includes(route.path) && quantity
-            ? "(" + quantity + ")"
+          {"/incoming-materials" === route.path && qtyIncoming
+            ? `(${qtyIncoming})`
             : ""}
+          {"/incoming-vault" === route.path && qtyVault ? `(${qtyVault})` : ""}
         </Link>
       ))}
       <SignOutButton />
