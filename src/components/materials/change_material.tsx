@@ -44,7 +44,8 @@ export function Materials() {
     };
     setFilterOpts(opts);
     const materials = await fetchMaterials(opts);
-    setMaterialsList(materials);
+    // Display non-zero quantity only for the Inventory List
+    setMaterialsList(materials.filter((m: any) => m.quantity));
   }
 
   const handlePrimaryItem = async (materialId: string) => {

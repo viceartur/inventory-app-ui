@@ -22,7 +22,6 @@ import {
 import { useSocket } from "context/socket-context";
 
 export function IncomingMaterials(props: { isVault: boolean }) {
-  const { data: session } = useSession();
   const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
 
   useEffect(() => {
@@ -61,25 +60,17 @@ export function IncomingMaterials(props: { isVault: boolean }) {
               <p>{material.stockId}</p>
               <p>{toUSFormat(material.quantity)}</p>
               <p>{formatUserName(material.username)}</p>
-
-              {/* TEMP: Check if the user is restricted from accessing vault materials */}
-              {props.isVault &&
-              session?.user.role !== "admin" &&
-              session?.user.name !== "jcardullo" ? (
-                "Restricted"
-              ) : (
-                <button
-                  onClick={() => {
-                    if (props.isVault) {
-                      redirect(`/incoming-vault/${material.shippingId}`);
-                    } else {
-                      redirect(`/incoming-materials/${material.shippingId}`);
-                    }
-                  }}
-                >
-                  📥
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  if (props.isVault) {
+                    redirect(`/incoming-vault/${material.shippingId}`);
+                  } else {
+                    redirect(`/incoming-materials/${material.shippingId}`);
+                  }
+                }}
+              >
+                📥
+              </button>
             </div>
           ))}
         </div>
@@ -113,6 +104,10 @@ export function CreateMaterialForm(props: {
       if (props.isVault) {
         locations = locations.filter((l: any) =>
           l.warehouseName.toLowerCase().includes("vault")
+        );
+      } else {
+        locations = locations.filter((l: any) =>
+          l.warehouseName.toLowerCase().includes("warehouse")
         );
       }
 
