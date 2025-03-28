@@ -146,7 +146,8 @@ nav {
   }
 
   .sign-out {
-    margin-top: auto;
+    width: 6rem;
+    margin: 1rem;
     padding: 0.8rem;
     text-align: center;
     background-color: rgb(200, 200, 200);
