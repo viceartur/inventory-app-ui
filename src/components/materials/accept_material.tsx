@@ -212,7 +212,7 @@ export function CreateMaterialForm(props: {
           <select name="locationId" required>
             {selectLocations.map((location: any, i: number) => (
               <option key={i} value={location.id}>
-                {location.name}
+                {location.name} ({location.warehouseName})
               </option>
             ))}
           </select>

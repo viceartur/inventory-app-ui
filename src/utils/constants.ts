@@ -85,6 +85,7 @@ export const selectState = {
   id: "",
   name: "Loading...",
   code: "Loading...",
+  warehouseName: "Loading...",
 };
 
 export const incomingMaterialState = {
