@@ -102,7 +102,7 @@ export function Materials() {
             <div className="list_header">
               <p>Stock ID: {materialsList.length}</p>
               <p>Description</p>
-              <p>Owner</p>
+              <p>Warehouse</p>
               <p>Location</p>
               <p>
                 Quantity:{" "}
@@ -128,7 +128,7 @@ export function Materials() {
               >
                 <p>{material.stockId}</p>
                 <p>{material.description}</p>
-                <p>{material.owner}</p>
+                <p>{material.warehouseName}</p>
                 <p>{material.locationName}</p>
                 <p>{toUSFormat(material.quantity)}</p>
                 <>
@@ -225,7 +225,11 @@ export function MoveMaterialForm(props: { materialId: string }) {
             {material.description}
           </div>
           <div className="form-info-line">
-            <label>Current Location:</label>
+            <label>Warehouse:</label>
+            {material.warehouseName}
+          </div>
+          <div className="form-info-line">
+            <label>Location:</label>
             {material.locationName}
           </div>
           <div className="form-info-line">
@@ -400,7 +404,11 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             {material.description}
           </div>
           <div className="form-info-line">
-            <label>Current Location:</label>
+            <label>Warehouse:</label>
+            {material.warehouseName}
+          </div>
+          <div className="form-info-line">
+            <label>Location:</label>
             {material.locationName}
           </div>
           <div className="form-info-line">

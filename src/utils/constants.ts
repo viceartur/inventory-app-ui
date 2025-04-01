@@ -41,7 +41,7 @@ export const APP_ROUTES: Route[] = [
   {
     path: "/incoming-vault",
     label: "Incoming Vault",
-    restrict: ["admin", "csr", "vault"],
+    restrict: ["admin", "vault"],
   },
   {
     path: "/incoming-materials",
@@ -109,6 +109,7 @@ export const materialState = {
   customerID: "Loading...",
   locationName: "Loading...",
   locationID: "Loading...",
+  warehouseName: "Loading...",
   stockId: "stock123",
   cost: "Loading...",
   quantity: "Loading...",

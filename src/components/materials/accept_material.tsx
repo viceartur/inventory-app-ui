@@ -27,7 +27,7 @@ export function IncomingMaterials(props: { isVault: boolean }) {
   useEffect(() => {
     const getIncomingMaterials = async () => {
       const incomingMaterials = await fetchIncomingMaterials();
-      // Filter materials based on vault status
+      // Filter materials by Types based on the Vault status
       const materials = incomingMaterials.filter((m: any) =>
         props.isVault
           ? vaultMaterialTypes.includes(m.materialType)

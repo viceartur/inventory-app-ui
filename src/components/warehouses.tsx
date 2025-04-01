@@ -80,15 +80,15 @@ export function Locations() {
         <table>
           <thead>
             <tr>
-              <th>Location Name</th>
               <th>Warehouse Name</th>
+              <th>Location Name</th>
             </tr>
           </thead>
           <tbody>
             {locations.map((location: any, i) => (
               <tr key={i}>
-                <td>{location.locationName}</td>
                 <td>{location.warehouseName}</td>
+                <td>{location.locationName}</td>
               </tr>
             ))}
           </tbody>
