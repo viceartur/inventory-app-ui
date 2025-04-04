@@ -1,7 +1,6 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 import { SubmitButton } from "ui/submit-button";
 import {
@@ -11,7 +10,7 @@ import {
 import {
   incomingMaterialState,
   selectState,
-  vaultMaterialTypes,
+  VAULT_MATERIAL_TYPES,
 } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import {
@@ -27,11 +26,11 @@ export function IncomingMaterials(props: { isVault: boolean }) {
   useEffect(() => {
     const getIncomingMaterials = async () => {
       const incomingMaterials = await fetchIncomingMaterials();
-      // Filter materials by Types based on the Vault status
+      // Filter incoming materials based on the type (vault or non-vault)
       const materials = incomingMaterials.filter((m: any) =>
         props.isVault
-          ? vaultMaterialTypes.includes(m.materialType)
-          : !vaultMaterialTypes.includes(m.materialType)
+          ? VAULT_MATERIAL_TYPES.includes(m.materialType)
+          : !VAULT_MATERIAL_TYPES.includes(m.materialType)
       );
       setIncomingMaterialsList(materials);
     };

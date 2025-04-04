@@ -1,6 +1,8 @@
+// URLs
 export const API = `http://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}`;
 export const WS = `ws://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/ws`;
 
+// Routes
 export interface Route {
   path: string;
   label: string;
@@ -75,7 +77,8 @@ export const APP_ROUTES: Route[] = [
   },
 ];
 
-export const ownerTypes = ["", "Tag", "Customer"];
+// States constants
+export const OWNER_TYPES = ["", "Tag", "Customer"];
 
 export const initialState = {
   message: "",
@@ -139,6 +142,6 @@ export const requestStatusClassName: any = {
   pending: "neutral",
 };
 
-export const requestStatuses: any = ["", "declined", "sent", "pending"];
+export const REQUEST_STATUSES: any = ["", "declined", "sent", "pending"];
 
-export const vaultMaterialTypes = ["CARDS", "CHIPS"];
+export const VAULT_MATERIAL_TYPES = ["CARDS (METAL)", "CARDS (PVC)", "CHIPS"];

@@ -10,7 +10,7 @@ import {
   sendMaterial,
   updateIncomingMaterial,
 } from "../../actions/materials";
-import { selectState, vaultMaterialTypes } from "utils/constants";
+import { selectState, VAULT_MATERIAL_TYPES } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import {
   formatUserName,
@@ -63,12 +63,18 @@ export function SendMaterialForm() {
     }
   };
 
-  const handleStockIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStockId(event.target.value.trim());
+  // Check if the stock ID exists and set the description accordingly
+  const handleStockIdBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const stockIdInput = event.target.value.trim().toUpperCase();
+    setStockId(stockIdInput);
+    checkStockId(stockIdInput);
   };
 
-  const handleStockIdBlur = () => {
-    checkStockId(stockId);
+  // Set the description to uppercase when the input loses focus
+  const handleDescriptionBlur = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDescription(event.target.value.trim().toUpperCase());
   };
 
   // Submit the form and show confirmation
@@ -98,7 +104,7 @@ export function SendMaterialForm() {
       formRef.current?.reset();
 
       // Send a message to the socket
-      const isVault = vaultMaterialTypes.includes(
+      const isVault = VAULT_MATERIAL_TYPES.includes(
         String(formData?.get("materialType"))
       );
       if (isVault) {
@@ -139,8 +145,8 @@ export function SendMaterialForm() {
             type="text"
             placeholder="Stock ID"
             required
-            value={stockId}
-            onChange={handleStockIdChange}
+            defaultValue={stockId}
+            key={stockId}
             onBlur={handleStockIdBlur}
           />
         </div>
@@ -152,6 +158,7 @@ export function SendMaterialForm() {
             required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onBlur={handleDescriptionBlur}
             disabled={isDescriptionLocked}
           />
         </div>

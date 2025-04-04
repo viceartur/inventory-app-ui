@@ -9,7 +9,7 @@ import {
 } from "../../actions/materials";
 import { toUSFormat } from "utils/client_utils";
 import { SubmitButton } from "ui/submit-button";
-import { requestStatusClassName, requestStatuses } from "utils/constants";
+import { requestStatusClassName, REQUEST_STATUSES } from "utils/constants";
 
 export function RequestedMaterials() {
   const [requestedMaterials, setRequestedMaterials] = useState([]);
@@ -259,7 +259,7 @@ export function Requests() {
         <div className="form-line">
           <label>Status:</label>
           <select name="status">
-            {requestStatuses.map((status: any, i: number) => (
+            {REQUEST_STATUSES.map((status: any, i: number) => (
               <option key={i} value={status}>
                 {status}
               </option>

@@ -6,7 +6,7 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
 import {
-  ownerTypes,
+  OWNER_TYPES,
   reportsSearchParamsState,
   selectState,
 } from "utils/constants";
@@ -133,7 +133,7 @@ export function Reports() {
         <div className="form-line">
           <label>Owner:</label>
           <select name="owner" required>
-            {ownerTypes.map((type, i) => (
+            {OWNER_TYPES.map((type, i) => (
               <option key={i} value={type}>
                 {type}
               </option>
