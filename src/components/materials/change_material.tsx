@@ -76,7 +76,7 @@ export function Materials() {
         <input
           type="text"
           name="customerName"
-          placeholder="Customer Name"
+          placeholder="Customer"
           defaultValue={filterOpts.customerName}
         />
         <input
@@ -88,7 +88,7 @@ export function Materials() {
         <input
           type="text"
           name="locationName"
-          placeholder="Location Name"
+          placeholder="Location"
           defaultValue={filterOpts.locationName}
         />
         <SubmitButton title="Look Up" />

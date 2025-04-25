@@ -1,0 +1,237 @@
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
+import { redirect, useSearchParams } from "next/navigation";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
+
+import { fetchCustomers } from "actions/customers";
+import { fetchMaterialTypes } from "actions/materials";
+import { OWNER_TYPES, selectState } from "utils/constants";
+import { fetchWeeklyUsageItems } from "actions/reports";
+import { toUSFormat } from "utils/client_utils";
+
+export function UsageReports() {
+  const [searchParams, setSearchParams] = useState({
+    customerId: "",
+    customerName: "",
+    owner: "",
+    materialType: "",
+    dateAsOf: "",
+  });
+  const [selectCustomers, setSelectCustomers] = useState([
+    { ...selectState, name: "" },
+  ]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState([
+    { ...selectState, name: "" },
+  ]);
+
+  useEffect(() => {
+    const getReportInfo = async () => {
+      const customers = await fetchCustomers();
+      const materialTypes = await fetchMaterialTypes();
+      setSelectCustomers([...selectCustomers, ...customers]);
+      setSelectMaterialTypes([...selectMaterialTypes, ...materialTypes]);
+    };
+    getReportInfo();
+  }, []);
+
+  const onChangeForm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const customer = formData.get("customer")?.toString().split("%");
+    const customerId = customer ? customer[0] : "";
+    const customerName = customer ? customer[1] : "";
+    const owner = formData.get("owner")?.toString() || "";
+    const materialType = formData.get("materialType")?.toString() || "";
+    const dateAsOf = formData.get("dateAsOf")?.toString() || "";
+
+    setSearchParams({
+      customerId,
+      customerName,
+      owner,
+      materialType,
+      dateAsOf,
+    });
+  };
+
+  const handleWeeklyUsageRedirect = () => {
+    const {
+      customerId = "",
+      customerName = "",
+      owner = "",
+      materialType = "",
+      dateAsOf = "",
+    } = searchParams;
+    const queryParams = new URLSearchParams({
+      customerId,
+      customerName,
+      owner,
+      materialType,
+      dateAsOf,
+    });
+    redirect(`/usage-reports/weekly-usage?${queryParams.toString()}`);
+  };
+
+  return (
+    <section>
+      <h2>Usage Reports Page</h2>
+      <form onChange={onChangeForm}>
+        <div className="form-info">
+          <h3>📊 6-Week Usage & Stock Forecast Report (W)</h3>
+          <p>
+            View stock quantity on the selected date, 6-week average usage, and
+            an estimated number of weeks remaining until stock runs out.
+          </p>
+          <p>
+            Items with no usage in the 6 weeks prior to the reference date will
+            not appear in the report.
+          </p>
+        </div>
+        <div className="form-line">
+          <label>Customer:</label>
+          <select name="customer" required>
+            {selectCustomers.map((customer, i) => (
+              <option key={i} value={`${customer.id}%${customer.name}`}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Material Type:</label>
+          <select name="materialType" required>
+            {selectMaterialTypes.map((type) => (
+              <option key={type.id} value={type.name}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Owner:</label>
+          <select name="owner" required>
+            {OWNER_TYPES.map((type, i) => (
+              <option key={i} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Date As Of:</label>
+          <input type="date" name="dateAsOf" />
+        </div>
+        <div className="form-buttons">
+          <button type="button" onClick={handleWeeklyUsageRedirect}>
+            Get Report
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+export function WeeklyUsage() {
+  const searchParams = useSearchParams();
+  const customerId = searchParams.get("customerId");
+  const owner = searchParams.get("owner");
+  const materialType = searchParams.get("materialType");
+  const dateAsOf = searchParams.get("dateAsOf");
+
+  const [weeklyUsageItems, setWeeklyUsageItems] = useState([]);
+
+  useEffect(() => {
+    const getWeeklyUsage = async () => {
+      const weeklyUsageStocks = await fetchWeeklyUsageItems({
+        customerId,
+        owner,
+        materialType,
+        dateAsOf,
+      });
+      setWeeklyUsageItems(weeklyUsageStocks);
+    };
+    getWeeklyUsage();
+  }, []);
+
+  const onClickDownload = () => {
+    const columns = [
+      { title: "Customer", dataKey: "customerName" },
+      { title: "Stock ID", dataKey: "stockId" },
+      { title: "Material Type", dataKey: "materialType" },
+      { title: "Ref Date Qty", dataKey: "qtyOnRefDate" },
+      { title: "Avg Weekly Usage", dataKey: "avgWeeklyUsg" },
+      { title: "Weeks Remaining", dataKey: "weeksRemaining" },
+    ];
+
+    const data = weeklyUsageItems.map((w: any) => ({
+      customerName: w.customerName,
+      stockId: w.stockId,
+      materialType: w.materialType,
+      qtyOnRefDate: w.qtyOnRefDate,
+      avgWeeklyUsg: w.avgWeeklyUsg,
+      weeksRemaining: w.weeksRemaining,
+    }));
+
+    const excelData = [
+      columns.map((column) => column.title),
+      ...data.map((item: any) => columns.map((column) => item[column.dataKey])),
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "6-Week Usage");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, `weekly_usage_report_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
+  return (
+    <section>
+      <div>
+        <button onClick={() => redirect("/usage-reports")}>
+          Back to Reports
+        </button>
+        <button onClick={() => onClickDownload()}>Download the Report</button>
+      </div>
+      <h2>
+        Usage Report as of {dateAsOf || new Date().toLocaleDateString("en-CA")}
+      </h2>
+      {weeklyUsageItems.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Stock ID</th>
+              <th>Material Type</th>
+              <th>Ref Date Qty</th>
+              <th>Avg Weekly Usage</th>
+              <th>Weeks Remaining</th>
+            </tr>
+          </thead>
+          <tbody>
+            {weeklyUsageItems.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.customerName}</td>
+                <td>{material.stockId}</td>
+                <td>{material.materialType}</td>
+                <td>{toUSFormat(material.qtyOnRefDate)}</td>
+                <td>{toUSFormat(material.avgWeeklyUsg)}</td>
+                <td>{toUSFormat(material.weeksRemaining)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        "No usage data found for the current query parameters. Please adjust your filters or try a different search."
+      )}
+    </section>
+  );
+}

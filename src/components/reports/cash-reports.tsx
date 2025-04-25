@@ -5,18 +5,14 @@ import { useState, useEffect, FormEvent } from "react";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
-import {
-  OWNER_TYPES,
-  reportsSearchParamsState,
-  selectState,
-} from "utils/constants";
+import { OWNER_TYPES, reportsSearchParams, selectState } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
 import { toUSFormat } from "utils/client_utils";
 
-export function Reports() {
-  const [searchParams, setSearchParams] = useState(reportsSearchParamsState);
+export function CashReports() {
+  const [searchParams, setSearchParams] = useState(reportsSearchParams);
   const [selectCustomers, setSelectCustomers] = useState([
     { ...selectState, name: "" },
   ]);
@@ -75,7 +71,7 @@ export function Reports() {
       dateFrom,
       dateTo,
     });
-    redirect(`/reports/transactions?${queryParams.toString()}`);
+    redirect(`/cash-reports/transactions?${queryParams.toString()}`);
   };
 
   const handleBalanceRedirect = () => {
@@ -93,7 +89,7 @@ export function Reports() {
       materialType,
       dateAsOf,
     });
-    redirect(`/reports/balance?${queryParams.toString()}`);
+    redirect(`/cash-reports/balance?${queryParams.toString()}`);
   };
 
   return (
@@ -102,13 +98,12 @@ export function Reports() {
       <form onChange={onChangeForm}>
         <div className="form-info">
           <h3>📊Transaction Report (T):</h3>
-          <p>- Shows the transactions and its cost (Date From/To).</p>
+          <p>Shows the transactions and its cost (Date From/To).</p>
           <p>
-            - When "CHIPS" Material Type is chosen, "Serial # Range" is
-            displayed.
+            When "CHIPS" Material Type is chosen, "Serial # Range" is displayed.
           </p>
           <h3>💰Balance Report (B):</h3>
-          <p>- Shows total cost for the specific date (Date As Of).</p>
+          <p>Shows total cost for the specific date (Date As Of).</p>
         </div>
         <div className="form-line">
           <label>Customer:</label>
@@ -238,40 +233,46 @@ export function Transactions() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/reports")}>Back to Reports</button>
+        <button onClick={() => redirect("/cash-reports")}>
+          Back to Reports
+        </button>
         <button onClick={onClickDownload}>Download this Report</button>
       </div>
       <h2>{customerName || "General"} Transaction Report</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Stock ID</th>
-            <th>Material Type</th>
-            <th>Quantity (+/-)</th>
-            {materialType === "CHIPS" && <th>Serial # Range</th>}
-            <th>Unit Cost, USD</th>
-            <th>Cost, USD</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((material: any, i) => (
-            <tr key={i}>
-              <td>{material.stockId}</td>
-              <td>{material.materialType}</td>
-              <td className={material.qty > 0 ? "" : "negative"}>
-                {toUSFormat(material.qty)}
-              </td>
-              {materialType === "CHIPS" && (
-                <td>{material.serialNumberRange}</td>
-              )}
-              <td>{material.unitCost}</td>
-              <td>{material.cost}</td>
-              <td>{material.date}</td>
+      {transactions.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Material Type</th>
+              <th>Quantity (+/-)</th>
+              {materialType === "CHIPS" && <th>Serial # Range</th>}
+              <th>Unit Cost, USD</th>
+              <th>Cost, USD</th>
+              <th>Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.materialType}</td>
+                <td className={material.qty > 0 ? "" : "negative"}>
+                  {toUSFormat(material.qty)}
+                </td>
+                {materialType === "CHIPS" && (
+                  <td>{material.serialNumberRange}</td>
+                )}
+                <td>{material.unitCost}</td>
+                <td>{material.cost}</td>
+                <td>{material.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        "No transactions data found for the current query parameters. Please adjust your filters or try a different search."
+      )}
     </section>
   );
 }
@@ -349,35 +350,41 @@ export function Balance() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/reports")}>Back to Reports</button>
+        <button onClick={() => redirect("/cash-reports")}>
+          Back to Reports
+        </button>
         <button onClick={onClickDownload}>Download this Report</button>
       </div>
       <h2>
         {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}
       </h2>
       {dateAsOf ? <h2>As of {dateAsOf}</h2> : ""}
-      <table>
-        <thead>
-          <tr>
-            <th>Stock ID</th>
-            <th>Description</th>
-            <th>Material Type</th>
-            <th>Quantity</th>
-            <th>Total Value, USD</th>
-          </tr>
-        </thead>
-        <tbody>
-          {balance.map((material: any, i) => (
-            <tr key={i}>
-              <td>{material.stockId}</td>
-              <td>{material.description}</td>
-              <td>{material.materialType}</td>
-              <td>{toUSFormat(material.qty)}</td>
-              <td>{material.totalValue}</td>
+      {balance.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Description</th>
+              <th>Material Type</th>
+              <th>Quantity</th>
+              <th>Total Value, USD</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {balance.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.description}</td>
+                <td>{material.materialType}</td>
+                <td>{toUSFormat(material.qty)}</td>
+                <td>{material.totalValue}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        "No transactions data found for the current query parameters. Please adjust your filters or try a different search."
+      )}
     </section>
   );
 }

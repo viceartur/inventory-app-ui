@@ -51,11 +51,16 @@ export function NavLinks() {
           className={`link${pathname === route.path ? " active" : ""}`}
           href={route.path}
         >
-          {route.label}{" "}
-          {"/incoming-materials" === route.path && qtyIncoming
-            ? `(${qtyIncoming})`
-            : ""}
-          {"/incoming-vault" === route.path && qtyVault ? `(${qtyVault})` : ""}
+          <span className="nav-icon">{route.icon}</span>
+          <span className="nav-label">
+            {route.label}{" "}
+            {"/incoming-materials" === route.path && qtyIncoming
+              ? `(${qtyIncoming})`
+              : ""}
+            {"/incoming-vault" === route.path && qtyVault
+              ? `(${qtyVault})`
+              : ""}
+          </span>
         </Link>
       ))}
       <SignOutButton />

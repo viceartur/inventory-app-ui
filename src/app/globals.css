@@ -1,5 +1,5 @@
 :root {
-  --nav-width: 8rem;
+  --nav-width: 10rem;
 }
 
 * {
@@ -79,6 +79,10 @@ nav {
   }
 
   a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.1rem;
     width: 90%;
     padding: 1rem;
     border-radius: 4px;
@@ -87,9 +91,17 @@ nav {
     text-decoration: none;
     background-color: white;
     text-align: center;
-    display: block;
     margin-bottom: 0.5rem;
     transition: background-color 0.3s ease, transform 0.3s ease;
+
+    .nav-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .nav-label {
+      flex-grow: 1;
+    }
 
     &:hover {
       background-color: rgb(220, 220, 220);

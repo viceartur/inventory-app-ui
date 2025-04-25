@@ -7,72 +7,92 @@ export interface Route {
   path: string;
   label: string;
   restrict: string[];
+  icon: string;
 }
 
 export const APP_ROUTES: Route[] = [
   {
     path: "/",
     label: "Main Page",
+    icon: "🏠",
     restrict: ["admin", "csr", "warehouse", "production", "vault"],
   },
   {
     path: "/customer",
     label: "Customers",
+    icon: "👥",
     restrict: ["admin", "csr"],
   },
   {
     path: "/warehouse",
     label: "Warehouses & Locations",
+    icon: "🏢",
     restrict: ["admin", "warehouse"],
   },
   {
     path: "/order-needed",
     label: "Order Needed",
+    icon: "📦",
     restrict: ["admin", "csr"],
   },
   {
     path: "/send-material",
     label: "Send Material",
+    icon: "🚚",
     restrict: ["admin", "csr"],
   },
   {
     path: "/pending-materials",
     label: "Pending Materials",
+    icon: "⏳",
     restrict: ["admin", "csr"],
   },
   {
     path: "/incoming-vault",
     label: "Incoming Vault",
+    icon: "🗃️",
     restrict: ["admin", "vault"],
   },
   {
     path: "/incoming-materials",
     label: "Incoming Materials",
+    icon: "📥",
     restrict: ["admin", "warehouse"],
   },
   {
     path: "/requested-materials",
     label: "Requested Materials",
+    icon: "📝",
     restrict: ["admin", "warehouse"],
   },
   {
     path: "/processed-requests",
     label: "Processed Requests",
+    icon: "✅",
     restrict: ["admin", "warehouse"],
   },
   {
     path: "/materials",
     label: "Inventory",
+    icon: "📊",
     restrict: ["admin", "warehouse", "csr", "vault"],
   },
   {
-    path: "/reports",
-    label: "Reports",
+    path: "/cash-reports",
+    label: "Cash Reports",
+    icon: "💰",
+    restrict: ["admin", "csr", "warehouse"],
+  },
+  {
+    path: "/usage-reports",
+    label: "Usage Reports",
+    icon: "📈",
     restrict: ["admin", "csr", "warehouse"],
   },
   {
     path: "/import_data",
     label: "Import Materials",
+    icon: "📤",
     restrict: ["admin"],
   },
 ];
@@ -126,7 +146,7 @@ export const materialState = {
   serialNumberRange: "Loading...",
 };
 
-export const reportsSearchParamsState = {
+export const reportsSearchParams = {
   customerId: "",
   customerName: "",
   owner: "",
