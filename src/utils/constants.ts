@@ -78,6 +78,12 @@ export const APP_ROUTES: Route[] = [
     restrict: ["admin", "warehouse", "csr", "vault"],
   },
   {
+    path: "/vault-replenishment",
+    label: "Replenish Vault",
+    icon: "🔄",
+    restrict: ["admin", "vault"],
+  },
+  {
     path: "/cash-reports",
     label: "Cash Reports",
     icon: "💰",

@@ -186,13 +186,23 @@ export async function createMaterial(
 }
 
 export async function updateMaterial(material: any) {
-  await fetch(`${API}/materials`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(material),
-  });
+  try {
+    const res = await fetch(`${API}/materials`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(material),
+    });
+    const data = await res.json();
+
+    if (res.status != 200) {
+      return { error: "Error: " + data.message };
+    }
+    return data;
+  } catch (error: any) {
+    return { error: "Error: " + error.message };
+  }
 }
 
 export async function moveMaterial(
@@ -273,7 +283,50 @@ export async function fetchMaterials(filterOpts: any) {
   });
 
   try {
-    const res = await fetch(`${API}/materials?${queryParams.toString()}`);
+    const res = await fetch(`${API}/materials/like?${queryParams.toString()}`);
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    let materials = data.map((material: any) => ({
+      materialId: material.MaterialID,
+      warehouseName: material.WarehouseName,
+      stockId: material.StockID,
+      customerId: material.CustomerID,
+      customerName: material.CustomerName,
+      locationId: material.LocationID,
+      locationName: material.LocationName,
+      materialType: material.MaterialType,
+      description: material.Description,
+      notes: material.Notes,
+      quantity: material.Quantity,
+      updatedAt: material.UpdatedAt,
+      isActive: material.IsActive,
+      cost: material.Cost,
+      minQty: material.MinQty,
+      maxQty: material.MaxQty,
+      owner: material.Owner,
+      isPrimary: material.IsPrimary,
+      serialNumberRange: material.SerialNumberRange,
+    }));
+
+    // Filter materials based on user role
+    materials = filterMaterialsByUserRole(materials, userRole);
+
+    return materials;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function fetchMaterialsByStockID(
+  stockId: string,
+  userRole: string
+) {
+  try {
+    const res = await fetch(`${API}/materials/exact?stockId=${stockId}`);
     if (!res) return [];
 
     const data = await res.json();
@@ -416,5 +469,29 @@ export async function fetchMaterialDescription(filterOpts: {
   } catch (error) {
     console.error(error);
     return "";
+  }
+}
+
+export async function fetchMaterialTransactions(filterOpts: {
+  jobTicket: string;
+}) {
+  try {
+    const { jobTicket = "" } = filterOpts;
+    const queryParams = new URLSearchParams({
+      jobTicket,
+    });
+
+    const res = await fetch(
+      `${API}/materials/transactions?${queryParams.toString()}`
+    );
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.data) return [];
+
+    return data.data;
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }

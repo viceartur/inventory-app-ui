@@ -27,3 +27,18 @@ export const formatUserName = (username: string) => {
     username.slice(1).charAt(0).toUpperCase() + username.slice(2);
   return `${firstInitial}. ${lastName}`;
 };
+
+export const DEBOUNCE_DELAY = 1000;
+export function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: NodeJS.Timeout | null;
+
+  return function (this: unknown, ...args: Parameters<T>) {
+    clearTimeout(timeoutId as NodeJS.Timeout);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}

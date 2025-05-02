@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from "next/navigation";
 import * as XLSX from "xlsx";
 import { useSession } from "next-auth/react";
@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import { SubmitButton } from "ui/submit-button";
 import {
   fetchMaterials,
+  fetchMaterialsByStockID,
+  fetchMaterialTransactions,
   fetchRequestedMaterials,
   moveMaterial,
   removeMaterial,
@@ -14,9 +16,18 @@ import {
   updateRequestedMaterial,
   uploadMaterials,
 } from "../../actions/materials";
-import { materialState, selectState } from "utils/constants";
+import {
+  materialState,
+  selectState,
+  VAULT_MATERIAL_TYPES,
+} from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
-import { toUSFormat, usePreventNumberInputScroll } from "utils/client_utils";
+import {
+  debounce,
+  DEBOUNCE_DELAY,
+  toUSFormat,
+  usePreventNumberInputScroll,
+} from "utils/client_utils";
 
 export function Materials() {
   const { data: session } = useSession();
@@ -464,7 +475,8 @@ export function RemoveMaterialForm(props: { materialId: string }) {
           <input
             type="text"
             name="jobTicket"
-            placeholder="Job Ticket # (optional)"
+            placeholder="Enter Job Ticket #"
+            required={VAULT_MATERIAL_TYPES.includes(material.materialType)}
           />
         </div>
         <p className="submit-message">{submitMessage}</p>
@@ -597,6 +609,224 @@ export function ImportMaterials() {
           />
         </div>
       </form>
+    </section>
+  );
+}
+
+export function VaultReplenishment() {
+  const { data: session } = useSession();
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [jobTicketInput, setJobTicketInput] = useState<string>("");
+  const [isJobTicketFound, setIsJobTicketFound] = useState<boolean>(false);
+  const [stockIdInput, setStockIdInput] = useState<string>("");
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [locations, setLocations] = useState<object[]>([]);
+  const [quantityInput, setQuantityInput] = useState<string>("");
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [submitMessage, setSubmitMessage] = useState<string>("");
+  usePreventNumberInputScroll();
+
+  // Job Ticket Search Debounce Handling
+  const debouncedJobTicketSearch = useCallback(
+    debounce((value: string) => {
+      setJobTicketInput(value);
+      if (value) {
+        fetchTranscationsByJobTicket(value);
+      } else {
+        setIsJobTicketFound(false);
+        setStockIdInput("");
+        setSelectedLocation("");
+        setLocations([]);
+        setQuantityInput("");
+      }
+    }, DEBOUNCE_DELAY),
+    []
+  );
+
+  // Stock ID Search Debounce Handling
+  const debouncedStockIdSearch = useCallback(
+    debounce((value: string) => {
+      setStockIdInput(value);
+      if (value && !isJobTicketFound) {
+        fetchLocationsByStock(value);
+      }
+    }, DEBOUNCE_DELAY),
+    [isJobTicketFound]
+  );
+
+  // Get a Transaction and its Materials info to populate Locations
+  const fetchTranscationsByJobTicket = async (jobTicket: string) => {
+    const transactions = await fetchMaterialTransactions({ jobTicket });
+
+    if (transactions?.length > 0) {
+      const tx = transactions[0];
+      setStockIdInput(tx.stockId);
+      setQuantityInput(Math.abs(tx.quantity).toString());
+      setSelectedLocation(tx.locationName);
+
+      const materials = await fetchMaterials({ stockId: tx.stockId });
+      setLocations(
+        materials.map((m: any) => ({
+          id: m.locationId,
+          name: m.locationName,
+          materialId: m.materialId,
+          warehouseName: m.warehouseName,
+        }))
+      );
+      setIsJobTicketFound(true);
+    } else {
+      setIsJobTicketFound(false);
+    }
+  };
+
+  // Get all Locations for the Stock ID
+  const fetchLocationsByStock = async (stockId: string) => {
+    const materials = await fetchMaterialsByStockID(
+      stockId,
+      session?.user.role
+    );
+    setLocations(
+      materials.map((m: any) => ({
+        id: m.locationId,
+        name: m.locationName,
+        materialId: m.materialId,
+        warehouseName: m.warehouseName,
+      }))
+    );
+  };
+
+  // Form Confirmation
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const data = new FormData(form);
+    setFormData(data);
+    setShowConfirmation(true);
+  };
+
+  const confirmAction = async () => {
+    setShowConfirmation(false);
+    const material = {
+      materialId: String(formData?.get("location")),
+      quantity: String(formData?.get("qty")),
+      jobTicket: String(formData?.get("jobTicket")),
+    };
+
+    const res: any = await updateMaterial(material);
+    if (res?.error) {
+      setSubmitMessage(res.error);
+    } else {
+      setSubmitMessage(res.message);
+
+      // Reset the form
+      setIsJobTicketFound(false);
+      setJobTicketInput("");
+      setStockIdInput("");
+      setSelectedLocation("");
+      setLocations([]);
+      setQuantityInput("");
+      formRef.current?.reset();
+    }
+  };
+
+  const cancelAction = () => {
+    setShowConfirmation(false);
+  };
+
+  return (
+    <section>
+      <h2>Inner Vault Replenishment</h2>
+      <div className="section-description">
+        <p>📦 Adjust Inner Vault stock levels.</p>
+        <p>
+          🎫 Job Ticket auto-fills details if matched; otherwise, enter stock
+          info manually.
+        </p>
+        <p>✏️ You can update quantity and choose a location.</p>
+        <p>⚠️ If no locations are found, the stock is not stored.</p>
+      </div>
+      <form ref={formRef} onSubmit={handleSubmit}>
+        <div className="form-line">
+          <label>Job Ticket #:</label>
+          <input
+            type="text"
+            placeholder="Job Ticket #"
+            name="jobTicket"
+            required
+            value={jobTicketInput}
+            onChange={(e) => {
+              setJobTicketInput(e.target.value);
+              debouncedJobTicketSearch(e.target.value);
+            }}
+          />
+        </div>
+        <div className="form-line">
+          <label>Stock ID:</label>
+          <input
+            type="text"
+            placeholder="Stock ID"
+            name="stockId"
+            required
+            value={stockIdInput}
+            onChange={(e) => {
+              if (!isJobTicketFound) {
+                setStockIdInput(e.target.value);
+                debouncedStockIdSearch(e.target.value);
+              }
+            }}
+            disabled={isJobTicketFound}
+          />
+        </div>
+        <div className="form-line">
+          <label>Locations ({locations.length}):</label>
+          <select
+            name="location"
+            required
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+          >
+            <option value="">Select Location</option>
+            {locations.map((loc: any) => (
+              <option key={loc.id} value={loc.materialId}>
+                {loc.name} ({loc.warehouseName})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
+          <label>Quantity Received:</label>
+          <input
+            type="number"
+            name="qty"
+            placeholder={"Enter quantity"}
+            required
+            value={quantityInput}
+            onChange={(e) => setQuantityInput(e.target.value)}
+          />
+        </div>
+        <p className="submit-message">{submitMessage}</p>
+        <div className="form-buttons">
+          <SubmitButton title="Replenish Stock" />
+        </div>
+      </form>
+
+      {showConfirmation && (
+        <div className="confirmation-window">
+          <p>Are you sure you want to replenish the stock?</p>
+          <p>Job Ticket #: "{jobTicketInput}"</p>
+          <p>Stock ID: "{stockIdInput}"</p>
+          <p>
+            Quantity to be added: {toUSFormat(Number(formData?.get("qty")))}
+          </p>
+          <button type="button" onClick={confirmAction}>
+            Yes
+          </button>
+          <button type="button" onClick={cancelAction}>
+            No
+          </button>
+        </div>
+      )}
     </section>
   );
 }
