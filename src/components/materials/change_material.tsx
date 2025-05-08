@@ -1,4 +1,5 @@
 "use client";
+
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from "next/navigation";
 import * as XLSX from "xlsx";
@@ -30,14 +31,42 @@ import {
 } from "utils/client_utils";
 
 export function Materials() {
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [materialsList, setMaterialsList] = useState([]);
-  const [filterOpts, setFilterOpts] = useState({
-    stockId: "",
-    customerName: "",
-    description: "",
-    locationName: "",
-  });
+  const [filterOpts, setFilterOpts] = useState<{
+    stockId: string;
+    customerName: string;
+    description: string;
+    locationName: string;
+  } | null>(null);
+
+  useEffect(() => {
+    // Don't show the full materials list if no params exist
+    const entries = [...searchParams.entries()];
+    if (entries.every(([_, v]) => !v)) return;
+
+    setFilterOpts({
+      stockId: searchParams.get("stockId") || "",
+      customerName: searchParams.get("customerName") || "",
+      description: searchParams.get("description") || "",
+      locationName: searchParams.get("locationName") || "",
+    });
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!filterOpts || !session?.user.role) return;
+
+    const getMaterials = async () => {
+      const materials = await fetchMaterials({
+        ...filterOpts,
+        userRole: session.user.role,
+      });
+      setMaterialsList(materials.filter((m: any) => m.quantity));
+    };
+
+    getMaterials();
+  }, [filterOpts, session]);
 
   async function onFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,12 +80,8 @@ export function Materials() {
       customerName,
       description,
       locationName,
-      userRole: session?.user.role,
     };
     setFilterOpts(opts);
-    const materials = await fetchMaterials(opts);
-    // Display non-zero quantity only for the Inventory List
-    setMaterialsList(materials.filter((m: any) => m.quantity));
   }
 
   const handlePrimaryItem = async (materialId: string) => {
@@ -69,7 +94,10 @@ export function Materials() {
         isPrimary: !primaryMaterial.isPrimary,
       };
       await updateMaterial(material);
-      const materials = await fetchMaterials(filterOpts);
+      const materials = await fetchMaterials({
+        ...filterOpts,
+        userRole: session?.user.role,
+      });
       setMaterialsList(materials);
     }
   };
@@ -82,25 +110,25 @@ export function Materials() {
           type="text"
           name="stockId"
           placeholder="Stock ID"
-          defaultValue={filterOpts.stockId}
+          defaultValue={filterOpts?.stockId}
         />
         <input
           type="text"
           name="customerName"
           placeholder="Customer"
-          defaultValue={filterOpts.customerName}
+          defaultValue={filterOpts?.customerName}
         />
         <input
           type="text"
           name="description"
           placeholder="Description"
-          defaultValue={filterOpts.description}
+          defaultValue={filterOpts?.description}
         />
         <input
           type="text"
           name="locationName"
           placeholder="Location"
-          defaultValue={filterOpts.locationName}
+          defaultValue={filterOpts?.locationName}
         />
         <SubmitButton title="Look Up" />
       </form>
@@ -108,10 +136,10 @@ export function Materials() {
         <p>No items yet. Found Materials will be displayed here</p>
       ) : (
         <>
-          <h2>Found Materials:</h2>
+          <h2>Found Materials: {materialsList.length}</h2>
           <div className="material_list">
             <div className="list_header">
-              <p>Stock ID: {materialsList.length}</p>
+              <p>Stock ID</p>
               <p>Description</p>
               <p>Warehouse</p>
               <p>Location</p>
@@ -146,7 +174,9 @@ export function Materials() {
                   <button
                     onClick={() =>
                       redirect(
-                        `/materials/remove-material/${material.materialId}`
+                        `/materials/remove-material/${
+                          material.materialId
+                        }?${new URLSearchParams(filterOpts || "").toString()}`
                       )
                     }
                   >
@@ -155,7 +185,9 @@ export function Materials() {
                   <button
                     onClick={() =>
                       redirect(
-                        `/materials/move-material/${material.materialId}`
+                        `/materials/move-material/${
+                          material.materialId
+                        }?${new URLSearchParams(filterOpts || "").toString()}`
                       )
                     }
                   >
@@ -172,6 +204,8 @@ export function Materials() {
 }
 
 export function MoveMaterialForm(props: { materialId: string }) {
+  const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [selectLocations, setSelectLocations] = useState([selectState]);
@@ -180,16 +214,30 @@ export function MoveMaterialForm(props: { materialId: string }) {
   usePreventNumberInputScroll();
 
   useEffect(() => {
+    if (!session?.user.role) return;
+
     const getMaterialInfo = async () => {
       const [material] = await fetchMaterials({ materialId: props.materialId });
       const stockId = material.stockId;
       const owner = material.owner;
       const locations = await fetchAvailableLocations(stockId, owner);
+
+      // Filter available Locations depending on User Role
+      const filteredLocations = locations.filter((location: any) => {
+        if (session.user.role === "vault") {
+          return location.warehouseName.toLowerCase().includes("vault");
+        } else if (session.user.role === "warehouse") {
+          return location.warehouseName.toLowerCase().includes("warehouse");
+        } else {
+          return true;
+        }
+      });
+
       setMaterial(material);
-      setSelectLocations(locations);
+      setSelectLocations(filteredLocations);
     };
     getMaterialInfo();
-  }, []);
+  }, [session]);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -207,7 +255,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
     } else {
       setSubmitMessage("Material Moved. Redirecting to Inventory...");
       setTimeout(() => {
-        redirect("/materials/");
+        redirect(`/materials?${new URLSearchParams(searchParams).toString()}`);
       }, 2000);
     }
   }
@@ -291,7 +339,14 @@ export function MoveMaterialForm(props: { materialId: string }) {
         </div>
         <p className="submit-message">{sumbitMessage}</p>
         <div className="form-buttons">
-          <button type="button" onClick={() => redirect("/materials/")}>
+          <button
+            type="button"
+            onClick={() =>
+              redirect(
+                `/materials?${new URLSearchParams(searchParams).toString()}`
+              )
+            }
+          >
             Go back
           </button>
           <SubmitButton title="Move Material" />
@@ -321,8 +376,8 @@ export function MoveMaterialForm(props: { materialId: string }) {
 
 export function RemoveMaterialForm(props: { materialId: string }) {
   const searchParams = useSearchParams();
-  const requestId = searchParams.get("requestId");
-  const requestedQty = searchParams.get("quantity");
+  const requestId = searchParams.get("requestId"); // requested materials
+  const requestedQty = searchParams.get("quantity"); // requested materials
   const [submitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -383,7 +438,9 @@ export function RemoveMaterialForm(props: { materialId: string }) {
       } else {
         setSubmitMessage("Material Removed. Redirecting to Inventory...");
         setTimeout(() => {
-          redirect("/materials/");
+          redirect(
+            `/materials?${new URLSearchParams(searchParams).toString()}`
+          );
         }, 2000);
       }
     } catch (error: any) {
@@ -486,7 +543,9 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             onClick={() => {
               requestedQty
                 ? redirect(`/requested-materials/${requestId}`)
-                : redirect("/materials/");
+                : redirect(
+                    `/materials?${new URLSearchParams(searchParams).toString()}`
+                  );
             }}
           >
             Go back
@@ -655,6 +714,17 @@ export function VaultReplenishment() {
     [isJobTicketFound]
   );
 
+  const mapMaterialsToLocations = (materials: any) => {
+    return materials
+      .filter((m: any) => m.locationName !== "None")
+      .map((m: any) => ({
+        id: m.locationId,
+        name: m.locationName,
+        materialId: m.materialId,
+        warehouseName: m.warehouseName,
+      }));
+  };
+
   // Get a Transaction and its Materials info to populate Locations
   const fetchTranscationsByJobTicket = async (jobTicket: string) => {
     const transactions = await fetchMaterialTransactions({ jobTicket });
@@ -666,14 +736,7 @@ export function VaultReplenishment() {
       setSelectedLocation(tx.locationName);
 
       const materials = await fetchMaterials({ stockId: tx.stockId });
-      setLocations(
-        materials.map((m: any) => ({
-          id: m.locationId,
-          name: m.locationName,
-          materialId: m.materialId,
-          warehouseName: m.warehouseName,
-        }))
-      );
+      setLocations(mapMaterialsToLocations(materials));
       setIsJobTicketFound(true);
     } else {
       setIsJobTicketFound(false);
@@ -686,14 +749,7 @@ export function VaultReplenishment() {
       stockId,
       session?.user.role
     );
-    setLocations(
-      materials.map((m: any) => ({
-        id: m.locationId,
-        name: m.locationName,
-        materialId: m.materialId,
-        warehouseName: m.warehouseName,
-      }))
-    );
+    setLocations(mapMaterialsToLocations(materials));
   };
 
   // Form Confirmation
@@ -710,7 +766,7 @@ export function VaultReplenishment() {
     const material = {
       materialId: String(formData?.get("location")),
       quantity: String(formData?.get("qty")),
-      jobTicket: String(formData?.get("jobTicket")),
+      jobTicket: String(formData?.get("jobTicket")) + " (replenished)",
     };
 
     const res: any = await updateMaterial(material);

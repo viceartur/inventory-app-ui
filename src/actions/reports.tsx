@@ -115,3 +115,43 @@ export async function fetchWeeklyUsageItems(params: any) {
     return [];
   }
 }
+
+export async function fetchTransactionsLog(params: any) {
+  const {
+    warehouseId = "",
+    customerId = "",
+    owner = "",
+    materialType = "",
+    dateFrom = "",
+    dateTo = "",
+  } = params;
+  const queryParams = new URLSearchParams({
+    warehouseId,
+    customerId,
+    owner,
+    materialType,
+    dateFrom,
+    dateTo,
+  });
+  try {
+    const res = await fetch(
+      `${API}/reports/transactions_log?${queryParams.toString()}`
+    );
+    if (!res) return [];
+    const data = await res.json();
+    if (!data?.length) return [];
+    const transactions = data.map((material: any) => ({
+      stockId: material.StockID,
+      locationName: material.LocationName,
+      materialType: material.MaterialType,
+      qty: material.Qty,
+      date: material.Date,
+      serialNumberRange: material.SerialNumberRange,
+      jobTicket: material.JobTicket,
+    }));
+    return transactions;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}

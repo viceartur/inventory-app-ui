@@ -87,13 +87,13 @@ export const APP_ROUTES: Route[] = [
     path: "/cash-reports",
     label: "Cash Reports",
     icon: "💰",
-    restrict: ["admin", "csr", "warehouse"],
+    restrict: ["admin", "csr"],
   },
   {
     path: "/usage-reports",
     label: "Usage Reports",
     icon: "📈",
-    restrict: ["admin", "csr", "warehouse"],
+    restrict: ["admin", "csr", "warehouse", "vault"],
   },
   {
     path: "/import_data",

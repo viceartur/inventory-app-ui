@@ -149,10 +149,10 @@ export function CashReports() {
         </div>
         <div className="form-buttons">
           <button type="button" onClick={handleTransactionsRedirect}>
-            Get Transactions Report
+            Get Transactions
           </button>
           <button type="button" onClick={handleBalanceRedirect}>
-            Get Balance Report
+            Get Balance
           </button>
         </div>
       </form>

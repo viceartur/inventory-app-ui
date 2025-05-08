@@ -7,31 +7,25 @@ import * as XLSX from "xlsx";
 
 import { fetchCustomers } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
-import { OWNER_TYPES, selectState } from "utils/constants";
-import { fetchWeeklyUsageItems } from "actions/reports";
+import { OWNER_TYPES } from "utils/constants";
+import { fetchTransactionsLog, fetchWeeklyUsageItems } from "actions/reports";
 import { toUSFormat } from "utils/client_utils";
+import { fetchWarehouses } from "actions/warehouses";
 
 export function UsageReports() {
-  const [searchParams, setSearchParams] = useState({
-    customerId: "",
-    customerName: "",
-    owner: "",
-    materialType: "",
-    dateAsOf: "",
-  });
-  const [selectCustomers, setSelectCustomers] = useState([
-    { ...selectState, name: "" },
-  ]);
-  const [selectMaterialTypes, setSelectMaterialTypes] = useState([
-    { ...selectState, name: "" },
-  ]);
+  const [searchParams, setSearchParams] = useState<object | any>({});
+  const [selectCustomers, setSelectCustomers] = useState<object[]>([]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState<object[]>([]);
+  const [selectWarehouses, setSelectWarehouses] = useState<object[]>([]);
 
   useEffect(() => {
     const getReportInfo = async () => {
       const customers = await fetchCustomers();
       const materialTypes = await fetchMaterialTypes();
-      setSelectCustomers([...selectCustomers, ...customers]);
-      setSelectMaterialTypes([...selectMaterialTypes, ...materialTypes]);
+      const warehouses = await fetchWarehouses();
+      setSelectCustomers(customers);
+      setSelectMaterialTypes(materialTypes);
+      setSelectWarehouses(warehouses);
     };
     getReportInfo();
   }, []);
@@ -40,18 +34,24 @@ export function UsageReports() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    const warehouseId = formData.get("warehouse")?.toString();
     const customer = formData.get("customer")?.toString().split("%");
     const customerId = customer ? customer[0] : "";
     const customerName = customer ? customer[1] : "";
     const owner = formData.get("owner")?.toString() || "";
     const materialType = formData.get("materialType")?.toString() || "";
+    const dateFrom = formData.get("dateFrom")?.toString() || "";
+    const dateTo = formData.get("dateTo")?.toString() || "";
     const dateAsOf = formData.get("dateAsOf")?.toString() || "";
 
     setSearchParams({
+      warehouseId,
       customerId,
       customerName,
       owner,
       materialType,
+      dateFrom,
+      dateTo,
       dateAsOf,
     });
   };
@@ -74,12 +74,39 @@ export function UsageReports() {
     redirect(`/usage-reports/weekly-usage?${queryParams.toString()}`);
   };
 
+  const handleTransactionsLogRedirect = () => {
+    const {
+      warehouseId = "",
+      customerId = "",
+      customerName = "",
+      owner = "",
+      materialType = "",
+      dateFrom = "",
+      dateTo = "",
+    } = searchParams;
+    const queryParams = new URLSearchParams({
+      warehouseId,
+      customerId,
+      customerName,
+      owner,
+      materialType,
+      dateFrom,
+      dateTo,
+    });
+    redirect(`/usage-reports/transactions-log?${queryParams.toString()}`);
+  };
+
   return (
     <section>
       <h2>Usage Reports Page</h2>
       <form onChange={onChangeForm}>
         <div className="form-info">
-          <h3>📊 6-Week Usage & Stock Forecast Report (W)</h3>
+          <h3>📊 Transactions Log Report (T)</h3>
+          <p>
+            Review all stock transactions with detailed info on item locations,
+            quantity changes, and job tickets.
+          </p>
+          <h3>📈 6-Week Usage & Stock Forecast Report (W)</h3>
           <p>
             View stock quantity on the selected date, 6-week average usage, and
             an estimated number of weeks remaining until stock runs out.
@@ -90,9 +117,21 @@ export function UsageReports() {
           </p>
         </div>
         <div className="form-line">
+          <label>(T) Warehouse:</label>
+          <select name="warehouse" required>
+            <option value="">Select Warehouse</option>
+            {selectWarehouses.map((warehouse: any) => (
+              <option key={warehouse.warehouseId} value={warehouse.warehouseId}>
+                {warehouse.warehouseName}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
           <label>Customer:</label>
           <select name="customer" required>
-            {selectCustomers.map((customer, i) => (
+            <option value="">Select Customer</option>
+            {selectCustomers.map((customer: any, i) => (
               <option key={i} value={`${customer.id}%${customer.name}`}>
                 {customer.name}
               </option>
@@ -102,7 +141,8 @@ export function UsageReports() {
         <div className="form-line">
           <label>Material Type:</label>
           <select name="materialType" required>
-            {selectMaterialTypes.map((type) => (
+            <option value="">Select Material Type</option>
+            {selectMaterialTypes.map((type: any) => (
               <option key={type.id} value={type.name}>
                 {type.name}
               </option>
@@ -112,6 +152,7 @@ export function UsageReports() {
         <div className="form-line">
           <label>Owner:</label>
           <select name="owner" required>
+            <option value="">Select Owner</option>
             {OWNER_TYPES.map((type, i) => (
               <option key={i} value={type}>
                 {type}
@@ -120,12 +161,23 @@ export function UsageReports() {
           </select>
         </div>
         <div className="form-line">
-          <label>Date As Of:</label>
+          <label>(T) Date From:</label>
+          <input type="date" name="dateFrom" />
+        </div>
+        <div className="form-line">
+          <label>(T) Date To:</label>
+          <input type="date" name="dateTo" />
+        </div>
+        <div className="form-line">
+          <label>(W) Date As Of:</label>
           <input type="date" name="dateAsOf" />
         </div>
         <div className="form-buttons">
+          <button type="button" onClick={handleTransactionsLogRedirect}>
+            Get Transactions Log
+          </button>
           <button type="button" onClick={handleWeeklyUsageRedirect}>
-            Get Report
+            Get 6-Week Usage
           </button>
         </div>
       </form>
@@ -231,6 +283,79 @@ export function WeeklyUsage() {
         </table>
       ) : (
         "No usage data found for the current query parameters. Please adjust your filters or try a different search."
+      )}
+    </section>
+  );
+}
+
+export function TransactionsLog() {
+  const searchParams = useSearchParams();
+  const warehouseId = searchParams.get("warehouseId");
+  const customerId = searchParams.get("customerId");
+  const customerName = searchParams.get("customerName");
+  const owner = searchParams.get("owner");
+  const materialType = searchParams.get("materialType");
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
+
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    const getTransactions = async () => {
+      const transactions = await fetchTransactionsLog({
+        warehouseId,
+        customerId,
+        owner,
+        materialType,
+        dateFrom,
+        dateTo,
+      });
+      setTransactions(transactions);
+    };
+    getTransactions();
+  }, []);
+
+  return (
+    <section>
+      <div>
+        <button onClick={() => redirect("/usage-reports")}>
+          Back to Reports
+        </button>
+      </div>
+      <h2>Transactions Log</h2>
+      {transactions.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Material Type</th>
+              <th>Location</th>
+              {materialType === "CHIPS" && <th>Serial # Range</th>}
+              <th>Quantity (+/-)</th>
+              <th>Job Ticket</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.materialType}</td>
+                <td>{material.locationName}</td>
+                {materialType === "CHIPS" && (
+                  <td>{material.serialNumberRange}</td>
+                )}
+                <td className={material.qty > 0 ? "" : "negative"}>
+                  {toUSFormat(material.qty)}
+                </td>
+                <td>{material.jobTicket}</td>
+                <td>{material.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        "No transactions data found for the current query parameters. Please adjust your filters or try a different search."
       )}
     </section>
   );
