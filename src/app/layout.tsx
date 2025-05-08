@@ -13,15 +13,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const ws = new WebSocket(WS);
+
     ws.onopen = () => {
-      console.log("WS connection openned");
+      console.log("WS connection opened");
       ws.send("materialsUpdated");
       ws.send("vaultUpdated");
     };
+
+    ws.onerror = (error) => {
+      console.error("WS error:", error);
+    };
+
     ws.onclose = () => {
       console.log("WS connection closed");
     };
+
     setSocket(ws);
+
     return () => {
       ws.close();
     };
