@@ -133,10 +133,6 @@ export function SendMaterialForm() {
           📝 The Description field is auto-populated based on the Stock ID
           provided 🔍
         </p>
-        <p>
-          ✍️ If the Stock ID is completely new, the Description must be filled
-          in manually while maintaining CAPITAL LETTERS notation 🔠
-        </p>
       </div>
       <form ref={formRef} onSubmit={submitForm}>
         <div className="form-line">
