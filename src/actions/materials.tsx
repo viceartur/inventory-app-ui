@@ -152,6 +152,29 @@ export async function updateIncomingMaterial(
   }
 }
 
+export async function deleteIncomingMaterial(shippingId: number) {
+  const body = {
+    shippingId,
+  };
+
+  try {
+    const res = await fetch(`${API}/incoming_materials`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.status != 200) {
+      return { message: res.statusText };
+    }
+    return null;
+  } catch (error: any) {
+    return { error: "Error: " + error.message };
+  }
+}
+
 export async function createMaterial(
   incomingMaterialId: string,
   formData: FormData | null

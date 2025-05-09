@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 
 import { SubmitButton } from "ui/submit-button";
 import {
+  deleteIncomingMaterial,
   fetchIncomingMaterials,
   fetchMaterialDescription,
   fetchMaterialTypes,
@@ -209,7 +210,7 @@ export function SendMaterialForm() {
             required
           />
         </div>
-        <div>
+        <div className="form-checkboxes">
           <label>
             Tag Owned:
             <input type="checkbox" name="owner" />
@@ -243,6 +244,7 @@ export function SendMaterialForm() {
 }
 
 export function PendingMaterials() {
+  const { data: session } = useSession();
   const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
 
   useEffect(() => {
@@ -263,46 +265,55 @@ export function PendingMaterials() {
           material
         </p>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Description</th>
-            <th>Stock ID</th>
-            <th>Quantity</th>
-            <th>Unit Cost, USD</th>
-            <th>Sent By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {incomingMaterialsList.map((material: any, i) => (
-            <tr
-              key={i}
-              onDoubleClick={() =>
-                redirect(`/pending-materials/${material.shippingId}`)
-              }
-            >
-              <td>{material.customerName}</td>
-              <td>{material.description}</td>
-              <td>{material.stockId}</td>
-              <td>{toUSFormat(material.quantity)}</td>
-              <td>{material.cost}</td>
-              <td>{formatUserName(material.username)}</td>
+      {incomingMaterialsList.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Description</th>
+              <th>Stock ID</th>
+              <th>Quantity</th>
+              <th>Unit Cost, USD</th>
+              <th>Sent By</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {incomingMaterialsList.map((material: any, i) => (
+              <tr
+                key={i}
+                onDoubleClick={() =>
+                  session?.user.role === "admin" ||
+                  material.username === session?.user.name
+                    ? redirect(`/pending-materials/${material.shippingId}`)
+                    : alert("You are not allowed to edit this Material")
+                }
+              >
+                <td>{material.customerName}</td>
+                <td>{material.description}</td>
+                <td>{material.stockId}</td>
+                <td>{toUSFormat(material.quantity)}</td>
+                <td>{material.cost}</td>
+                <td>{formatUserName(material.username)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No items to be displayed yet.</p>
+      )}
     </section>
   );
 }
 
 export function EditIncomingMaterial(props: any) {
+  const socket = useSocket();
   const formRef = useRef<HTMLFormElement | null>(null);
   const [incomingMaterial, setIncomingMaterial] = useState<any>({});
   const [selectCustomers, setSelectCustomers] = useState([selectState]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
   const [formData, setFormData] = useState<FormData | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [sumbitMessage, setSubmitMessage] = useState("");
   usePreventNumberInputScroll();
 
@@ -318,15 +329,42 @@ export function EditIncomingMaterial(props: any) {
     getMaterialInfo();
   }, []);
 
-  const submitForm = async (event: FormEvent<HTMLFormElement>) => {
+  // Delete Handling
+  const onDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteConfirmation(false);
+    const res: any = await deleteIncomingMaterial(props.shippingId);
+    if (res?.error) {
+      setSubmitMessage(res.error);
+    } else {
+      setSubmitMessage("Material Deleted. Redirecting to Pending Materials...");
+      setTimeout(() => {
+        redirect("/pending-materials/");
+      }, 2000);
+
+      socket?.send("vaultUpdated");
+      socket?.send("materialsUpdated");
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
+  };
+
+  // Submit Handling
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     setFormData(formData);
-    setShowConfirmation(true);
+    setShowSubmitConfirmation(true);
   };
 
-  const confirmAction = async () => {
-    setShowConfirmation(false);
+  const confirmSubmit = async () => {
+    setShowSubmitConfirmation(false);
     const res: any = await updateIncomingMaterial(formData, props.shippingId);
     if (res?.error) {
       setSubmitMessage(res.error);
@@ -338,18 +376,21 @@ export function EditIncomingMaterial(props: any) {
     }
   };
 
-  function cancelAction() {
-    setShowConfirmation(false);
+  const cancelSubmit = () => {
+    setShowSubmitConfirmation(false);
     setFormData(null);
-  }
+  };
 
   return (
     <section>
-      <h2>Edit the Sent Material</h2>
-      <form ref={formRef} onSubmit={submitForm}>
-        <div className="form-info">
-          <p>You may change the fields needed to be updated only</p>
-        </div>
+      <h2>Edit Submitted Material</h2>
+      <div className="section-description">
+        <p>
+          You may <strong>Update</strong> any necessary fields or{" "}
+          <strong>Delete</strong> the Material from the Pending list
+        </p>
+      </div>
+      <form ref={formRef} onSubmit={onSubmit}>
         <div className="form-line">
           <label>Stock ID:</label>
           <input
@@ -446,7 +487,7 @@ export function EditIncomingMaterial(props: any) {
             required
           />
         </div>
-        <div>
+        <div className="form-checkboxes">
           <label>
             Tag Owned:
             <input
@@ -471,19 +512,40 @@ export function EditIncomingMaterial(props: any) {
           <button type="button" onClick={() => redirect("/pending-materials")}>
             Go Back
           </button>
+          <button
+            type="button"
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => onDelete(e)}
+          >
+            Delete Material
+          </button>
           <SubmitButton title="Update Material" />
         </div>
       </form>
 
-      {showConfirmation && (
+      {showSubmitConfirmation && (
         <div className="confirmation-window">
           <p>Do you want to Update this Material?</p>
           <p>Stock ID: {String(formData?.get("stockId"))}</p>
           <p>Quantity: {toUSFormat(Number(formData?.get("qty")))}</p>
-          <button type="button" onClick={confirmAction}>
+          <button type="button" onClick={confirmSubmit}>
             Yes
           </button>
-          <button type="button" onClick={cancelAction}>
+          <button type="button" onClick={cancelSubmit}>
+            No
+          </button>
+        </div>
+      )}
+
+      {showDeleteConfirmation && (
+        <div className="confirmation-window">
+          <p>
+            Are you sure you want to Delete this Material? Once deleted, the
+            Warehouse will no longer be able to Accept it.
+          </p>
+          <button type="button" onClick={confirmDelete}>
+            Yes
+          </button>
+          <button type="button" onClick={cancelDelete}>
             No
           </button>
         </div>
