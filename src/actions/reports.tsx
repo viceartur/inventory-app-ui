@@ -155,3 +155,18 @@ export async function fetchTransactionsLog(params: any) {
     return [];
   }
 }
+
+export async function fetchVaultReport() {
+  try {
+    const res = await fetch(`${API}/reports/vault`);
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
