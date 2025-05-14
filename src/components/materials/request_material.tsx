@@ -39,17 +39,23 @@ export function RequestedMaterials() {
           </div>
           {requestedMaterials.map((material: any, i) => (
             <div className="material_list-item" key={i}>
-              <p>{material.stockId}</p>
+              <p>
+                <strong>{material.stockId}</strong>
+              </p>
               <p>{material.description}</p>
               <p>{material.username || "HSA"}</p>
-              <p>{toUSFormat(material.quantity)}</p>
-              <button
-                onClick={() =>
-                  redirect(`/requested-materials/${material.requestId}`)
-                }
-              >
-                Handle
-              </button>
+              <p>
+                <strong>{toUSFormat(material.quantity)}</strong>
+              </p>
+              <div className="buttons-box">
+                <button
+                  onClick={() =>
+                    redirect(`/requested-materials/${material.requestId}`)
+                  }
+                >
+                  Handle
+                </button>
+              </div>
             </div>
           ))}
         </div>

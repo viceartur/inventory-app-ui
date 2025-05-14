@@ -246,6 +246,7 @@ export function Transactions() {
               <th>Stock ID</th>
               <th>Material Type</th>
               <th>Quantity (+/-)</th>
+              <th>Cumulative Qty</th>
               {materialType === "CHIPS" && <th>Serial # Range</th>}
               <th>Unit Cost, USD</th>
               <th>Cost, USD</th>
@@ -260,6 +261,7 @@ export function Transactions() {
                 <td className={material.qty > 0 ? "" : "negative"}>
                   {toUSFormat(material.qty)}
                 </td>
+                <td>{toUSFormat(material.cumulativeQty)}</td>
                 {materialType === "CHIPS" && (
                   <td>{material.serialNumberRange}</td>
                 )}

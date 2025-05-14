@@ -435,8 +435,13 @@ form {
     border-radius: 6px;
 
     p {
-      margin: 0.5rem;
-      width: 11rem;
+      width: 10rem;
+      margin-right: 0.5rem;
+
+      &:last-child {
+        text-align: center;
+        width: 7rem;
+      }
     }
   }
 
@@ -467,9 +472,29 @@ form {
       background-color: rgb(255, 239, 204);
     }
 
+    .buttons-box {
+      width: 7rem;
+      display: flex;
+      justify-content: space-around;
+
+      button {
+        margin: 0;
+        background-color: #f0f0f0;
+        transition: background-color 0.3s ease, transform 0.2s ease,
+          box-shadow 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+          background-color: #e0e0e0;
+          transform: scale(1.05);
+          box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+      }
+    }
+
     p {
-      margin: 0.5rem;
-      width: 11rem;
+      margin-right: 0.5rem;
+      width: 10rem;
       color: rgb(50, 50, 50);
     }
   }

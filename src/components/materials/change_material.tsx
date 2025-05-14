@@ -10,6 +10,7 @@ import {
   fetchMaterials,
   fetchMaterialsByStockID,
   fetchMaterialTransactions,
+  fetchMaterialUsageReasons,
   fetchRequestedMaterials,
   moveMaterial,
   removeMaterial,
@@ -144,7 +145,7 @@ export function Materials() {
               <p>Warehouse</p>
               <p>Location</p>
               <p>
-                Quantity:{" "}
+                Quantity (total):{" "}
                 {toUSFormat(
                   materialsList.reduce(
                     (sum, item: any) => (sum += item.quantity),
@@ -165,12 +166,16 @@ export function Materials() {
                   handlePrimaryItem(material.materialId)
                 }
               >
-                <p>{material.stockId}</p>
+                <p>
+                  <strong>{material.stockId}</strong>
+                </p>
                 <p>{material.description}</p>
                 <p>{material.warehouseName}</p>
                 <p>{material.locationName}</p>
-                <p>{toUSFormat(material.quantity)}</p>
-                <>
+                <p>
+                  <strong>{toUSFormat(material.quantity)}</strong>
+                </p>
+                <div className="buttons-box">
                   <button
                     onClick={() =>
                       redirect(
@@ -193,7 +198,7 @@ export function Materials() {
                   >
                     🔀
                   </button>
-                </>
+                </div>
               </div>
             ))}
           </div>
@@ -378,6 +383,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   const searchParams = useSearchParams();
   const requestId = searchParams.get("requestId"); // requested materials
   const requestedQty = searchParams.get("quantity"); // requested materials
+  const [usageReasons, setUsageReasons] = useState<[]>([]);
   const [submitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState(materialState);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -385,16 +391,22 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   usePreventNumberInputScroll();
 
   useEffect(() => {
-    const getMaterial = async () => {
+    const getMaterialInfo = async () => {
       const [material] = await fetchMaterials({ materialId: props.materialId });
       setMaterial(material);
+
+      if (material.materialType.includes("CARDS")) {
+        const reasons = await fetchMaterialUsageReasons();
+        setUsageReasons(reasons);
+      }
     };
-    getMaterial();
+    getMaterialInfo();
   }, []);
 
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    console.log("reasonId", formData.get("remakeReasons"));
     setFormData(formData);
     setShowConfirmation(true);
   }
@@ -522,7 +534,7 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             <input
               type="text"
               name="serialNumberRange"
-              placeholder="Serial # range to use (ex. 101-200)"
+              placeholder="Enter Serial # Range"
               required
             />
           </div>
@@ -536,6 +548,19 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             required={VAULT_MATERIAL_TYPES.includes(material.materialType)}
           />
         </div>
+        {material.materialType.includes("CARDS") && (
+          <div className="form-line">
+            <label htmlFor="remakeReasons">Remake Reason:</label>
+            <select name="remakeReasons" id="remakeReasons" defaultValue="">
+              <option value="">-- Choose a reason if applicable --</option>
+              {usageReasons.map((reason: any) => (
+                <option key={reason.reasonId} value={reason.reasonId}>
+                  {reason.code}: {reason.description}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <p className="submit-message">{submitMessage}</p>
         <div className="form-buttons">
           <button

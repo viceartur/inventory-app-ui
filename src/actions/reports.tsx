@@ -41,6 +41,7 @@ export async function fetchTransactions(params: any) {
       cost: material.Cost,
       date: material.Date,
       serialNumberRange: material.SerialNumberRange,
+      cumulativeQty: material.CumulativeQty,
     }));
     return transactions;
   } catch (error) {
@@ -148,6 +149,7 @@ export async function fetchTransactionsLog(params: any) {
       date: material.Date,
       serialNumberRange: material.SerialNumberRange,
       jobTicket: material.JobTicket,
+      reasonDescription: material.ReasonDescription,
     }));
     return transactions;
   } catch (error) {

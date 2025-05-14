@@ -56,20 +56,26 @@ export function IncomingMaterials(props: { isVault: boolean }) {
           {incomingMaterialsList.map((material: any, i) => (
             <div className="material_list-item" key={i}>
               <p>{material.customerName}</p>
-              <p>{material.stockId}</p>
-              <p>{toUSFormat(material.quantity)}</p>
+              <p>
+                <strong>{material.stockId}</strong>
+              </p>
+              <p>
+                <strong>{toUSFormat(material.quantity)}</strong>
+              </p>
               <p>{formatUserName(material.username)}</p>
-              <button
-                onClick={() => {
-                  if (props.isVault) {
-                    redirect(`/incoming-vault/${material.shippingId}`);
-                  } else {
-                    redirect(`/incoming-materials/${material.shippingId}`);
-                  }
-                }}
-              >
-                📥
-              </button>
+              <div className="buttons-box">
+                <button
+                  onClick={() => {
+                    if (props.isVault) {
+                      redirect(`/incoming-vault/${material.shippingId}`);
+                    } else {
+                      redirect(`/incoming-materials/${material.shippingId}`);
+                    }
+                  }}
+                >
+                  📥
+                </button>
+              </div>
             </div>
           ))}
         </div>

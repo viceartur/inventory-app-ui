@@ -333,6 +333,7 @@ export function TransactionsLog() {
               {materialType === "CHIPS" && <th>Serial # Range</th>}
               <th>Quantity (+/-)</th>
               <th>Job Ticket</th>
+              <th>Reason</th>
               <th>Date</th>
             </tr>
           </thead>
@@ -349,6 +350,7 @@ export function TransactionsLog() {
                   {toUSFormat(material.qty)}
                 </td>
                 <td>{material.jobTicket}</td>
+                <td>{material.reasonDescription}</td>
                 <td>{material.date}</td>
               </tr>
             ))}

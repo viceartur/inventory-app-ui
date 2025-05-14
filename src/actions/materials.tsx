@@ -41,6 +41,21 @@ export async function fetchMaterialTypes() {
   }
 }
 
+export async function fetchMaterialUsageReasons() {
+  try {
+    const res = await fetch(`${API}/material_usage_reasons`);
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export async function sendMaterial(formData: FormData | null, userId: number) {
   if (!formData) return { error: "Error: No Form Data" };
   if (!userId) return { error: "Error: User Not Detected" };
@@ -271,6 +286,7 @@ export async function removeMaterial(
       quantity: formData.get("quantity"),
       jobTicket: formData.get("jobTicket"),
       serialNumberRange: formData.get("serialNumberRange"),
+      reasonId: Number(formData.get("remakeReasons")),
     };
 
     const res: any = await fetch(`${API}/materials/remove-from-location`, {
