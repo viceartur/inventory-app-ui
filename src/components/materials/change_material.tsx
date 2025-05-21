@@ -545,7 +545,8 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             type="text"
             name="jobTicket"
             placeholder="Enter Job Ticket #"
-            required={VAULT_MATERIAL_TYPES.includes(material.materialType)}
+            // required={VAULT_MATERIAL_TYPES.includes(material.materialType)}
+            required={false}
           />
         </div>
         {material.materialType.includes("CARDS") && (
