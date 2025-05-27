@@ -41,6 +41,7 @@ a {
 
 /* Sections */
 .section-description {
+  max-width: 40rem;
   text-align: center;
   margin: 1rem;
   padding: 0.5rem;

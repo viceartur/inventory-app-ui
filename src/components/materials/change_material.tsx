@@ -697,7 +697,7 @@ export function ImportMaterials() {
   );
 }
 
-export function VaultReplenishment() {
+export function MaterialReplenishment() {
   const { data: session } = useSession();
   const formRef = useRef<HTMLFormElement | null>(null);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -740,14 +740,17 @@ export function VaultReplenishment() {
   );
 
   const mapMaterialsToLocations = (materials: any) => {
-    return materials
-      .filter((m: any) => m.locationName !== "None")
-      .map((m: any) => ({
-        id: m.locationId,
-        name: m.locationName,
-        materialId: m.materialId,
-        warehouseName: m.warehouseName,
-      }));
+    return (
+      materials
+        // Display only items with a current location and owned by the Customer (not Tag)
+        .filter((m: any) => m.locationName !== "None" && m.owner == "Customer")
+        .map((m: any) => ({
+          id: m.locationId,
+          name: m.locationName,
+          materialId: m.materialId,
+          warehouseName: m.warehouseName,
+        }))
+    );
   };
 
   // Get a Transaction and its Materials info to populate Locations
@@ -817,15 +820,22 @@ export function VaultReplenishment() {
 
   return (
     <section>
-      <h2>Inner Vault Replenishment</h2>
+      <h2>Material Replenishment</h2>
       <div className="section-description">
-        <p>📦 Adjust Inner Vault stock levels.</p>
         <p>
-          🎫 Job Ticket auto-fills details if matched; otherwise, enter stock
-          info manually.
+          📦 Stock adjustments are permitted only for materials owned by the
+          Customer. If materials are owned by Tag and need to be replenished, a
+          new shipment should be initiated by the CSR.
         </p>
-        <p>✏️ You can update quantity and choose a location.</p>
-        <p>⚠️ If no locations are found, the stock is not stored.</p>
+        <p>
+          🎫 If a Job Ticket is provided and matches, details will auto-fill.
+          Otherwise, enter the stock information manually.
+        </p>
+        <p>✏️ You can update the quantity and select a location.</p>
+        <p>
+          ⚠️ If no locations are found, the stock is either not stored or is
+          owned by Tag.
+        </p>
       </div>
       <form ref={formRef} onSubmit={handleSubmit}>
         <div className="form-line">
