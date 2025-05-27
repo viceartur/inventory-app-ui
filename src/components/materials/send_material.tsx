@@ -193,6 +193,17 @@ export function SendMaterialForm() {
           </select>
         </div>
         <div className="form-line">
+          <label>Owner:</label>
+          <select name="owner" required>
+            <option value="">Select Owner</option>
+            {["Tag", "Customer"].map((owner, i) => (
+              <option key={i} value={owner}>
+                {owner}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
           <label>Min Qty:</label>
           <input
             type="number"
@@ -211,10 +222,6 @@ export function SendMaterialForm() {
           />
         </div>
         <div className="form-checkboxes">
-          <label>
-            Tag Owned:
-            <input type="checkbox" name="owner" />
-          </label>
           <label>
             Allow for Use:
             <input type="checkbox" name="isActive" />
