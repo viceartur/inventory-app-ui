@@ -406,7 +406,6 @@ export function RemoveMaterialForm(props: { materialId: string }) {
   async function onSubmitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    console.log("reasonId", formData.get("remakeReasons"));
     setFormData(formData);
     setShowConfirmation(true);
   }
