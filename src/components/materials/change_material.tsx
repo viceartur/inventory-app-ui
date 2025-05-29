@@ -18,11 +18,7 @@ import {
   updateRequestedMaterial,
   uploadMaterials,
 } from "../../actions/materials";
-import {
-  materialState,
-  selectState,
-  VAULT_MATERIAL_TYPES,
-} from "utils/constants";
+import { materialState, selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import {
   debounce,
@@ -157,9 +153,9 @@ export function Materials() {
             </div>
             {materialsList.map((material: any, i) => (
               <div
-                className={`material_list-item${
-                  material.isPrimary ? " primary" : ""
-                }`}
+                className={`material_list-item ${
+                  material.owner === "Tag" ? "tag-owned" : "customer-owned"
+                }${material.isPrimary ? " primary" : ""}`}
                 key={i}
                 onDoubleClick={() =>
                   session?.user.role == "warehouse" &&

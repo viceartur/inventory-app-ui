@@ -447,6 +447,7 @@ form {
   }
 
   .material_list-item {
+    position: relative;
     margin: 0.5rem;
     display: flex;
     justify-content: flex-start;
@@ -456,6 +457,44 @@ form {
     background-color: white;
     border-radius: 6px;
     transition: background-color 0.3s ease, border 0.3s ease;
+
+    &.tag-owned {
+      &::before {
+        content: "TAG-OWNED";
+        position: absolute;
+        top: 0rem;
+        left: 0rem;
+        background-color: #228d3b;
+        color: white;
+        font-size: 0.6rem;
+        font-weight: bold;
+        padding: 0.2rem;
+        transform-origin: top left;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        z-index: 1;
+      }
+    }
+
+    &.customer-owned {
+      &::before {
+        content: "CUSTOMER-OWNED";
+        position: absolute;
+        top: 0rem;
+        left: 0rem;
+        background-color: #d26e1c;
+        color: white;
+        font-size: 0.6rem;
+        font-weight: bold;
+        padding: 0.2rem;
+        transform-origin: top left;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        z-index: 1;
+      }
+    }
 
     &.primary {
       border: 2px solid rgb(70, 130, 180);
