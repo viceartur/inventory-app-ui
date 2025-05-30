@@ -145,7 +145,7 @@ export async function updateIncomingMaterial(
     minQuantity: formData.get("minQty"),
     maxQuantity: formData.get("maxQty"),
     description: formData.get("description"),
-    owner: formData.get("owner") === "on" ? "Tag" : "Customer",
+    owner: formData.get("owner"),
     isActive: formData.get("isActive") === "on",
   };
 

@@ -316,6 +316,7 @@ export function EditIncomingMaterial(props: any) {
   const socket = useSocket();
   const formRef = useRef<HTMLFormElement | null>(null);
   const [incomingMaterial, setIncomingMaterial] = useState<any>({});
+  const [owner, setOwner] = useState<string>("");
   const [selectCustomers, setSelectCustomers] = useState([selectState]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -332,6 +333,7 @@ export function EditIncomingMaterial(props: any) {
       setSelectCustomers(customers);
       setSelectMaterialTypes(types);
       setIncomingMaterial(incomingMaterial);
+      setOwner(incomingMaterial.owner);
     };
     getMaterialInfo();
   }, []);
@@ -473,6 +475,22 @@ export function EditIncomingMaterial(props: any) {
           </select>
         </div>
         <div className="form-line">
+          <label>Owner:</label>
+          <select
+            name="owner"
+            required
+            value={owner}
+            onChange={(e) => setOwner(e.target.value)}
+          >
+            <option value="">Select Owner</option>
+            {["Tag", "Customer"].map((ownerOption, i) => (
+              <option key={i} value={ownerOption}>
+                {ownerOption}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-line">
           <label>Min Qty:</label>
           <input
             type="number"
@@ -495,15 +513,6 @@ export function EditIncomingMaterial(props: any) {
           />
         </div>
         <div className="form-checkboxes">
-          <label>
-            Tag Owned:
-            <input
-              type="checkbox"
-              name="owner"
-              key={incomingMaterial.owner}
-              defaultChecked={incomingMaterial.owner === "Tag"}
-            />
-          </label>
           <label>
             Allow for Use:
             <input
