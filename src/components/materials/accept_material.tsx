@@ -54,7 +54,12 @@ export function IncomingMaterials(props: { isVault: boolean }) {
             <p>Action</p>
           </div>
           {incomingMaterialsList.map((material: any, i) => (
-            <div className="material_list-item" key={i}>
+            <div
+              className={`material_list-item ${
+                material.owner === "Tag" ? "tag-owned" : "customer-owned"
+              }`}
+              key={i}
+            >
               <p>{material.customerName}</p>
               <p>
                 <strong>{material.stockId}</strong>
