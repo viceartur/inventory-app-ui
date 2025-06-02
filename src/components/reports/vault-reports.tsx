@@ -18,8 +18,8 @@ export function VaultCurrent() {
 
   const onClickDownload = () => {
     const columns = [
-      { title: "Customer", dataKey: "customerName" },
-      { title: "Description", dataKey: "description" },
+      { title: "Inner Location", dataKey: "innerLocation" },
+      { title: "Outer Location", dataKey: "outerLocation" },
       { title: "Stock ID", dataKey: "stockId" },
       { title: "Total in Outer Vault", dataKey: "outerVaultQty" },
       { title: "Total in Inner Vault", dataKey: "innerVaultQty" },
@@ -27,9 +27,9 @@ export function VaultCurrent() {
     ];
 
     const data = vaultReport.map((vault: any) => ({
-      customerName: vault.customerName,
+      innerLocation: vault.innerLocation,
+      outerLocation: vault.outerLocation,
       stockId: vault.stockId,
-      description: vault.description,
       outerVaultQty: vault.outerVaultQty,
       innerVaultQty: vault.innerVaultQty,
       totalQty: vault.totalQty,
@@ -63,25 +63,25 @@ export function VaultCurrent() {
       <table>
         <thead>
           <tr>
-            <th>Customer</th>
-            <th>Description</th>
+            <th>Inner Location</th>
+            <th>Outer Location</th>
             <th>Stock ID</th>
-            <th>Total in Outer Vault</th>
             <th>Total in Inner Vault</th>
+            <th>Total in Outer Vault</th>
             <th>Total</th>
           </tr>
         </thead>
         <tbody>
           {vaultReport.map((material: any, i) => (
             <tr key={i}>
-              <td>{material.customerName}</td>
-              <td>{material.description}</td>
+              <td>{material.innerLocation}</td>
+              <td>{material.outerLocation}</td>
               <td>{material.stockId}</td>
-              <td className={material.outerVaultQty ? "" : "negative"}>
-                {toUSFormat(material.outerVaultQty)}
-              </td>
               <td className={material.innerVaultQty ? "" : "negative"}>
                 {toUSFormat(material.innerVaultQty)}
+              </td>
+              <td className={material.outerVaultQty ? "" : "negative"}>
+                {toUSFormat(material.outerVaultQty)}
               </td>
               <td>{toUSFormat(material.totalQty)}</td>
             </tr>
