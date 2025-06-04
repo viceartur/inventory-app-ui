@@ -257,7 +257,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
       setSubmitMessage("Material Moved. Redirecting to Inventory...");
       setTimeout(() => {
         redirect(`/materials?${new URLSearchParams(searchParams).toString()}`);
-      }, 2000);
+      }, 1000);
     }
   }
 
@@ -441,14 +441,14 @@ export function RemoveMaterialForm(props: { materialId: string }) {
         );
         setTimeout(() => {
           redirect("/requested-materials");
-        }, 2000);
+        }, 1000);
       } else {
         setSubmitMessage("Material Removed. Redirecting to Inventory...");
         setTimeout(() => {
           redirect(
             `/materials?${new URLSearchParams(searchParams).toString()}`
           );
-        }, 2000);
+        }, 1000);
       }
     } catch (error: any) {
       setSubmitMessage(error.message);
