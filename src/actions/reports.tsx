@@ -4,8 +4,8 @@ import { API } from "utils/constants";
 
 interface MaterialWeeklyUsage {
   customerName: string;
-  stockId: string;
   materialType: string;
+  stockId: string;
   qtyOnRefDate: number;
   avgWeeklyUsg: number;
   weeksRemaining: number;
@@ -104,8 +104,8 @@ export async function fetchWeeklyUsageItems(params: any) {
     if (!data?.length) return [];
     const weeklyUsageItems = data.map((material: MaterialWeeklyUsage) => ({
       customerName: material.customerName,
-      stockId: material.stockId,
       materialType: material.materialType,
+      stockId: material.stockId,
       qtyOnRefDate: material.qtyOnRefDate,
       avgWeeklyUsg: material.avgWeeklyUsg,
       weeksRemaining: material.weeksRemaining,

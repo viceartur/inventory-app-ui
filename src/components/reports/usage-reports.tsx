@@ -210,8 +210,8 @@ export function WeeklyUsage() {
   const onClickDownload = () => {
     const columns = [
       { title: "Customer", dataKey: "customerName" },
-      { title: "Stock ID", dataKey: "stockId" },
       { title: "Material Type", dataKey: "materialType" },
+      { title: "Stock ID", dataKey: "stockId" },
       { title: "Ref Date Qty", dataKey: "qtyOnRefDate" },
       { title: "Avg Weekly Usage", dataKey: "avgWeeklyUsg" },
       { title: "Weeks Remaining", dataKey: "weeksRemaining" },
@@ -219,8 +219,8 @@ export function WeeklyUsage() {
 
     const data = weeklyUsageItems.map((w: any) => ({
       customerName: w.customerName,
-      stockId: w.stockId,
       materialType: w.materialType,
+      stockId: w.stockId,
       qtyOnRefDate: w.qtyOnRefDate,
       avgWeeklyUsg: w.avgWeeklyUsg,
       weeksRemaining: w.weeksRemaining,
@@ -261,8 +261,8 @@ export function WeeklyUsage() {
           <thead>
             <tr>
               <th>Customer</th>
-              <th>Stock ID</th>
               <th>Material Type</th>
+              <th>Stock ID</th>
               <th>Ref Date Qty</th>
               <th>Avg Weekly Usage</th>
               <th>Weeks Remaining</th>
@@ -272,8 +272,8 @@ export function WeeklyUsage() {
             {weeklyUsageItems.map((material: any, i) => (
               <tr key={i}>
                 <td>{material.customerName}</td>
-                <td>{material.stockId}</td>
                 <td>{material.materialType}</td>
+                <td>{material.stockId}</td>
                 <td>{toUSFormat(material.qtyOnRefDate)}</td>
                 <td>{toUSFormat(material.avgWeeklyUsg)}</td>
                 <td>{toUSFormat(material.weeksRemaining)}</td>
