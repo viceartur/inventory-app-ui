@@ -9,14 +9,14 @@ import {
 import { initialState } from "utils/constants";
 
 export function WarehouseForm() {
-  const [warehouses, setWarehouses] = useState([
-    { warehouseId: 0, warehouseName: "Loading..." },
-  ]);
+  const [warehouses, setWarehouses] = useState([]);
+
   const [state, formAction] = useActionState(createWarehouse, initialState);
 
   useEffect(() => {
     const getWarehouses = async () => {
       const warehouses = await fetchWarehouses();
+      console.log(warehouses);
       setWarehouses(warehouses);
     };
     getWarehouses();
@@ -28,24 +28,24 @@ export function WarehouseForm() {
       <form action={formAction}>
         <div className="form-line">
           <label>Warehouse Name:</label>
-          <input
-            list="warehouses"
-            name="warehouseName"
-            placeholder="Warehouse Name"
-            required
-          />
-          <datalist id="warehouses">
-            {warehouses.map((w: any, i: number) => (
-              <option key={i} value={w.warehouseName} />
+          <select name="warehouseName" required>
+            <option value="">-- Choose a warehouse --</option>
+            {warehouses.map((warehouse: any) => (
+              <option
+                key={warehouse.warehouseId}
+                value={warehouse.warehouseName}
+              >
+                {warehouse.warehouseName}
+              </option>
             ))}
-          </datalist>
+          </select>
         </div>
         <div className="form-line">
           <label>Location Name:</label>
           <input
             type="text"
             name="locationName"
-            placeholder="Location Name"
+            placeholder="Enter the location name assigned"
             required
           />
         </div>
@@ -73,7 +73,10 @@ export function Locations() {
   return (
     <section>
       <h2>Current Locations: {locations.length}</h2>
-      <button onClick={() => setShowLocations(!showLocations)}>
+      <button
+        className="control-button"
+        onClick={() => setShowLocations(!showLocations)}
+      >
         {showLocations ? "Hide" : "Show"} Locations
       </button>
       {showLocations ? (

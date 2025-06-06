@@ -27,7 +27,7 @@ export const APP_ROUTES: Route[] = [
     path: "/warehouse",
     label: "Warehouses & Locations",
     icon: "🏢",
-    restrict: ["admin", "warehouse"],
+    restrict: ["admin", "warehouse", "vault"],
   },
   {
     path: "/order-needed",
@@ -110,7 +110,7 @@ export const APP_ROUTES: Route[] = [
 ];
 
 // States constants
-export const OWNER_TYPES = ["", "Tag", "Customer"];
+export const OWNER_TYPES = ["Tag", "Customer"];
 
 export const initialState = {
   message: "",

@@ -119,7 +119,7 @@ export function UsageReports() {
         <div className="form-line">
           <label>(T) Warehouse:</label>
           <select name="warehouse" required>
-            <option value="">Select Warehouse</option>
+            <option value="">-- Select a warehouse (optional) --</option>
             {selectWarehouses.map((warehouse: any) => (
               <option key={warehouse.warehouseId} value={warehouse.warehouseId}>
                 {warehouse.warehouseName}
@@ -130,7 +130,7 @@ export function UsageReports() {
         <div className="form-line">
           <label>Customer:</label>
           <select name="customer" required>
-            <option value="">Select Customer</option>
+            <option value="">-- Select a customer (optional) --</option>
             {selectCustomers.map((customer: any, i) => (
               <option key={i} value={`${customer.id}%${customer.name}`}>
                 {customer.name}
@@ -141,7 +141,7 @@ export function UsageReports() {
         <div className="form-line">
           <label>Material Type:</label>
           <select name="materialType" required>
-            <option value="">Select Material Type</option>
+            <option value="">-- Select a material type (optional) --</option>
             {selectMaterialTypes.map((type: any) => (
               <option key={type.id} value={type.name}>
                 {type.name}
@@ -152,7 +152,7 @@ export function UsageReports() {
         <div className="form-line">
           <label>Owner:</label>
           <select name="owner" required>
-            <option value="">Select Owner</option>
+            <option value="">-- Select an owner (optional) --</option>
             {OWNER_TYPES.map((type, i) => (
               <option key={i} value={type}>
                 {type}
@@ -248,7 +248,10 @@ export function WeeklyUsage() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/usage-reports")}>
+        <button
+          className="control-button"
+          onClick={() => redirect("/usage-reports")}
+        >
           Back to Reports
         </button>
         <button onClick={() => onClickDownload()}>Download the Report</button>
@@ -318,7 +321,10 @@ export function TransactionsLog() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/usage-reports")}>
+        <button
+          className="control-button"
+          onClick={() => redirect("/usage-reports")}
+        >
           Back to Reports
         </button>
       </div>

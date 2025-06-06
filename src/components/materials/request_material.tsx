@@ -148,7 +148,11 @@ export function RequestedMaterialForm(props: { requestId: string }) {
 
   return (
     <section>
-      <button type="button" onClick={() => redirect("/requested-materials/")}>
+      <button
+        className="control-button"
+        type="button"
+        onClick={() => redirect("/requested-materials/")}
+      >
         Go Back
       </button>
       <form onSubmit={onSubmitForm}>
@@ -308,7 +312,10 @@ export function ProcessedRequests() {
 
   return (
     <section>
-      <button onClick={() => redirect("/processed-requests")}>
+      <button
+        className="control-button"
+        onClick={() => redirect("/processed-requests")}
+      >
         Back to Filter
       </button>
       <h2>Processed Materials Requests:</h2>

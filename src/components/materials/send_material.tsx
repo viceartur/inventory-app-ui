@@ -25,8 +25,8 @@ export function SendMaterialForm() {
   const { data: session } = useSession();
   const socket = useSocket();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [selectCustomers, setSelectCustomers] = useState([selectState]);
-  const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
+  const [selectCustomers, setSelectCustomers] = useState<any[]>([]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState<any[]>([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
@@ -222,10 +222,9 @@ export function SendMaterialForm() {
           />
         </div>
         <div className="form-checkboxes">
-          <label>
-            Allow for Use:
-            <input type="checkbox" name="isActive" />
-          </label>
+          <label htmlFor="isActive">Allow for Use:</label>
+          <input type="checkbox" name="isActive" />
+          <small>(Check if this material is currently allowed for use)</small>
         </div>
         <p className="submit-message">{submitMessage}</p>
         <div className="form-buttons">
@@ -317,8 +316,8 @@ export function EditIncomingMaterial(props: any) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [incomingMaterial, setIncomingMaterial] = useState<any>({});
   const [owner, setOwner] = useState<string>("");
-  const [selectCustomers, setSelectCustomers] = useState([selectState]);
-  const [selectMaterialTypes, setSelectMaterialTypes] = useState([selectState]);
+  const [selectCustomers, setSelectCustomers] = useState<any[]>([]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -467,7 +466,7 @@ export function EditIncomingMaterial(props: any) {
             key={incomingMaterial.materialType}
             defaultValue={incomingMaterial.materialType}
           >
-            {selectMaterialTypes.map((type) => (
+            {selectMaterialTypes.map((type: any) => (
               <option key={type.id} value={type.name}>
                 {type.name}
               </option>
@@ -513,15 +512,14 @@ export function EditIncomingMaterial(props: any) {
           />
         </div>
         <div className="form-checkboxes">
-          <label>
-            Allow for Use:
-            <input
-              type="checkbox"
-              name="isActive"
-              key={incomingMaterial.isActive}
-              defaultChecked={incomingMaterial.isActive}
-            />
-          </label>
+          <label htmlFor="isActive">Allow for Use:</label>
+          <input
+            type="checkbox"
+            name="isActive"
+            key={incomingMaterial.isActive}
+            defaultChecked={incomingMaterial.isActive}
+          />
+          <small>(Check if this material is currently allowed for use)</small>
         </div>
         <p className="submit-message">{sumbitMessage}</p>
         <div className="form-buttons">

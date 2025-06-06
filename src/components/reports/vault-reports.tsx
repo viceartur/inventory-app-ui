@@ -57,7 +57,9 @@ export function VaultCurrent() {
   return (
     <section>
       <div>
-        <button onClick={onClickDownload}>Download this Report</button>
+        <button className="control-button" onClick={onClickDownload}>
+          Download this Report
+        </button>
       </div>
       <h2>Vault Materials Current</h2>
       <table>

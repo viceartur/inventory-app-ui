@@ -5,7 +5,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
-import { OWNER_TYPES, reportsSearchParams, selectState } from "utils/constants";
+import { OWNER_TYPES, reportsSearchParams } from "utils/constants";
 import { fetchCustomers } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
@@ -13,19 +13,15 @@ import { toUSFormat } from "utils/client_utils";
 
 export function CashReports() {
   const [searchParams, setSearchParams] = useState(reportsSearchParams);
-  const [selectCustomers, setSelectCustomers] = useState([
-    { ...selectState, name: "" },
-  ]);
-  const [selectMaterialTypes, setSelectMaterialTypes] = useState([
-    { ...selectState, name: "" },
-  ]);
+  const [selectCustomers, setSelectCustomers] = useState<any[]>([]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState<any[]>([]);
 
   useEffect(() => {
     const getReportInfo = async () => {
       const customers = await fetchCustomers();
       const materialTypes = await fetchMaterialTypes();
-      setSelectCustomers([...selectCustomers, ...customers]);
-      setSelectMaterialTypes([...selectMaterialTypes, ...materialTypes]);
+      setSelectCustomers(customers);
+      setSelectMaterialTypes(materialTypes);
     };
     getReportInfo();
   }, []);
@@ -107,7 +103,8 @@ export function CashReports() {
         </div>
         <div className="form-line">
           <label>Customer:</label>
-          <select name="customer" required>
+          <select name="customer">
+            <option value="">-- Select a customer (optional) --</option>
             {selectCustomers.map((customer, i) => (
               <option key={i} value={`${customer.id}%${customer.name}`}>
                 {customer.name}
@@ -117,7 +114,9 @@ export function CashReports() {
         </div>
         <div className="form-line">
           <label>Material Type:</label>
-          <select name="materialType" required>
+          <select name="materialType">
+            <option value="">-- Select a material type (optional) --</option>
+
             {selectMaterialTypes.map((type) => (
               <option key={type.id} value={type.name}>
                 {type.name}
@@ -128,6 +127,7 @@ export function CashReports() {
         <div className="form-line">
           <label>Owner:</label>
           <select name="owner" required>
+            <option value="">-- Select an owner (optional) --</option>
             {OWNER_TYPES.map((type, i) => (
               <option key={i} value={type}>
                 {type}
@@ -233,10 +233,15 @@ export function Transactions() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/cash-reports")}>
+        <button
+          className="control-button"
+          onClick={() => redirect("/cash-reports")}
+        >
           Back to Reports
         </button>
-        <button onClick={onClickDownload}>Download this Report</button>
+        <button className="control-button" onClick={onClickDownload}>
+          Download this Report
+        </button>
       </div>
       <h2>{customerName || "General"} Transaction Report</h2>
       {transactions.length ? (
@@ -352,10 +357,15 @@ export function Balance() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/cash-reports")}>
+        <button
+          className="control-button"
+          onClick={() => redirect("/cash-reports")}
+        >
           Back to Reports
         </button>
-        <button onClick={onClickDownload}>Download this Report</button>
+        <button className="control-button" onClick={onClickDownload}>
+          Download this Report
+        </button>
       </div>
       <h2>
         {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}
