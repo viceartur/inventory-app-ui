@@ -328,27 +328,7 @@ export async function fetchMaterials(filterOpts: any) {
     const data = await res.json();
     if (!data?.length) return [];
 
-    let materials = data.map((material: any) => ({
-      materialId: material.MaterialID,
-      warehouseName: material.WarehouseName,
-      stockId: material.StockID,
-      customerId: material.CustomerID,
-      customerName: material.CustomerName,
-      locationId: material.LocationID,
-      locationName: material.LocationName,
-      materialType: material.MaterialType,
-      description: material.Description,
-      notes: material.Notes,
-      quantity: material.Quantity,
-      updatedAt: material.UpdatedAt,
-      isActive: material.IsActive,
-      cost: material.Cost,
-      minQty: material.MinQty,
-      maxQty: material.MaxQty,
-      owner: material.Owner,
-      isPrimary: material.IsPrimary,
-      serialNumberRange: material.SerialNumberRange,
-    }));
+    let materials = data;
 
     // Filter materials based on user role
     materials = filterMaterialsByUserRole(materials, userRole);
@@ -371,27 +351,7 @@ export async function fetchMaterialsByStockID(
     const data = await res.json();
     if (!data?.length) return [];
 
-    let materials = data.map((material: any) => ({
-      materialId: material.MaterialID,
-      warehouseName: material.WarehouseName,
-      stockId: material.StockID,
-      customerId: material.CustomerID,
-      customerName: material.CustomerName,
-      locationId: material.LocationID,
-      locationName: material.LocationName,
-      materialType: material.MaterialType,
-      description: material.Description,
-      notes: material.Notes,
-      quantity: material.Quantity,
-      updatedAt: material.UpdatedAt,
-      isActive: material.IsActive,
-      cost: material.Cost,
-      minQty: material.MinQty,
-      maxQty: material.MaxQty,
-      owner: material.Owner,
-      isPrimary: material.IsPrimary,
-      serialNumberRange: material.SerialNumberRange,
-    }));
+    let materials = data;
 
     // Filter materials based on user role
     materials = filterMaterialsByUserRole(materials, userRole);
@@ -439,17 +399,8 @@ export async function fetchRequestedMaterials(filterOpts: any) {
     if (!data?.data?.length) return [];
 
     const materials = data.data.map((material: any) => ({
-      requestId: material.RequestID,
-      stockId: material.StockID,
-      description: material.Description,
-      qtyRequested: material.QtyRequested,
-      qtyUsed: material.QtyUsed,
-      quantity: material.QtyRequested - material.QtyUsed,
-      username: material.UserName,
-      status: material.Status,
-      notes: material.Notes,
-      updatedAt: material.UpdatedAt,
-      requestedAt: material.RequestedAt,
+      ...material,
+      quantity: material.qtyRequested - material.qtyUsed,
     }));
 
     return materials;

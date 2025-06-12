@@ -12,9 +12,12 @@ export function OrderNeeded() {
   useEffect(() => {
     if (session?.user.role) {
       const getMaterials = async () => {
-        const materials = await fetchMaterials({
-          userRole: session?.user.role,
-        });
+        const materials = (
+          await fetchMaterials({
+            userRole: session?.user.role,
+          })
+        ).filter((material: any) => material.isActiveCustomer);
+
         const mappedMaterials: any = {};
 
         // Combine materials with the same stockId
@@ -26,9 +29,18 @@ export function OrderNeeded() {
           }
         });
 
-        const materialsToOrder: any = Object.values(mappedMaterials).filter(
-          (m: any) => m.quantity <= m.minQty
-        );
+        // Display materials with the quantity needed
+        // Sort by the customer name and the stock ID
+        const materialsToOrder: any = Object.values(mappedMaterials)
+          .filter((m: any) => m.quantity <= m.minQty)
+          .sort((a: any, b: any) => {
+            if (a.customerName !== b.customerName) {
+              return a.customerName.localeCompare(b.customerName);
+            }
+            if (a.stockId !== b.stockId) {
+              return a.stockId.localeCompare(b.stockId);
+            }
+          });
 
         setMaterials(materialsToOrder);
       };
@@ -48,6 +60,7 @@ export function OrderNeeded() {
       <table>
         <thead>
           <tr>
+            <th>Customer</th>
             <th>Stock ID</th>
             <th>Description</th>
             <th>Min Qty</th>
@@ -57,6 +70,7 @@ export function OrderNeeded() {
         <tbody>
           {materials.map((material: any, i) => (
             <tr key={i}>
+              <td>{material.customerName}</td>
               <td>{material.stockId}</td>
               <td>{material.description}</td>
               <td>{toUSFormat(material.minQty)}</td>

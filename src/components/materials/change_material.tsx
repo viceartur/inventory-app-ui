@@ -153,8 +153,12 @@ export function Materials() {
             </div>
             {materialsList.map((material: any, i) => (
               <div
-                className={`material_list-item ${
-                  material.owner === "Tag" ? "tag-owned" : "customer-owned"
+                className={`material_list-item${
+                  material.owner === "Tag" ? " tag-owned" : " customer-owned"
+                }${
+                  !material.isActiveCustomer || !material.isActiveMaterial
+                    ? " inactive"
+                    : ""
                 }${material.isPrimary ? " primary" : ""}`}
                 key={i}
                 onDoubleClick={() =>
@@ -165,7 +169,9 @@ export function Materials() {
                 <p>
                   <strong>{material.stockId}</strong>
                 </p>
-                <p>{material.description}</p>
+                <p>
+                  <small>{material.description}</small>
+                </p>
                 <p>{material.warehouseName}</p>
                 <p>{material.locationName}</p>
                 <p>
@@ -305,10 +311,6 @@ export function MoveMaterialForm(props: { materialId: string }) {
           <div className="form-info-line">
             <label>Ownership:</label>
             {material.owner}
-          </div>
-          <div className="form-info-line">
-            <label>Allow for use:</label>
-            {material.isActive ? "Yes" : "No"}
           </div>
           <div className="form-info-line">
             <label>Notes:</label>
@@ -502,7 +504,9 @@ export function RemoveMaterialForm(props: { materialId: string }) {
           </div>
           <div className="form-info-line">
             <label>Allow for use:</label>
-            {material.isActive ? "Yes" : "No"}
+            {material.isActiveCustomer && material.isActiveMaterial
+              ? "Yes"
+              : "No"}
           </div>
           <div className="form-info-line">
             <label>Notes:</label>

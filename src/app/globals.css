@@ -492,6 +492,7 @@ form {
     position: relative;
     margin: 0.5rem;
     display: flex;
+    min-height: 4.5rem;
     justify-content: flex-start;
     align-items: center;
     border: 2px solid transparent;
@@ -499,6 +500,26 @@ form {
     background-color: white;
     border-radius: 6px;
     transition: background-color 0.3s ease, border 0.3s ease;
+
+    &.inactive {
+      &::after {
+        content: "INACTIVE";
+        position: absolute;
+        top: 0rem;
+        right: 0rem;
+        left: auto;
+        background-color: #d21c1c;
+        color: white;
+        font-size: 0.6rem;
+        font-weight: bold;
+        padding: 0.2rem;
+        transform-origin: top left;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        z-index: 1;
+      }
+    }
 
     &.tag-owned {
       &::before {
