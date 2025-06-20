@@ -128,7 +128,7 @@ export function UsageReports() {
           </select>
         </div>
         <div className="form-line">
-          <label>Customer:</label>
+          <label>Customer Program:</label>
           <select name="customer" required>
             <option value="">-- Select a customer (optional) --</option>
             {selectCustomers.map((customer, i) => (
