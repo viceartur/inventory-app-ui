@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from "next/navigation";
-import * as XLSX from "xlsx";
+// import * as XLSX from "xlsx";
 import { useSession } from "next-auth/react";
 
 import { SubmitButton } from "ui/submit-button";
@@ -17,7 +17,7 @@ import {
   removeMaterial,
   updateMaterial,
   updateRequestedMaterial,
-  uploadMaterials,
+  // uploadMaterials,
 } from "../../actions/materials";
 import { selectState } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
