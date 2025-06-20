@@ -3,20 +3,49 @@
 import { API } from "utils/constants";
 import { filterMaterialsByUserRole } from "utils/server_utils";
 
-interface IncomingMaterial {
-  ShippingID: string;
-  CustomerName: string;
-  CustomerID: number;
-  StockID: string;
-  Cost: number;
-  Quantity: number;
-  MinQty: number;
-  MaxQty: number;
-  Description: string;
-  IsActive: boolean;
-  MaterialType: string;
-  Owner: string;
-  UserName: string;
+export interface IncomingMaterial {
+  shippingId: number;
+  programName?: string;
+  programId: number;
+  stockId: string;
+  cost: number;
+  quantity: number;
+  minQuantity: number;
+  maxQuantity: number;
+  description: string;
+  isActive: boolean;
+  materialType: string;
+  owner: string;
+  username?: string;
+}
+
+export interface Material {
+  materialId: number;
+  warehouseName: string;
+  stockId: string;
+  programId: number;
+  programName: string;
+  isActiveProgram: boolean;
+  locationId: number;
+  locationName: string;
+  materialType: string;
+  description: string;
+  notes: string;
+  quantity: number;
+  updatedAt: string;
+  isActiveMaterial: boolean;
+  minQty: number;
+  maxQty: number;
+  cost: number;
+  owner: string;
+  isPrimary: boolean;
+  serialNumberRange: string;
+  requestId: number;
+  userName: string;
+  status: string;
+  qtyRequested: number;
+  qtyUsed: number;
+  requestedAt: string;
 }
 
 export async function fetchMaterialTypes() {
@@ -61,16 +90,16 @@ export async function sendMaterial(formData: FormData | null, userId: number) {
   if (!userId) return { error: "Error: User Not Detected" };
 
   const material = {
-    customerId: formData.get("customerId"),
-    stockId: formData.get("stockId"),
-    type: formData.get("materialType"),
-    quantity: formData.get("qty"),
-    cost: formData.get("cost"),
-    minQuantity: formData.get("minQty"),
-    maxQuantity: formData.get("maxQty"),
-    description: formData.get("description"),
-    owner: formData.get("owner"),
-    isActive: formData.get("isActive") === "on",
+    programId: Number(formData.get("programId")),
+    stockId: String(formData.get("stockId")),
+    materialType: String(formData.get("materialType")),
+    quantity: Number(formData.get("qty")),
+    cost: Number(formData.get("cost")),
+    minQty: Number(formData.get("minQty")),
+    maxQty: Number(formData.get("maxQty")),
+    description: String(formData.get("description")),
+    owner: String(formData.get("owner")),
+    isActiveMaterial: formData.get("isActive") === "on",
     userId,
   };
 
@@ -93,10 +122,12 @@ export async function sendMaterial(formData: FormData | null, userId: number) {
   }
 }
 
-export async function fetchIncomingMaterials(shippingId = "") {
+export async function fetchIncomingMaterials(
+  shippingId: number = 0
+): Promise<IncomingMaterial[]> {
   try {
     const queryParams = new URLSearchParams({
-      materialId: shippingId,
+      materialId: String(shippingId),
     });
 
     const res = await fetch(
@@ -107,21 +138,8 @@ export async function fetchIncomingMaterials(shippingId = "") {
     const data = await res.json();
     if (!data?.length) return [];
 
-    const materials = data.map((material: IncomingMaterial) => ({
-      shippingId: material.ShippingID,
-      customerName: material.CustomerName,
-      customerId: material.CustomerID,
-      stockId: material.StockID,
-      cost: material.Cost,
-      quantity: material.Quantity,
-      minQty: material.MinQty,
-      maxQty: material.MaxQty,
-      description: material.Description,
-      isActive: material.IsActive,
-      materialType: material.MaterialType,
-      owner: material.Owner,
-      username: material.UserName,
-    }));
+    const materials: IncomingMaterial[] = data;
+
     return materials;
   } catch (error) {
     console.error(error);
@@ -135,17 +153,17 @@ export async function updateIncomingMaterial(
 ) {
   if (!formData) return { error: "Error: No Form Data" };
 
-  const material = {
-    shippingId: shippingId,
-    customerId: formData.get("customerId"),
-    stockId: formData.get("stockId"),
-    type: formData.get("materialType"),
-    quantity: formData.get("qty"),
-    cost: formData.get("cost"),
-    minQuantity: formData.get("minQty"),
-    maxQuantity: formData.get("maxQty"),
-    description: formData.get("description"),
-    owner: formData.get("owner"),
+  const material: IncomingMaterial = {
+    shippingId: Number(shippingId),
+    programId: Number(formData.get("programId")),
+    stockId: String(formData.get("stockId")),
+    materialType: String(formData.get("materialType")),
+    quantity: Number(formData.get("qty")),
+    cost: Number(formData.get("cost")),
+    minQuantity: Number(formData.get("minQty")),
+    maxQuantity: Number(formData.get("maxQty")),
+    description: String(formData.get("description")),
+    owner: String(formData.get("owner")),
     isActive: formData.get("isActive") === "on",
   };
 
@@ -191,17 +209,17 @@ export async function deleteIncomingMaterial(shippingId: number) {
 }
 
 export async function createMaterial(
-  incomingMaterialId: string,
+  incomingMaterialId: number,
   formData: FormData | null
 ) {
   if (!formData) return { error: "Error: No Form Data" };
 
   const incomingMaterial = {
     materialId: incomingMaterialId,
-    quantity: formData.get("quantity"),
-    locationId: formData.get("locationId"),
-    notes: formData.get("notes"),
-    serialNumberRange: formData.get("serialNumberRange"),
+    quantity: Number(formData.get("quantity")),
+    locationId: Number(formData.get("locationId")),
+    notes: String(formData.get("notes")),
+    serialNumberRange: String(formData.get("serialNumberRange")),
   };
 
   try {
@@ -244,15 +262,15 @@ export async function updateMaterial(material: any) {
 }
 
 export async function moveMaterial(
-  materialId: string,
+  materialId: number,
   formData: FormData | null
 ) {
   if (!formData) return { error: "Error: No Form Data" };
 
   const material = {
     materialId,
-    quantity: formData.get("quantity"),
-    locationId: formData.get("locationId"),
+    quantity: Number(formData.get("quantity")),
+    locationId: Number(formData.get("locationId")),
   };
 
   try {
@@ -275,7 +293,7 @@ export async function moveMaterial(
 }
 
 export async function removeMaterial(
-  materialId: string,
+  materialId: number,
   formData: FormData | null
 ) {
   try {
@@ -283,9 +301,9 @@ export async function removeMaterial(
 
     const material = {
       materialId,
-      quantity: formData.get("quantity"),
-      jobTicket: formData.get("jobTicket"),
-      serialNumberRange: formData.get("serialNumberRange"),
+      quantity: Number(formData.get("quantity")),
+      jobTicket: String(formData.get("jobTicket")),
+      serialNumberRange: String(formData.get("serialNumberRange")),
       reasonId: Number(formData.get("remakeReasons")),
     };
 
@@ -303,11 +321,11 @@ export async function removeMaterial(
   }
 }
 
-export async function fetchMaterials(filterOpts: any) {
+export async function fetchMaterials(filterOpts: any): Promise<Material[]> {
   const {
     materialId = "",
     stockId = "",
-    customerName = "",
+    programName = "",
     description = "",
     locationName = "",
     userRole = "",
@@ -316,7 +334,7 @@ export async function fetchMaterials(filterOpts: any) {
   const queryParams = new URLSearchParams({
     materialId,
     stockId,
-    customerName,
+    programName,
     description,
     locationName,
   });
@@ -328,7 +346,7 @@ export async function fetchMaterials(filterOpts: any) {
     const data = await res.json();
     if (!data?.length) return [];
 
-    let materials = data;
+    let materials: Material[] = data;
 
     // Filter materials based on user role
     materials = filterMaterialsByUserRole(materials, userRole);
@@ -343,7 +361,7 @@ export async function fetchMaterials(filterOpts: any) {
 export async function fetchMaterialsByStockID(
   stockId: string,
   userRole: string
-) {
+): Promise<Material[]> {
   try {
     const res = await fetch(`${API}/materials/exact?stockId=${stockId}`);
     if (!res) return [];
@@ -351,7 +369,7 @@ export async function fetchMaterialsByStockID(
     const data = await res.json();
     if (!data?.length) return [];
 
-    let materials = data;
+    let materials: Material[] = data;
 
     // Filter materials based on user role
     materials = filterMaterialsByUserRole(materials, userRole);
@@ -363,6 +381,8 @@ export async function fetchMaterialsByStockID(
   }
 }
 
+// Legacy
+/*
 export async function uploadMaterials(jsonData: any) {
   const res: any = await fetch(`${API}/import_data`, {
     method: "POST",
@@ -373,7 +393,7 @@ export async function uploadMaterials(jsonData: any) {
   });
   const dataResult = await res.json();
   return dataResult;
-}
+}*/
 
 export async function fetchRequestedMaterials(filterOpts: any) {
   try {

@@ -2,39 +2,58 @@
 
 import { API } from "utils/constants";
 
-interface Customer {
-  customerId: number;
+export interface Customer {
+  customerId?: number;
   customerName: string;
-  customerCode: string;
-  atlasName: string;
-  isActive: boolean;
+  emails: string[];
+  userId: number;
+  username?: string;
 }
 
-export async function createCustomer(prevState: any, formData: FormData) {
-  const customer = {
-    customerName: String(formData.get("customerName")).trim(),
-    customerCode: String(formData.get("customerCode"))
-      .trim()
-      .replace(/^0+/, ""),
-    atlasName: String(formData.get("atlasName")).trim(),
-    isActive: Boolean(formData.get("isActive")),
-  };
+export interface CustomerProgram {
+  programId?: number;
+  programName: string;
+  programCode: string;
+  isActive: boolean;
+  customerId: number;
+  customerName?: string;
+}
 
+///////////////////////////
+// CUSTOMERS OPERATIONS //
+/////////////////////////
+
+export async function createCustomer(formData: FormData, userId: number) {
   try {
-    const res = await fetch(`${API}/customers`, {
+    if (!formData) return { error: "Error: No Form Data" };
+    if (!userId) return { error: "Error: User Not Detected" };
+
+    const emails = String(formData.get("emails"))
+      .toLowerCase()
+      .replace(/\s/g, "")
+      .split(",");
+
+    const customer: Customer = {
+      customerName: String(formData.get("customerName")).trim(),
+      emails,
+      userId: Number(userId),
+    };
+
+    const res: Response = await fetch(`${API}/customers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(customer),
     });
+    const data = await res.json();
 
     if (res.status != 200) {
-      return { message: "Error: " + res.statusText };
+      return { error: "Error: " + data.message };
     }
-    return { message: `Customer "${customer.customerName}" added` };
+    return { message: data.message };
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Internal Server Error: " + error.message };
   }
 }
 
@@ -45,14 +64,7 @@ export async function fetchCustomers(): Promise<Customer[]> {
     if (!data?.length) {
       return [];
     }
-
-    const customers = data.map((customer: Customer) => ({
-      id: customer.customerId,
-      name: customer.customerName,
-      code: customer.customerCode,
-      atlasName: customer.atlasName,
-      isActive: customer.isActive,
-    }));
+    const customers: Customer[] = data;
     return customers;
   } catch (error) {
     console.error(error);
@@ -77,25 +89,25 @@ export async function fetchCustomer(
 }
 
 export async function updateCustomer(
+  userId: number,
   customerId: number,
   formData: FormData | null
 ) {
   try {
     if (!formData) return { error: "Error: No Form Data" };
 
-    const customer = {
-      customerId,
+    const emails = String(formData.get("emails"))
+      .toLowerCase()
+      .replace(/\s/g, "")
+      .split(",");
+
+    const customer: Customer = {
       customerName: String(formData.get("customerName")).trim(),
-      customerCode: String(formData.get("customerCode"))
-        .trim()
-        .replace(/^0+/, ""),
-      atlasName: String(formData.get("atlasName")).trim(),
-      isActive: Boolean(formData.get("isActive")),
+      emails,
+      userId: Number(userId),
     };
 
-    console.log(customer);
-
-    const res = await fetch(`${API}/customers`, {
+    const res: Response = await fetch(`${API}/customers/${customerId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -107,9 +119,106 @@ export async function updateCustomer(
     if (res.status != 200) {
       return { error: "Error: " + data.message };
     }
-
-    return data;
+    return { message: data.message };
   } catch (error: any) {
-    return { error: "Error: " + error.message };
+    return { error: "Internal Server Error: " + error.message };
+  }
+}
+
+///////////////////////////////////
+// CUSTOMER PROGRAMS OPERATIONS //
+/////////////////////////////////
+
+export async function createCustomerProgram(formData: FormData) {
+  try {
+    const program: CustomerProgram = {
+      programName: String(formData.get("programName")).trim(),
+      programCode: String(formData.get("programCode"))
+        .trim()
+        .replace(/^0+/, ""),
+      isActive: Boolean(formData.get("isActiveProgram")),
+      customerId: Number(formData.get("customerId")),
+    };
+
+    const res: Response = await fetch(`${API}/customer_programs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(program),
+    });
+    const data = await res.json();
+
+    if (res.status != 200) {
+      return { error: "Error: " + data.message };
+    }
+    return { message: data.message };
+  } catch (error: any) {
+    return { error: "Internal Server Error: " + error.message };
+  }
+}
+
+export async function fetchCustomerPrograms(): Promise<CustomerProgram[]> {
+  try {
+    const res = await fetch(`${API}/customer_programs`);
+    const data = await res.json();
+    if (!data?.length) {
+      return [];
+    }
+    const programs: CustomerProgram[] = data;
+    return programs;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function fetchCustomerProgram(
+  programId: number
+): Promise<CustomerProgram | null> {
+  try {
+    const res = await fetch(`${API}/customer_programs/${programId}`);
+    if (res.status != 200) {
+      return null;
+    }
+    const data: CustomerProgram = await res.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function updateCustomerProgram(
+  programId: number,
+  formData: FormData | null
+) {
+  try {
+    if (!formData) return { error: "Error: No Form Data" };
+
+    const program: CustomerProgram = {
+      programName: String(formData.get("programName")).trim(),
+      programCode: String(formData.get("programCode"))
+        .trim()
+        .replace(/^0+/, ""),
+      isActive: Boolean(formData.get("isActive")),
+      customerId: Number(formData.get("customerId")),
+    };
+
+    const res: Response = await fetch(`${API}/customer_programs/${programId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(program),
+    });
+    const data = await res.json();
+
+    if (res.status != 200) {
+      return { error: "Error: " + data.message };
+    }
+    return { message: data.message };
+  } catch (error: any) {
+    return { error: "Internal Server Error: " + error.message };
   }
 }

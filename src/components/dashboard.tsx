@@ -1,13 +1,13 @@
 "use client";
 
-import { fetchMaterials } from "actions/materials";
+import { fetchMaterials, Material } from "actions/materials";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toUSFormat } from "utils/client_utils";
 
 export function OrderNeeded() {
   const { data: session } = useSession();
-  const [materials, setMaterials] = useState([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
 
   useEffect(() => {
     if (session?.user.role) {
@@ -16,7 +16,7 @@ export function OrderNeeded() {
           await fetchMaterials({
             userRole: session?.user.role,
           })
-        ).filter((material: any) => material.isActiveCustomer);
+        ).filter((material: any) => material.isActiveProgram);
 
         const mappedMaterials: any = {};
 
@@ -34,8 +34,8 @@ export function OrderNeeded() {
         const materialsToOrder: any = Object.values(mappedMaterials)
           .filter((m: any) => m.quantity <= m.minQty)
           .sort((a: any, b: any) => {
-            if (a.customerName !== b.customerName) {
-              return a.customerName.localeCompare(b.customerName);
+            if (a.programName !== b.programName) {
+              return a.programName.localeCompare(b.programName);
             }
             if (a.stockId !== b.stockId) {
               return a.stockId.localeCompare(b.stockId);
@@ -68,9 +68,9 @@ export function OrderNeeded() {
           </tr>
         </thead>
         <tbody>
-          {materials.map((material: any, i) => (
+          {materials.map((material, i) => (
             <tr key={i}>
-              <td>{material.customerName}</td>
+              <td>{material.programName}</td>
               <td>{material.stockId}</td>
               <td>{material.description}</td>
               <td>{toUSFormat(material.minQty)}</td>

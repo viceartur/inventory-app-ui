@@ -3,7 +3,8 @@
 import { API } from "utils/constants";
 
 interface MaterialWeeklyUsage {
-  customerName: string;
+  customerName?: string;
+  programName?: string;
   materialType: string;
   stockId: string;
   qtyOnRefDate: number;
@@ -103,7 +104,7 @@ export async function fetchWeeklyUsageItems(params: any) {
     const data = await res.json();
     if (!data?.length) return [];
     const weeklyUsageItems = data.map((material: MaterialWeeklyUsage) => ({
-      customerName: material.customerName,
+      customerName: material.programName,
       materialType: material.materialType,
       stockId: material.stockId,
       qtyOnRefDate: material.qtyOnRefDate,

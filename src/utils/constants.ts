@@ -18,8 +18,8 @@ export const APP_ROUTES: Route[] = [
     restrict: ["admin", "csr", "warehouse", "production", "vault"],
   },
   {
-    path: "/customer",
-    label: "Customers",
+    path: "/customer-management",
+    label: "Customer Management",
     icon: "👥",
     restrict: ["admin", "csr"],
   },
@@ -105,7 +105,7 @@ export const APP_ROUTES: Route[] = [
     path: "/import_data",
     label: "Import Materials",
     icon: "📤",
-    restrict: ["admin"],
+    restrict: [], // temporarily off
   },
 ];
 
@@ -121,42 +121,6 @@ export const selectState = {
   name: "Loading...",
   code: "Loading...",
   warehouseName: "Loading...",
-};
-
-export const incomingMaterialState = {
-  shippingId: "Loading...",
-  customerName: "Loading...",
-  customerId: "Loading...",
-  stockId: "Loading...",
-  cost: "Loading...",
-  quantity: "Loading...",
-  minQty: "Loading...",
-  maxQty: "Loading...",
-  description: "Loading...",
-  isActive: "Loading...",
-  materialType: "Loading...",
-  owner: "Loading...",
-};
-
-export const materialState = {
-  materialID: "Loading...",
-  customerName: "Loading...",
-  customerID: "Loading...",
-  isActiveCustomer: "Loading...",
-  locationName: "Loading...",
-  locationID: "Loading...",
-  warehouseName: "Loading...",
-  stockId: "stock123",
-  cost: "Loading...",
-  quantity: "Loading...",
-  minQty: "Loading...",
-  maxQty: "Loading...",
-  description: "Loading...",
-  notes: "Loading...",
-  isActiveMaterial: "Loading...",
-  materialType: "Loading...",
-  owner: "Loading...",
-  serialNumberRange: "Loading...",
 };
 
 export const reportsSearchParams = {

@@ -5,6 +5,7 @@ import { redirect, useSearchParams } from "next/navigation";
 import {
   fetchMaterials,
   fetchRequestedMaterials,
+  Material,
   updateRequestedMaterial,
 } from "../../actions/materials";
 import { toUSFormat } from "utils/client_utils";
@@ -71,7 +72,7 @@ export function RequestedMaterialForm(props: { requestId: string }) {
   const [submitMessage, setSubmitMessage] = useState("");
   const [declineReason, setDeclineReason] = useState<string | null>(null);
   const [requestedMaterial, setRequestedMaterial] = useState<any>({});
-  const [foundMaterials, setFoundMaterials] = useState([]);
+  const [foundMaterials, setFoundMaterials] = useState<Material[]>([]);
   const [materialToUse, setMaterialToUse] = useState<any>({});
 
   useEffect(() => {
@@ -104,7 +105,7 @@ export function RequestedMaterialForm(props: { requestId: string }) {
     event.preventDefault();
     const locId = event.target.value;
     const materialToUse = foundMaterials.find(
-      (m: any) => m.locationId === Number(locId)
+      (m) => m.locationId === Number(locId)
     );
     setMaterialToUse(materialToUse);
   };

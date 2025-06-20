@@ -1,6 +1,8 @@
+import { Material } from "actions/materials";
+
 // Filters materials based on user role
 export const filterMaterialsByUserRole = (
-  materials: any[],
+  materials: Material[],
   userRole: string
 ): any[] => {
   switch (userRole) {

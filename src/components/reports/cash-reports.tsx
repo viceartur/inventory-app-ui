@@ -6,19 +6,19 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
 import { OWNER_TYPES, reportsSearchParams } from "utils/constants";
-import { fetchCustomers } from "actions/customers";
+import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
 import { toUSFormat } from "utils/client_utils";
 
 export function CashReports() {
   const [searchParams, setSearchParams] = useState(reportsSearchParams);
-  const [selectCustomers, setSelectCustomers] = useState<any[]>([]);
+  const [selectCustomers, setSelectCustomers] = useState<CustomerProgram[]>([]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState<any[]>([]);
 
   useEffect(() => {
     const getReportInfo = async () => {
-      const customers = await fetchCustomers();
+      const customers = await fetchCustomerPrograms();
       const materialTypes = await fetchMaterialTypes();
       setSelectCustomers(customers);
       setSelectMaterialTypes(materialTypes);
@@ -106,8 +106,11 @@ export function CashReports() {
           <select name="customer">
             <option value="">-- Select a customer (optional) --</option>
             {selectCustomers.map((customer, i) => (
-              <option key={i} value={`${customer.id}%${customer.name}`}>
-                {customer.name}
+              <option
+                key={i}
+                value={`${customer.programId}%${customer.programName}`}
+              >
+                {customer.programName}
               </option>
             ))}
           </select>

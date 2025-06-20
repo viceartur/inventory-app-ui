@@ -6,12 +6,9 @@ import { SubmitButton } from "ui/submit-button";
 import {
   createMaterial,
   fetchIncomingMaterials,
+  IncomingMaterial,
 } from "../../actions/materials";
-import {
-  incomingMaterialState,
-  selectState,
-  VAULT_MATERIAL_TYPES,
-} from "utils/constants";
+import { selectState, VAULT_MATERIAL_TYPES } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import {
   formatUserName,
@@ -21,7 +18,9 @@ import {
 import { useSocket } from "context/socket-context";
 
 export function IncomingMaterials(props: { isVault: boolean }) {
-  const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
+  const [incomingMaterialsList, setIncomingMaterialsList] = useState<
+    IncomingMaterial[]
+  >([]);
 
   useEffect(() => {
     const getIncomingMaterials = async () => {
@@ -47,27 +46,31 @@ export function IncomingMaterials(props: { isVault: boolean }) {
       {incomingMaterialsList.length ? (
         <div className="material_list">
           <div className="list_header">
-            <p>Customer</p>
+            <p>Customer Program</p>
             <p>Stock ID</p>
             <p>Quantity</p>
             <p>Sent By</p>
             <p>Action</p>
           </div>
-          {incomingMaterialsList.map((material: any, i) => (
+          {incomingMaterialsList.map((material, i) => (
             <div
               className={`material_list-item ${
                 material.owner === "Tag" ? "tag-owned" : "customer-owned"
               }`}
               key={i}
             >
-              <p>{material.customerName}</p>
+              <p>{material.programName}</p>
               <p>
                 <strong>{material.stockId}</strong>
               </p>
               <p>
                 <strong>{toUSFormat(material.quantity)}</strong>
               </p>
-              <p>{formatUserName(material.username)}</p>
+              <p>
+                {material.username
+                  ? formatUserName(material.username)
+                  : "Not assigned"}
+              </p>
               <div className="buttons-box">
                 <button
                   onClick={() => {
@@ -96,9 +99,7 @@ export function CreateMaterialForm(props: {
   isVault: boolean;
 }) {
   const socket = useSocket();
-  const [incomingMaterial, setIncomingMaterial] = useState(
-    incomingMaterialState
-  );
+  const [incomingMaterial, setIncomingMaterial] = useState<IncomingMaterial>();
   const [selectLocations, setSelectLocations] = useState([selectState]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -107,7 +108,7 @@ export function CreateMaterialForm(props: {
 
   useEffect(() => {
     const getMaterialCard = async () => {
-      const [material] = await fetchIncomingMaterials(props.materialId);
+      const [material] = await fetchIncomingMaterials(Number(props.materialId));
       const stockId = material.stockId;
       const owner = material.owner;
       let locations = await fetchAvailableLocations(stockId, owner);
@@ -136,7 +137,7 @@ export function CreateMaterialForm(props: {
 
   const confirmAction = async () => {
     setShowConfirmation(false);
-    const incomingMaterialId = props.materialId;
+    const incomingMaterialId = Number(props.materialId);
     const res: any = await createMaterial(incomingMaterialId, formData);
     if (res?.error) {
       setSubmitMessage(res.error);
@@ -172,27 +173,27 @@ export function CreateMaterialForm(props: {
           <h3>Information from CSR:</h3>
           <div className="form-info-line">
             <label>Customer: </label>
-            {incomingMaterial.customerName}
+            {incomingMaterial?.programName}
           </div>
           <div className="form-info-line">
             <label>Stock ID: </label>
-            {incomingMaterial.stockId}
+            {incomingMaterial?.stockId}
           </div>
           <div className="form-info-line">
             <label>Description:</label>
-            {incomingMaterial.description}
+            {incomingMaterial?.description}
           </div>
           <div className="form-info-line">
             <label>Type: </label>
-            {incomingMaterial.materialType}
+            {incomingMaterial?.materialType}
           </div>
           <div className="form-info-line">
             <label>Ownership:</label>
-            {incomingMaterial.owner}
+            {incomingMaterial?.owner}
           </div>
           <div className="form-info-line">
             <label>Allow for use:</label>
-            {incomingMaterial.isActive ? "Yes" : "No"}
+            {incomingMaterial?.isActive ? "Yes" : "No"}
           </div>
         </div>
         <div className="form-line">
@@ -201,12 +202,12 @@ export function CreateMaterialForm(props: {
             type="number"
             name="quantity"
             placeholder="Quantity"
-            key={incomingMaterial.quantity}
-            defaultValue={incomingMaterial.quantity}
+            key={incomingMaterial?.quantity}
+            defaultValue={incomingMaterial?.quantity}
             required
           />
         </div>
-        {incomingMaterial.materialType === "CHIPS" && (
+        {incomingMaterial?.materialType === "CHIPS" && (
           <div className="form-line">
             <label>Serial # range:</label>
             <input
@@ -252,7 +253,7 @@ export function CreateMaterialForm(props: {
       {showConfirmation && (
         <div className="confirmation-window">
           <p>Do you want to accept this material?</p>
-          <p>Stock ID: "{incomingMaterial.stockId}"</p>
+          <p>Stock ID: "{incomingMaterial?.stockId}"</p>
           <p>Quantity: {toUSFormat(Number(formData?.get("quantity")))}</p>
           <button type="button" onClick={confirmAction}>
             Yes

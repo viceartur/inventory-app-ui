@@ -13,7 +13,7 @@ import logoPic from "../utils/logo.png";
 export function NavLinks() {
   const { data: session } = useSession();
   const socket = useSocket();
-  const pathname = usePathname();
+  const pathname = "/" + usePathname().split("/").filter(Boolean)[0];
   const [qtyIncoming, setQtyIncoming] = useState(0);
   const [qtyVault, setQtyVault] = useState(0);
 

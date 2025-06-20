@@ -5,7 +5,7 @@ import { redirect, useSearchParams } from "next/navigation";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
-import { fetchCustomers } from "actions/customers";
+import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { OWNER_TYPES } from "utils/constants";
 import { fetchTransactionsLog, fetchWeeklyUsageItems } from "actions/reports";
@@ -14,13 +14,13 @@ import { fetchWarehouses } from "actions/warehouses";
 
 export function UsageReports() {
   const [searchParams, setSearchParams] = useState<object | any>({});
-  const [selectCustomers, setSelectCustomers] = useState<object[]>([]);
+  const [selectCustomers, setSelectCustomers] = useState<CustomerProgram[]>([]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState<object[]>([]);
   const [selectWarehouses, setSelectWarehouses] = useState<object[]>([]);
 
   useEffect(() => {
     const getReportInfo = async () => {
-      const customers = await fetchCustomers();
+      const customers = await fetchCustomerPrograms();
       const materialTypes = await fetchMaterialTypes();
       const warehouses = await fetchWarehouses();
       setSelectCustomers(customers);
@@ -131,9 +131,12 @@ export function UsageReports() {
           <label>Customer:</label>
           <select name="customer" required>
             <option value="">-- Select a customer (optional) --</option>
-            {selectCustomers.map((customer: any, i) => (
-              <option key={i} value={`${customer.id}%${customer.name}`}>
-                {customer.name}
+            {selectCustomers.map((customer, i) => (
+              <option
+                key={i}
+                value={`${customer.programId}%${customer.programName}`}
+              >
+                {customer.programName}
               </option>
             ))}
           </select>
@@ -254,7 +257,9 @@ export function WeeklyUsage() {
         >
           Back to Reports
         </button>
-        <button onClick={() => onClickDownload()}>Download the Report</button>
+        <button className="control-button" onClick={() => onClickDownload()}>
+          Download the Report
+        </button>
       </div>
       <h2>
         Usage Report as of {dateAsOf || new Date().toLocaleDateString("en-CA")}

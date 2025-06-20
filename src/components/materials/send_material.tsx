@@ -1,31 +1,33 @@
 "use client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-
+import { useSocket } from "context/socket-context";
+import { redirect } from "next/navigation";
 import { SubmitButton } from "ui/submit-button";
 import {
   deleteIncomingMaterial,
   fetchIncomingMaterials,
   fetchMaterialDescription,
   fetchMaterialTypes,
+  IncomingMaterial,
   sendMaterial,
   updateIncomingMaterial,
 } from "../../actions/materials";
-import { selectState, VAULT_MATERIAL_TYPES } from "utils/constants";
-import { fetchCustomers } from "actions/customers";
+import { VAULT_MATERIAL_TYPES } from "utils/constants";
+import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import {
   formatUserName,
   toUSFormat,
   usePreventNumberInputScroll,
 } from "utils/client_utils";
-import { useSocket } from "context/socket-context";
-import { redirect } from "next/navigation";
 
 export function SendMaterialForm() {
   const { data: session } = useSession();
   const socket = useSocket();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [selectCustomers, setSelectCustomers] = useState<any[]>([]);
+  const [customerPrograms, setCustomerPrograms] = useState<CustomerProgram[]>(
+    []
+  );
   const [selectMaterialTypes, setSelectMaterialTypes] = useState<any[]>([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -38,9 +40,9 @@ export function SendMaterialForm() {
   // Fetch customers and material types for the select options
   useEffect(() => {
     const getMaterialInfo = async () => {
-      const customers = await fetchCustomers();
+      const programs = await fetchCustomerPrograms();
       const types = await fetchMaterialTypes();
-      setSelectCustomers(customers);
+      setCustomerPrograms(programs);
       setSelectMaterialTypes(types);
     };
     getMaterialInfo();
@@ -173,11 +175,11 @@ export function SendMaterialForm() {
           />
         </div>
         <div className="form-line">
-          <label>Customer:</label>
-          <select name="customerId" required>
-            {selectCustomers.map((customer, i) => (
-              <option key={i} value={customer.id}>
-                {customer.name}
+          <label>Customer Program:</label>
+          <select name="programId" required>
+            {customerPrograms.map((p, i) => (
+              <option key={i} value={p.programId}>
+                {p.programName}
               </option>
             ))}
           </select>
@@ -251,7 +253,9 @@ export function SendMaterialForm() {
 
 export function PendingMaterials() {
   const { data: session } = useSession();
-  const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
+  const [incomingMaterialsList, setIncomingMaterialsList] = useState<
+    IncomingMaterial[]
+  >([]);
 
   useEffect(() => {
     const getIncomingMaterials = async () => {
@@ -275,7 +279,7 @@ export function PendingMaterials() {
         <table>
           <thead>
             <tr>
-              <th>Customer</th>
+              <th>Customer Program</th>
               <th>Description</th>
               <th>Stock ID</th>
               <th>Quantity</th>
@@ -284,7 +288,7 @@ export function PendingMaterials() {
             </tr>
           </thead>
           <tbody>
-            {incomingMaterialsList.map((material: any, i) => (
+            {incomingMaterialsList.map((material, i) => (
               <tr
                 key={i}
                 onDoubleClick={() =>
@@ -294,12 +298,16 @@ export function PendingMaterials() {
                     : alert("You are not allowed to edit this Material")
                 }
               >
-                <td>{material.customerName}</td>
+                <td>{material.programName}</td>
                 <td>{material.description}</td>
                 <td>{material.stockId}</td>
                 <td>{toUSFormat(material.quantity)}</td>
                 <td>{material.cost}</td>
-                <td>{formatUserName(material.username)}</td>
+                <td>
+                  {material.username
+                    ? formatUserName(material.username)
+                    : "Not assigned"}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -314,9 +322,9 @@ export function PendingMaterials() {
 export function EditIncomingMaterial(props: any) {
   const socket = useSocket();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [incomingMaterial, setIncomingMaterial] = useState<any>({});
+  const [incomingMaterial, setIncomingMaterial] = useState<IncomingMaterial>();
   const [owner, setOwner] = useState<string>("");
-  const [selectCustomers, setSelectCustomers] = useState<any[]>([]);
+  const [selectCustomers, setSelectCustomers] = useState<CustomerProgram[]>([]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
@@ -326,7 +334,7 @@ export function EditIncomingMaterial(props: any) {
 
   useEffect(() => {
     const getMaterialInfo = async () => {
-      const customers = await fetchCustomers();
+      const customers = await fetchCustomerPrograms();
       const types = await fetchMaterialTypes();
       const [incomingMaterial] = await fetchIncomingMaterials(props.shippingId);
       setSelectCustomers(customers);
@@ -405,8 +413,8 @@ export function EditIncomingMaterial(props: any) {
             type="text"
             name="stockId"
             placeholder="Stock ID"
-            key={incomingMaterial.stockId}
-            defaultValue={incomingMaterial.stockId}
+            key={incomingMaterial?.stockId}
+            defaultValue={incomingMaterial?.stockId}
             required
           />
         </div>
@@ -416,8 +424,8 @@ export function EditIncomingMaterial(props: any) {
             type="text"
             name="description"
             placeholder="Description"
-            key={incomingMaterial.description}
-            defaultValue={incomingMaterial.description}
+            key={incomingMaterial?.description}
+            defaultValue={incomingMaterial?.description}
             required
           />
         </div>
@@ -427,8 +435,8 @@ export function EditIncomingMaterial(props: any) {
             type="number"
             name="qty"
             placeholder="Quantity"
-            key={incomingMaterial.quantity}
-            defaultValue={incomingMaterial.quantity}
+            key={incomingMaterial?.quantity}
+            defaultValue={incomingMaterial?.quantity}
             required
           />
         </div>
@@ -438,22 +446,22 @@ export function EditIncomingMaterial(props: any) {
             type="decimal"
             name="cost"
             placeholder="Unit Cost (USD)"
-            key={incomingMaterial.cost}
-            defaultValue={incomingMaterial.cost}
+            key={incomingMaterial?.cost}
+            defaultValue={incomingMaterial?.cost}
             required
           />
         </div>
         <div className="form-line">
           <label>Customer:</label>
           <select
-            name="customerId"
+            name="programId"
             required
-            key={incomingMaterial.customerId}
-            defaultValue={incomingMaterial.customerId}
+            key={incomingMaterial?.programId}
+            defaultValue={incomingMaterial?.programId}
           >
             {selectCustomers.map((customer, i) => (
-              <option key={i} value={customer.id}>
-                {customer.name}
+              <option key={i} value={customer.programId}>
+                {customer.programName}
               </option>
             ))}
           </select>
@@ -463,8 +471,8 @@ export function EditIncomingMaterial(props: any) {
           <select
             name="materialType"
             required
-            key={incomingMaterial.materialType}
-            defaultValue={incomingMaterial.materialType}
+            key={incomingMaterial?.materialType}
+            defaultValue={incomingMaterial?.materialType}
           >
             {selectMaterialTypes.map((type: any) => (
               <option key={type.id} value={type.name}>
@@ -495,8 +503,8 @@ export function EditIncomingMaterial(props: any) {
             type="number"
             name="minQty"
             placeholder="Min Quantity"
-            key={incomingMaterial.minQty}
-            defaultValue={incomingMaterial.minQty}
+            key={incomingMaterial?.minQuantity}
+            defaultValue={incomingMaterial?.minQuantity}
             required
           />
         </div>
@@ -506,8 +514,8 @@ export function EditIncomingMaterial(props: any) {
             type="number"
             name="maxQty"
             placeholder="Max Quantity"
-            key={incomingMaterial.maxQty}
-            defaultValue={incomingMaterial.maxQty}
+            key={incomingMaterial?.maxQuantity}
+            defaultValue={incomingMaterial?.maxQuantity}
             required
           />
         </div>
@@ -516,8 +524,13 @@ export function EditIncomingMaterial(props: any) {
           <input
             type="checkbox"
             name="isActive"
-            key={incomingMaterial.isActive}
-            defaultChecked={incomingMaterial.isActive}
+            id="isActive"
+            checked={!!incomingMaterial?.isActive}
+            onChange={(e) =>
+              setIncomingMaterial((prev) =>
+                prev ? { ...prev, isActive: e.target.checked } : prev
+              )
+            }
           />
           <small>(Check if this material is currently allowed for use)</small>
         </div>
