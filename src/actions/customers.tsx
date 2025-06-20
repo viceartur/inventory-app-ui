@@ -201,7 +201,7 @@ export async function updateCustomerProgram(
       programCode: String(formData.get("programCode"))
         .trim()
         .replace(/^0+/, ""),
-      isActive: Boolean(formData.get("isActive")),
+      isActive: Boolean(formData.get("isActiveProgram")),
       customerId: Number(formData.get("customerId")),
     };
 
