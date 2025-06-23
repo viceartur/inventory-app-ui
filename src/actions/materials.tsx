@@ -95,12 +95,12 @@ export async function sendMaterial(formData: FormData | null, userId: number) {
     materialType: String(formData.get("materialType")),
     quantity: Number(formData.get("qty")),
     cost: Number(formData.get("cost")),
-    minQty: Number(formData.get("minQty")),
-    maxQty: Number(formData.get("maxQty")),
+    minQuantity: Number(formData.get("minQty")),
+    maxQuantity: Number(formData.get("maxQty")),
     description: String(formData.get("description")),
     owner: String(formData.get("owner")),
     isActiveMaterial: formData.get("isActive") === "on",
-    userId,
+    userId: Number(userId),
   };
 
   try {
