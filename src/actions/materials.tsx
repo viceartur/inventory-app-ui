@@ -187,7 +187,7 @@ export async function updateIncomingMaterial(
 
 export async function deleteIncomingMaterial(shippingId: number) {
   const body = {
-    shippingId,
+    shippingId: Number(shippingId),
   };
 
   try {
@@ -215,7 +215,7 @@ export async function createMaterial(
   if (!formData) return { error: "Error: No Form Data" };
 
   const incomingMaterial = {
-    materialId: incomingMaterialId,
+    materialId: Number(incomingMaterialId),
     quantity: Number(formData.get("quantity")),
     locationId: Number(formData.get("locationId")),
     notes: String(formData.get("notes")),
@@ -268,7 +268,7 @@ export async function moveMaterial(
   if (!formData) return { error: "Error: No Form Data" };
 
   const material = {
-    materialId,
+    materialId: Number(materialId),
     quantity: Number(formData.get("quantity")),
     locationId: Number(formData.get("locationId")),
   };
@@ -300,7 +300,7 @@ export async function removeMaterial(
     if (!formData) return { error: "Error: No Form Data" };
 
     const material = {
-      materialId,
+      materialId: Number(materialId),
       quantity: Number(formData.get("quantity")),
       jobTicket: String(formData.get("jobTicket")),
       serialNumberRange: String(formData.get("serialNumberRange")),
