@@ -136,7 +136,8 @@ export function UsageReports() {
                 key={i}
                 value={`${customer.programId}%${customer.programName}`}
               >
-                {customer.programName}
+                {customer.programName} ({customer.customerName || "No customer"}
+                )
               </option>
             ))}
           </select>
