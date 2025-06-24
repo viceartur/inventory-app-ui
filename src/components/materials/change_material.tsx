@@ -88,7 +88,7 @@ export function Materials() {
     );
     if (primaryMaterial) {
       const material = {
-        materialId,
+        materialId: Number(materialId),
         isPrimary: !primaryMaterial.isPrimary,
       };
       await updateMaterial(material);
@@ -803,8 +803,8 @@ export function MaterialReplenishment() {
   const confirmAction = async () => {
     setShowConfirmation(false);
     const material = {
-      materialId: String(formData?.get("location")),
-      quantity: String(formData?.get("qty")),
+      materialId: Number(formData?.get("location")),
+      quantity: Number(formData?.get("qty")),
       jobTicket: String(formData?.get("jobTicket")) + " (replenished)",
     };
 
