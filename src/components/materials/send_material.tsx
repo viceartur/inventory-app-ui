@@ -126,15 +126,17 @@ export function SendMaterialForm() {
 
   return (
     <section>
-      <h2>Send a Material to the Warehouse</h2>
+      <h2>Submit Material Request to the Warehouse</h2>
       <div className="section-description">
         <p>
-          📦 CSR Staff may fill out the material information below and then send
-          it to the Warehouse 🚛
+          CSR Staff may fill out the material information below and then send it
+          to the Warehouse.
         </p>
         <p>
-          📝 The Description field is auto-populated based on the Stock ID
-          provided 🔍
+          <small>
+            📝 <strong>Note:</strong> The <em>Description</em> field is
+            auto-populated based on the <em>Stock ID</em> provided.
+          </small>
         </p>
       </div>
       <form ref={formRef} onSubmit={submitForm}>
@@ -142,7 +144,7 @@ export function SendMaterialForm() {
           <label>Stock ID:</label>
           <input
             type="text"
-            placeholder="Stock ID"
+            placeholder="Enter the Stock ID (required)"
             required
             defaultValue={stockId}
             key={stockId}
@@ -153,7 +155,7 @@ export function SendMaterialForm() {
           <label>Description:</label>
           <input
             type="text"
-            placeholder="Description"
+            placeholder="Enter the Description (required)"
             required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -163,20 +165,26 @@ export function SendMaterialForm() {
         </div>
         <div className="form-line">
           <label>Quantity:</label>
-          <input type="number" name="qty" placeholder="Quantity" required />
+          <input
+            type="number"
+            name="qty"
+            placeholder="Enter the quantity (required)"
+            required
+          />
         </div>
         <div className="form-line">
           <label>Unit Cost (USD):</label>
           <input
             type="decimal"
             name="cost"
-            placeholder="Unit Cost (USD)"
+            placeholder="Enter the Unit Cost in USD (required)"
             required
           />
         </div>
         <div className="form-line">
           <label>Customer Program:</label>
           <select name="programId" required>
+            <option value="">-- Select Customer Program --</option>
             {customerPrograms.map((p, i) => (
               <option key={i} value={p.programId}>
                 {p.programName} ({p.customerName || "No customer"})
@@ -187,6 +195,7 @@ export function SendMaterialForm() {
         <div className="form-line">
           <label>Material Type:</label>
           <select name="materialType" required>
+            <option value="">-- Select Material Type --</option>
             {selectMaterialTypes.map((type) => (
               <option key={type.id} value={type.name}>
                 {type.name}
@@ -197,7 +206,7 @@ export function SendMaterialForm() {
         <div className="form-line">
           <label>Owner:</label>
           <select name="owner" required>
-            <option value="">Select Owner</option>
+            <option value="">-- Select Owner --</option>
             {["Tag", "Customer"].map((owner, i) => (
               <option key={i} value={owner}>
                 {owner}
@@ -206,20 +215,23 @@ export function SendMaterialForm() {
           </select>
         </div>
         <div className="form-line">
-          <label>Min Qty:</label>
+          <label htmlFor="minQty">Min. Quantity:</label>
           <input
             type="number"
+            id="minQty"
             name="minQty"
-            placeholder="Min Quantity"
+            placeholder="Enter minimum quantity for reorder (required)"
             required
           />
         </div>
+
         <div className="form-line">
-          <label>Max Qty:</label>
+          <label htmlFor="maxQty">Max. Quantity:</label>
           <input
             type="number"
+            id="maxQty"
             name="maxQty"
-            placeholder="Max Quantity"
+            placeholder="Enter maximum quantity allowed (required)"
             required
           />
         </div>

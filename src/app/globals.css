@@ -334,8 +334,14 @@ form {
     gap: 0.5rem;
   }
 
+  textarea {
+    height: 5rem;
+    align-content: center;
+  }
+
   input,
-  select {
+  select,
+  textarea {
     width: 70%;
     padding: 0.5rem;
     border: 2px solid rgb(180, 180, 180);
@@ -346,7 +352,8 @@ form {
   }
 
   input:focus,
-  select:focus {
+  select:focus,
+  textarea:focus {
     border-color: rgb(0, 0, 120);
     outline: none;
     box-shadow: 0 0 5px rgba(0, 0, 120, 0.5);
