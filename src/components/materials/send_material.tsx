@@ -187,7 +187,7 @@ export function SendMaterialForm() {
             <option value="">-- Select Customer Program --</option>
             {customerPrograms.map((p, i) => (
               <option key={i} value={p.programId}>
-                {p.programName} ({p.customerName || "No customer"})
+                {p.customerName || "No customer"}: {p.programName}
               </option>
             ))}
           </select>
