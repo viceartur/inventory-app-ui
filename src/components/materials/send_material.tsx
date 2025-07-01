@@ -473,7 +473,7 @@ export function EditIncomingMaterial(props: any) {
           >
             {selectCustomers.map((customer, i) => (
               <option key={i} value={customer.programId}>
-                {customer.programName}
+                {customer.customerName || "No customer"}: {customer.programName}
               </option>
             ))}
           </select>
