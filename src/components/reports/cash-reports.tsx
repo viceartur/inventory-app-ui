@@ -110,8 +110,7 @@ export function CashReports() {
                 key={i}
                 value={`${customer.programId}%${customer.programName}`}
               >
-                {customer.programName} ({customer.customerName || "No customer"}
-                )
+                {customer.customerName || "No customer"}: {customer.programName}
               </option>
             ))}
           </select>
