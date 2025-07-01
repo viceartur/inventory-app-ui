@@ -274,7 +274,7 @@ form {
   width: 35rem;
   border-radius: 8px;
   padding: 1rem;
-  border: 2px solid rgb(180, 180, 180);
+  border: 1px solid rgb(180, 180, 180);
   background-color: rgb(245, 245, 245);
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 
@@ -468,7 +468,7 @@ form {
 }
 
 .editing-window {
-  padding: 4rem;
+  padding: 5rem;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -628,6 +628,141 @@ form {
       width: 10rem;
       color: rgb(50, 50, 50);
     }
+  }
+}
+
+/* Customer List and Card Styles */
+.customer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .customer-card {
+    min-width: 25rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fff;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .customer-card__header {
+    margin-bottom: 0.5rem;
+  }
+
+  .customer-card__name {
+    text-align: center;
+    color: darkblue;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .customer-card__rep {
+    color: #666;
+  }
+
+  .customer-card__section {
+    margin: 0.5rem 0;
+  }
+
+  .customer-card__label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .customer-card__emails {
+    padding-left: 1rem;
+    margin: 0;
+  }
+
+  .customer-card__email {
+    line-height: 1.4;
+  }
+
+  .customer-card__empty {
+    color: #999;
+  }
+
+  .customer-card__status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .customer-card__status--positive {
+    background-color: #e6f7e6;
+    color: #228b22;
+  }
+
+  .customer-card__status--negative {
+    background-color: #fbeaea;
+    color: #cc0000;
+  }
+
+  .customer-card__value {
+    font-size: 0.85rem;
+    color: #333;
+  }
+
+  .customer-card__delivery {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .customer-card__delivery--positive {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .customer-card__delivery--negative {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .customer-card__footer {
+    justify-content: center;
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .customer-card__button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #f7f7f7;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .customer-card__button:hover {
+    background-color: #eaeaea;
+  }
+
+  .customer-card__button--primary {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+
+  .customer-card__button--primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
   }
 }
 

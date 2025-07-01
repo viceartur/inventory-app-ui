@@ -8,6 +8,9 @@ export interface Customer {
   emails: string[];
   userId: number;
   username?: string;
+  isConnectedToReports: boolean;
+  lastReportSentAt?: string;
+  lastReportDeliveryStatus?: string;
 }
 
 export interface CustomerProgram {
@@ -17,6 +20,11 @@ export interface CustomerProgram {
   isActive: boolean;
   customerId: number;
   customerName?: string;
+}
+
+export interface EmailReport {
+  dateFrom: string;
+  dateTo: string;
 }
 
 ///////////////////////////
@@ -37,6 +45,7 @@ export async function createCustomer(formData: FormData, userId: number) {
       customerName: String(formData.get("customerName")).trim(),
       emails,
       userId: Number(userId),
+      isConnectedToReports: Boolean(formData.get("isConnectedToReports")),
     };
 
     const res: Response = await fetch(`${API}/customers`, {
@@ -105,6 +114,7 @@ export async function updateCustomer(
       customerName: String(formData.get("customerName")).trim(),
       emails,
       userId: Number(userId),
+      isConnectedToReports: Boolean(formData.get("isConnectedToReports")),
     };
 
     const res: Response = await fetch(`${API}/customers/${customerId}`, {
@@ -212,6 +222,41 @@ export async function updateCustomerProgram(
       },
       body: JSON.stringify(program),
     });
+    const data = await res.json();
+
+    if (res.status != 200) {
+      return { error: "Error: " + data.message };
+    }
+    return { message: data.message };
+  } catch (error: any) {
+    return { error: "Internal Server Error: " + error.message };
+  }
+}
+
+export async function sendEmailToCustomer(
+  customerId: number,
+  formData: FormData
+) {
+  try {
+    if (!formData) return { error: "Error: No Form Data" };
+
+    const emailReport: EmailReport = {
+      dateFrom: String(formData.get("dateFrom")).split("T")[0],
+      dateTo: String(formData.get("dateTo")).split("T")[0],
+    };
+
+    console.log("emailReport", emailReport);
+
+    const res: Response = await fetch(
+      `${API}/email_customer_report/${customerId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(emailReport),
+      }
+    );
     const data = await res.json();
 
     if (res.status != 200) {

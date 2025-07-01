@@ -10,6 +10,7 @@ import {
   fetchCustomerProgram,
   fetchCustomerPrograms,
   fetchCustomers,
+  sendEmailToCustomer,
   updateCustomer,
   updateCustomerProgram,
 } from "actions/customers";
@@ -140,6 +141,17 @@ export function AddCustomerForm() {
               autoComplete="off"
             />
           </div>
+          <div className="form-checkboxes">
+            <label>Connect to Reports:</label>
+            <input
+              id="isConnectedToReports"
+              type="checkbox"
+              name="isConnectedToReports"
+            />
+            <small>
+              (Check if this customer is connected to sending email reports)
+            </small>
+          </div>
           <div className="form-line">
             <small>
               ⚠️ <strong>Note:</strong> Once you create a customer, your account
@@ -158,10 +170,11 @@ export function AddCustomerForm() {
 
 export function Customers() {
   const { data: session } = useSession();
-  const formRef = useRef<HTMLFormElement | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [showCustomers, setShowCustomers] = useState(false);
   const [showEditingWindow, setShowEditingWindow] = useState(false);
+  const [showEmailWindow, setShowEmailWindow] = useState(false);
+  const [customerId, setCustomerId] = useState<number>(0);
   const [customerOnUpdate, setCustomerOnUpdate] = useState<Customer | null>();
   const [submitMessage, setSubmitMessage] = useState<string>("");
 
@@ -182,25 +195,39 @@ export function Customers() {
     setShowEditingWindow(true);
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+    actionType: string
+  ) => {
     event.preventDefault();
-    if (!customerOnUpdate || !customerOnUpdate.customerId) return;
+    if (!customerOnUpdate?.customerId && !customerId) {
+      setSubmitMessage("No customer data defined from the form.");
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
 
-    const res: any = await updateCustomer(
-      session?.user.id,
-      customerOnUpdate.customerId,
-      formData
-    );
+    let res: any;
+    if (actionType === "updateCustomer") {
+      if (customerOnUpdate?.customerId) {
+        res = await updateCustomer(
+          session?.user.id,
+          customerOnUpdate.customerId,
+          formData
+        );
+      }
+    } else if (actionType === "sendEmail") {
+      res = await sendEmailToCustomer(customerId, formData);
+    }
 
     if (res?.error) {
       setSubmitMessage(res.error);
     } else {
-      setSubmitMessage(res.message + " Returning back to the list...");
+      setSubmitMessage(res?.message + " Returning back to the list...");
       await fetchAndSetCustomers();
       setTimeout(() => {
         setShowEditingWindow(false);
+        setShowEmailWindow(false);
         setSubmitMessage("");
       }, 1000);
     }
@@ -208,6 +235,7 @@ export function Customers() {
 
   const cancelEditing = () => {
     setShowEditingWindow(false);
+    setShowEmailWindow(false);
     setSubmitMessage("");
     setCustomerOnUpdate(null);
   };
@@ -224,53 +252,115 @@ export function Customers() {
       </button>
 
       {showCustomers && (
-        <table>
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Customer Emails</th>
-              <th>Representative</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((customer, i) => (
-              <tr
-                key={i}
-                onDoubleClick={() => {
-                  if (customer.customerId) {
-                    fetchCustomerInfo(customer.customerId);
-                  }
-                }}
-              >
-                <td>
-                  <strong>{customer.customerName}</strong>
-                </td>
-                <td>
-                  {customer.emails && Array.isArray(customer.emails)
-                    ? customer.emails.map((email: string) => (
-                        <span key={email}>
-                          <small>{email}</small>
-                          {<br />}
-                        </span>
-                      ))
-                    : "-"}
-                </td>
-                <td>
+        <div className="customer-list">
+          {customers.map((customer, i) => (
+            <div key={i} className="customer-card">
+              <div className="customer-card__header">
+                <div className="customer-card__name">
+                  {customer.customerName}
+                </div>
+                <p className="customer-card__rep">
+                  Representative:{" "}
                   {customer.username
                     ? formatUserName(customer.username)
                     : "Not assigned"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </p>
+              </div>
+
+              <div className="customer-card__section">
+                <p className="customer-card__label">Customer Emails:</p>
+                {customer.emails && Array.isArray(customer.emails) ? (
+                  <ul className="customer-card__emails">
+                    {customer.emails.map((email: string) => (
+                      <li key={email} className="customer-card__email">
+                        {email}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="customer-card__empty">-</p>
+                )}
+              </div>
+
+              <div className="customer-card__section">
+                <span
+                  className={`customer-card__status ${
+                    customer.isConnectedToReports
+                      ? "customer-card__status--positive"
+                      : "customer-card__status--negative"
+                  }`}
+                >
+                  {customer.isConnectedToReports ? "" : "Not"} Connected to
+                  Reports.
+                </span>
+              </div>
+
+              <div className="customer-card__section">
+                <p className="customer-card__label">Last Report Sent:</p>
+                <p className="customer-card__value">
+                  {customer.lastReportSentAt &&
+                  customer.lastReportSentAt !== "0001-01-01T00:00:00Z"
+                    ? new Date(customer.lastReportSentAt).toLocaleString()
+                    : "No data"}
+                </p>
+              </div>
+
+              {customer.lastReportDeliveryStatus && (
+                <div className="customer-card__section">
+                  <span
+                    className={`customer-card__delivery ${
+                      customer.lastReportDeliveryStatus
+                        .toLowerCase()
+                        .includes("success")
+                        ? "customer-card__delivery--positive"
+                        : "customer-card__delivery--negative"
+                    }`}
+                  >
+                    {customer.lastReportDeliveryStatus}
+                  </span>
+                </div>
+              )}
+              <div className="customer-card__footer">
+                <button
+                  className="customer-card__button"
+                  onClick={() => {
+                    if (customer.customerId) {
+                      fetchCustomerInfo(customer.customerId);
+                    }
+                  }}
+                >
+                  Edit Info
+                </button>
+
+                {customer.isConnectedToReports && (
+                  <button
+                    className="customer-card__button customer-card__button--primary"
+                    onClick={() => {
+                      if (customer.customerId) {
+                        setCustomerId(customer.customerId);
+                        setShowEmailWindow(true);
+                      }
+                    }}
+                  >
+                    Email Report
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
+      {/* Edit the customer information */}
       {showEditingWindow && (
         <>
           <div className="blur-overlay" onClick={cancelEditing} />
           <div className="editing-window">
-            <form ref={formRef} onSubmit={onSubmit}>
+            <form
+              onSubmit={(e: FormEvent<HTMLFormElement>) =>
+                onSubmit(e, "updateCustomer")
+              }
+            >
               <div className="form-line">
                 <label>Customer Name:</label>
                 <input
@@ -293,6 +383,18 @@ export function Customers() {
                   defaultValue={customerOnUpdate?.emails?.join(",") || ""}
                 />
               </div>
+              <div className="form-checkboxes">
+                <label>Connect to Reports:</label>
+                <input
+                  id="isConnectedToReports"
+                  type="checkbox"
+                  name="isConnectedToReports"
+                  defaultChecked={!!customerOnUpdate?.isConnectedToReports}
+                />
+                <small>
+                  (Check if this customer is connected to sending email reports)
+                </small>
+              </div>
               <div className="form-line">
                 <small>
                   ⚠️ <strong>Note:</strong> Once you update this customer, your
@@ -309,6 +411,73 @@ export function Customers() {
                   Cancel Editing
                 </button>
                 <SubmitButton title="Update Customer" />
+              </div>
+            </form>
+          </div>
+        </>
+      )}
+
+      {/* Email the report */}
+      {showEmailWindow && (
+        <>
+          <div className="blur-overlay" onClick={cancelEditing} />
+          <div className="editing-window">
+            <form
+              onSubmit={(e: FormEvent<HTMLFormElement>) =>
+                onSubmit(e, "sendEmail")
+              }
+            >
+              <div className="form-info">
+                <p>
+                  Please select a valid reporting period. Both dates are
+                  required, and the end date cannot be in the future.
+                </p>
+              </div>
+
+              <div className="form-line">
+                <label htmlFor="dateFrom">Date From:</label>
+                <input
+                  id="dateFrom"
+                  type="date"
+                  name="dateFrom"
+                  required
+                  max={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+
+              <div className="form-line">
+                <label htmlFor="dateTo">Date To:</label>
+                <input
+                  id="dateTo"
+                  type="date"
+                  name="dateTo"
+                  required
+                  max={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+
+              <div className="form-line">
+                <small>
+                  ⚠️ <strong>Note:</strong> The customer report will include{" "}
+                  <em>starting quantity</em>, <em>ending quantity</em>,{" "}
+                  <em>used</em>, <em>spoiled</em>, and a{" "}
+                  <em>6-week forecast</em>, based on the selected period. It
+                  will be sent to the specified email addresses and CC’d to the
+                  assigned representative.
+                </small>
+              </div>
+
+              {submitMessage && (
+                <p className="submit-message" role="alert">
+                  {submitMessage}
+                </p>
+              )}
+
+              <div className="form-buttons">
+                <button type="button" onClick={cancelEditing}>
+                  Exit
+                </button>
+                <SubmitButton title={"Send Report"} />
               </div>
             </form>
           </div>
