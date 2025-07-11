@@ -7,7 +7,7 @@ export function SubmitButton(props: any) {
 
   return (
     <button disabled={pending} type="submit">
-      {props.title}
+      {pending ? "Submitting..." : props.title}
     </button>
   );
 }
