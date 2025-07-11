@@ -27,6 +27,7 @@ import {
   toUSFormat,
   usePreventNumberInputScroll,
 } from "utils/client_utils";
+import { useSocket } from "context/socket-context";
 
 export function Materials() {
   const searchParams = useSearchParams();
@@ -383,6 +384,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
 }
 
 export function RemoveMaterialForm(props: { materialId: string }) {
+  const socket = useSocket();
   const searchParams = useSearchParams();
   const requestId = searchParams.get("requestId"); // requested materials
   const requestedQty = searchParams.get("quantity"); // requested materials
@@ -421,27 +423,28 @@ export function RemoveMaterialForm(props: { materialId: string }) {
 
       // If the Request ID was provided, then update the Request Material
       if (requestId) {
-        const quantity = String(formData?.get("quantity"));
+        const quantity = Number(formData?.get("quantity"));
 
         // Check the removing quantity
         const [requestedMaterial] = await fetchRequestedMaterials({
           requestId,
         });
         if (requestedMaterial.quantity > quantity) {
-          await updateRequestedMaterial(requestId, {
-            requestId,
+          await updateRequestedMaterial(Number(requestId), {
             quantity,
             status: "pending",
-            notes: "Used partially",
+            notes: "Delivered partially",
           });
         } else {
-          await updateRequestedMaterial(requestId, {
-            requestId,
+          await updateRequestedMaterial(Number(requestId), {
             quantity,
             status: "sent",
-            notes: "Used fully",
+            notes: "Delivered in full",
           });
         }
+
+        // Send WebSocket.
+        socket?.send("requestedMaterialsRemoved");
 
         setSubmitMessage(
           "Material Removed. Redirecting to Requested Materials..."
@@ -606,107 +609,6 @@ export function RemoveMaterialForm(props: { materialId: string }) {
     </section>
   );
 }
-
-// LEGACY
-/*
-export function ImportMaterials() {
-  const [response, setResponse] = useState({
-    message: "",
-    data: {
-      Records: 0,
-      Imported_Records: 0,
-      Not_Imported_Records: 0,
-      Not_Imported_Data: [],
-    },
-  });
-  const [dataToImport, setDataToImport] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleFileChange = (e: any) => {
-    setResponse({
-      message: "",
-      data: {
-        Records: 0,
-        Imported_Records: 0,
-        Not_Imported_Records: 0,
-        Not_Imported_Data: [],
-      },
-    });
-
-    const file = e.target.files[0];
-    if (file && file.name.endsWith(".xlsx")) {
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        const data = event.target.result;
-        const workbook = XLSX.read(data, { type: "binary" });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData: any = XLSX.utils.sheet_to_json(firstSheet);
-        jsonData.forEach((d: any) => {
-          d["Stock ID"] = d["Stock ID"].toString();
-          d["Customer Code"] = d["Customer Code"].toString();
-        });
-        setDataToImport(jsonData);
-      };
-      reader.readAsBinaryString(file);
-    } else {
-      alert("Please upload a valid .xlsx file.");
-    }
-  };
-
-  const handleSumbit = async (e: any) => {
-    e.preventDefault();
-    try {
-      setIsLoading(true);
-      const jsonData = JSON.stringify({ data: dataToImport });
-      const dataResult: any = await uploadMaterials(jsonData);
-      setResponse(dataResult);
-      setIsLoading(false);
-    } catch (error: any) {
-      setIsLoading(false);
-      alert("Error: " + error.message);
-    }
-  };
-
-  return (
-    <section>
-      <h2>Upload an Excel File</h2>
-      <form onSubmit={handleSumbit}>
-        <div className="form-info">
-          <p className="submit-message">
-            This action will UPDATE the Database with new items
-          </p>
-          <p>The items which already exist will not be imported</p>
-          <p>An error message (if applicable) will be displayed below</p>
-        </div>
-        <input type="file" accept=".xlsx" onChange={handleFileChange} />
-        <p className="submit-message">{response?.message}</p>
-        {response?.message ? (
-          <div>
-            <p>Total Uploaded: {response?.data.Records}</p>
-            <p>Imported: {response?.data.Imported_Records}</p>
-            <p>Not Imported: {response?.data.Not_Imported_Records}</p>
-            <p className="submit-message">Errors:</p>
-            {response?.data.Not_Imported_Data.map((record: any, i: number) => (
-              <div key={i}>
-                <p>StockID: {record.StockID}</p>
-                <p>Error: {record.ERR_REASON}</p>
-                <br />
-              </div>
-            ))}
-          </div>
-        ) : (
-          ""
-        )}
-        <div className="form-buttons">
-          <SubmitButton
-            title={isLoading ? "Importing..." : "Import Data"}
-            disabled={isLoading}
-          />
-        </div>
-      </form>
-    </section>
-  );
-}*/
 
 export function MaterialReplenishment() {
   const { data: session } = useSession();

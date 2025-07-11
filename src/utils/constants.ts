@@ -60,16 +60,22 @@ export const APP_ROUTES: Route[] = [
     restrict: ["admin", "warehouse"],
   },
   {
+    path: "/request-materials",
+    label: "Request Materials",
+    icon: "📦",
+    restrict: ["admin", "production"],
+  },
+  {
     path: "/requested-materials",
     label: "Requested Materials",
-    icon: "📝",
+    icon: "📋",
     restrict: ["admin", "warehouse"],
   },
   {
-    path: "/processed-requests",
-    label: "Processed Requests",
-    icon: "✅",
-    restrict: ["admin", "warehouse"],
+    path: "/request-status",
+    label: "Requests Look Up",
+    icon: "🔍",
+    restrict: ["admin", "warehouse", "production"],
   },
   {
     path: "/materials",
@@ -101,20 +107,10 @@ export const APP_ROUTES: Route[] = [
     icon: "📈",
     restrict: ["admin", "csr", "warehouse", "vault"],
   },
-  {
-    path: "/import_data",
-    label: "Import Materials",
-    icon: "📤",
-    restrict: [], // temporarily off
-  },
 ];
 
 // States constants
 export const OWNER_TYPES = ["Tag", "Customer"];
-
-export const initialState = {
-  message: "",
-};
 
 export const selectState = {
   id: "",
@@ -139,6 +135,6 @@ export const requestStatusClassName: any = {
   pending: "neutral",
 };
 
-export const REQUEST_STATUSES: any = ["", "declined", "sent", "pending"];
+export const REQUEST_STATUSES: any = ["declined", "sent", "pending"];
 
 export const VAULT_MATERIAL_TYPES = ["CARDS (METAL)", "CARDS (PVC)", "CHIPS"];

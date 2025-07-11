@@ -362,7 +362,7 @@ export function TransactionsLog() {
                 </td>
                 <td>{material.jobTicket}</td>
                 <td>{material.reasonDescription}</td>
-                <td>{material.date}</td>
+                <td>{new Date(material.date).toLocaleDateString("en-US")}</td>
               </tr>
             ))}
           </tbody>

@@ -193,16 +193,6 @@ nav {
   }
 }
 
-/* Selectors and Inputs */
-select,
-input,
-input:checked {
-  border: none;
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: medium;
-}
-
 input:focus {
   background-color: rgb(255, 237, 215);
 }

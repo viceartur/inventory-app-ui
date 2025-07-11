@@ -36,16 +36,6 @@ export function CustomerManagement() {
             programs and are sent to the provided email addresses, with a copy
             (CC) sent to the representative.
           </p>
-          <p>
-            <strong>❗❗❗Important❗❗❗</strong>
-          </p>
-          <p>
-            <strong>
-              Reports are emailed every Monday at 5:00 AM for connected
-              customers only. If a customer is not connected to the report
-              mailings, you may still send it manually.
-            </strong>
-          </p>
           <button
             className="control-button"
             onClick={() => redirect("/customer-management/customers")}

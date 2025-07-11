@@ -275,7 +275,7 @@ export function Transactions() {
                 )}
                 <td>{material.unitCost}</td>
                 <td>{material.cost}</td>
-                <td>{material.date}</td>
+                <td>{new Date(material.date).toLocaleDateString("en-US")}</td>
               </tr>
             ))}
           </tbody>
@@ -371,9 +371,11 @@ export function Balance() {
         </button>
       </div>
       <h2>
-        {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}
+        {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}{" "}
+        {dateAsOf
+          ? `as of ${new Date(dateAsOf).toLocaleDateString("en-US")}`
+          : ""}
       </h2>
-      {dateAsOf ? <h2>As of {dateAsOf}</h2> : ""}
       {balance.length ? (
         <table>
           <thead>

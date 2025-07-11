@@ -48,6 +48,18 @@ export interface Material {
   requestedAt: string;
 }
 
+export interface RequestedMaterial {
+  description: string;
+  stockId: string;
+  quantity: number;
+}
+
+export interface RequestedInfo {
+  quantity?: number;
+  status?: string;
+  notes: string;
+}
+
 export async function fetchMaterialTypes() {
   try {
     const res = await fetch(`${API}/material_types`);
@@ -381,33 +393,21 @@ export async function fetchMaterialsByStockID(
   }
 }
 
-// Legacy
-/*
-export async function uploadMaterials(jsonData: any) {
-  const res: any = await fetch(`${API}/import_data`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: jsonData,
-  });
-  const dataResult = await res.json();
-  return dataResult;
-}*/
-
 export async function fetchRequestedMaterials(filterOpts: any) {
   try {
     const {
       requestId = "",
       stockId = "",
       status = "",
-      requestedAt = "",
+      requestedFrom = "",
+      requestedTo = "",
     } = filterOpts;
     const queryParams = new URLSearchParams({
       requestId,
       stockId,
       status,
-      requestedAt,
+      requestedFrom,
+      requestedTo,
     });
 
     const res = await fetch(
@@ -431,15 +431,15 @@ export async function fetchRequestedMaterials(filterOpts: any) {
 }
 
 export async function updateRequestedMaterial(
-  requestId: string,
-  requestInfo: any | null
+  requestId: number,
+  requestInfo: RequestedInfo
 ) {
   try {
-    const { quantity = "0", status = "declined", notes = "" } = requestInfo;
+    const { quantity = 0, status = "declined", notes = "" } = requestInfo;
 
     const data = {
-      materialId: String(requestId),
-      quantity,
+      materialId: Number(requestId),
+      quantity: Number(quantity),
       status,
       notes,
     };
@@ -503,5 +503,53 @@ export async function fetchMaterialTransactions(filterOpts: {
   } catch (error) {
     console.error(error);
     return [];
+  }
+}
+
+export async function requestMaterial(
+  materialData: RequestedMaterial,
+  userId: number
+) {
+  if (!materialData) return { error: "Error: No Material data provided" };
+  if (!userId) return { error: "Error: User not detected" };
+
+  const body = {
+    materials: [materialData],
+    userId,
+  };
+
+  try {
+    const res = await fetch(`${API}/requested_materials`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.status != 200) {
+      return { message: res.statusText };
+    }
+
+    return {
+      message: `Material "${materialData.description} (${materialData.stockId})" successfully requested from the Warehouse.`,
+    };
+  } catch (error: any) {
+    return { error: "Error: " + error.message };
+  }
+}
+
+export async function fetchRequestedMaterialsCount(): Promise<number> {
+  try {
+    const res = await fetch(`${API}/requested_materials/count`);
+    if (!res) return 0;
+
+    const data = await res.json();
+    if (!data?.data) return 0;
+
+    return data.data;
+  } catch (error) {
+    console.error(error);
+    return 0;
   }
 }

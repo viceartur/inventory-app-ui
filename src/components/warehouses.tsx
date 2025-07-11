@@ -6,12 +6,11 @@ import {
   fetchLocations,
   fetchWarehouses,
 } from "../actions/warehouses";
-import { initialState } from "utils/constants";
 
 export function WarehouseForm() {
   const [warehouses, setWarehouses] = useState([]);
 
-  const [state, formAction] = useActionState(createWarehouse, initialState);
+  const [state, formAction] = useActionState(createWarehouse, { message: "" });
 
   useEffect(() => {
     const getWarehouses = async () => {
