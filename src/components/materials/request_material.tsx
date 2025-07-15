@@ -239,12 +239,13 @@ export function RequestedMaterialForm(props: { requestId: string }) {
       const materials = await fetchMaterials({
         stockId: requestedMaterial.stockId,
       });
+      const availableMaterials = materials.filter((m) => m.quantity);
 
-      if (materials.length > 0) {
-        setFoundMaterials(materials);
-        setMaterialToUse(materials[0]);
+      if (availableMaterials.length > 0) {
+        setFoundMaterials(availableMaterials);
+        setMaterialToUse(availableMaterials[0]);
       } else {
-        setSubmitMessage("Material Not Found");
+        setSubmitMessage("Material not found.");
       }
     }
   };
