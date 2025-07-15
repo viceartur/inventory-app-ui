@@ -16,7 +16,9 @@ export function OrderNeeded() {
           await fetchMaterials({
             userRole: session?.user.role,
           })
-        ).filter((material: any) => material.isActiveProgram);
+        ).filter(
+          (material: any) => material.minQty && material.isActiveProgram
+        );
 
         const mappedMaterials: any = {};
 
