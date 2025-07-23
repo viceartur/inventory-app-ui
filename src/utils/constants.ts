@@ -105,7 +105,7 @@ export const APP_ROUTES: Route[] = [
     path: "/usage-reports",
     label: "Usage Reports",
     icon: "📈",
-    restrict: ["admin", "csr", "warehouse", "vault"],
+    restrict: ["admin", "csr", "warehouse", "vault", "production"],
   },
 ];
 
