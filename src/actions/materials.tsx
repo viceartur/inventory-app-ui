@@ -13,7 +13,7 @@ export interface IncomingMaterial {
   minQuantity: number;
   maxQuantity: number;
   description: string;
-  isActive: boolean;
+  materialStatus: string;
   materialType: string;
   owner: string;
   username?: string;
@@ -33,7 +33,7 @@ export interface Material {
   notes: string;
   quantity: number;
   updatedAt: string;
-  isActiveMaterial: boolean;
+  materialStatus: string;
   minQty: number;
   maxQty: number;
   cost: number;
@@ -111,7 +111,7 @@ export async function sendMaterial(formData: FormData | null, userId: number) {
     maxQuantity: Number(formData.get("maxQty")),
     description: String(formData.get("description")),
     owner: String(formData.get("owner")),
-    isActiveMaterial: formData.get("isActive") === "on",
+    materialStatus: String(formData.get("materialStatus")),
     userId: Number(userId),
   };
 
@@ -176,7 +176,7 @@ export async function updateIncomingMaterial(
     maxQuantity: Number(formData.get("maxQty")),
     description: String(formData.get("description")),
     owner: String(formData.get("owner")),
-    isActive: formData.get("isActive") === "on",
+    materialStatus: String(formData.get("materialStatus")),
   };
 
   try {
@@ -551,5 +551,44 @@ export async function fetchRequestedMaterialsCount(): Promise<number> {
   } catch (error) {
     console.error(error);
     return 0;
+  }
+}
+
+export async function fetchMaterialsGroupedByStockID(): Promise<Material[]> {
+  try {
+    const res = await fetch(`${API}/materials/grouped-by-stock`);
+    if (!res) return [];
+
+    const data = await res.json();
+    if (!data?.length) return [];
+
+    let materials: Material[] = data;
+
+    return materials;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function updateStockIDStatus(formData: FormData, stockId: string) {
+  try {
+    const status = formData.get("materialStatus");
+
+    const res = await fetch(`${API}/materials/${stockId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+    const data = await res.json();
+
+    if (res.status != 200) {
+      return { error: "Error: " + data.message };
+    }
+    return data;
+  } catch (error: any) {
+    return { error: "Error: " + error.message };
   }
 }

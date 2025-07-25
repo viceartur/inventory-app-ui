@@ -8,7 +8,7 @@ import {
   fetchIncomingMaterials,
   IncomingMaterial,
 } from "../../actions/materials";
-import { selectState, VAULT_MATERIAL_TYPES } from "utils/constants";
+import { VAULT_MATERIAL_TYPES } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import {
   formatUserName,
@@ -100,7 +100,7 @@ export function CreateMaterialForm(props: {
 }) {
   const socket = useSocket();
   const [incomingMaterial, setIncomingMaterial] = useState<IncomingMaterial>();
-  const [selectLocations, setSelectLocations] = useState([selectState]);
+  const [selectLocations, setSelectLocations] = useState([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [sumbitMessage, setSubmitMessage] = useState("");
@@ -192,8 +192,8 @@ export function CreateMaterialForm(props: {
             {incomingMaterial?.owner}
           </div>
           <div className="form-info-line">
-            <label>Allow for use:</label>
-            {incomingMaterial?.isActive ? "Yes" : "No"}
+            <label>Material Status:</label>
+            {incomingMaterial?.materialStatus}
           </div>
         </div>
         <div className="form-line">

@@ -2,7 +2,6 @@
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from "next/navigation";
-// import * as XLSX from "xlsx";
 import { useSession } from "next-auth/react";
 
 import { SubmitButton } from "ui/submit-button";
@@ -17,9 +16,14 @@ import {
   removeMaterial,
   updateMaterial,
   updateRequestedMaterial,
-  // uploadMaterials,
+  fetchMaterialsGroupedByStockID,
+  updateStockIDStatus,
 } from "../../actions/materials";
-import { selectState } from "utils/constants";
+import {
+  MATERIAL_STATUS,
+  MATERIAL_STATUS_CLASSNAME,
+  MATERIAL_STATUS_ICON,
+} from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
 import {
   debounce,
@@ -158,9 +162,9 @@ export function Materials() {
                 className={`material_list-item${
                   material.owner === "Tag" ? " tag-owned" : " customer-owned"
                 }${
-                  !material.isActiveProgram || !material.isActiveMaterial
+                  !material.isActiveProgram
                     ? " inactive"
-                    : ""
+                    : " " + MATERIAL_STATUS_CLASSNAME[material.materialStatus]
                 }${material.isPrimary ? " primary" : ""}`}
                 key={i}
                 onDoubleClick={() =>
@@ -180,17 +184,21 @@ export function Materials() {
                   <strong>{toUSFormat(material.quantity)}</strong>
                 </p>
                 <div className="buttons-box">
-                  <button
-                    onClick={() =>
-                      redirect(
-                        `/materials/remove-material/${
-                          material.materialId
-                        }?${new URLSearchParams(filterOpts || "").toString()}`
-                      )
-                    }
-                  >
-                    ❌
-                  </button>
+                  {material.materialStatus === MATERIAL_STATUS.OBSOLETE ? (
+                    ""
+                  ) : (
+                    <button
+                      onClick={() =>
+                        redirect(
+                          `/materials/remove-material/${
+                            material.materialId
+                          }?${new URLSearchParams(filterOpts || "").toString()}`
+                        )
+                      }
+                    >
+                      ❌
+                    </button>
+                  )}
                   <button
                     onClick={() =>
                       redirect(
@@ -217,7 +225,7 @@ export function MoveMaterialForm(props: { materialId: string }) {
   const searchParams = useSearchParams();
   const [sumbitMessage, setSubmitMessage] = useState("");
   const [material, setMaterial] = useState<Material>();
-  const [selectLocations, setSelectLocations] = useState([selectState]);
+  const [selectLocations, setSelectLocations] = useState([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   usePreventNumberInputScroll();
@@ -511,10 +519,8 @@ export function RemoveMaterialForm(props: { materialId: string }) {
             {material?.owner}
           </div>
           <div className="form-info-line">
-            <label>Allow for use:</label>
-            {material?.isActiveProgram && material?.isActiveMaterial
-              ? "Yes"
-              : "No"}
+            <label>Material Status:</label>
+            {material?.materialStatus}
           </div>
           <div className="form-info-line">
             <label>Notes:</label>
@@ -830,6 +836,231 @@ export function MaterialReplenishment() {
             No
           </button>
         </div>
+      )}
+    </section>
+  );
+}
+
+export function MaterialStatus() {
+  const [materialsList, setMaterialsList] = useState<Material[]>([]);
+  const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
+  const [showEditingWindow, setShowEditingWindow] = useState<boolean>(false);
+  const [materialOnEdit, setMaterialOnEdit] = useState<Material | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<string>("");
+
+  const refreshMaterials = async () => {
+    const materials = await fetchMaterialsGroupedByStockID();
+    setMaterialsList(materials);
+
+    if (!filteredMaterials.length) {
+      setFilteredMaterials(materials);
+    } else {
+      const filteredStockIds = new Set(filteredMaterials.map((m) => m.stockId));
+      const prevFilteredMaterials = materials.filter((m) =>
+        filteredStockIds.has(m.stockId)
+      );
+      setFilteredMaterials(prevFilteredMaterials);
+    }
+  };
+
+  useEffect(() => {
+    refreshMaterials();
+  }, []);
+
+  const onFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = new FormData(e.currentTarget);
+    const stockId = form.get("stockId")?.toString().trim().toLowerCase();
+    const programName = form
+      .get("programName")
+      ?.toString()
+      .trim()
+      .toLowerCase();
+    const description = form
+      .get("description")
+      ?.toString()
+      .trim()
+      .toLowerCase();
+    const materialStatus = form.get("materialStatus")?.toString().trim();
+
+    const filtered = materialsList.filter((m) => {
+      const matchesStockId = stockId
+        ? m.stockId.toLowerCase().includes(stockId)
+        : true;
+      const matchesProgramName = programName
+        ? m.programName.toLowerCase().includes(programName)
+        : true;
+      const matchesDescription = description
+        ? m.description.toLowerCase().includes(description)
+        : true;
+      const matchesStatus = materialStatus
+        ? m.materialStatus === materialStatus
+        : true;
+
+      return (
+        matchesStockId &&
+        matchesProgramName &&
+        matchesDescription &&
+        matchesStatus
+      );
+    });
+
+    setFilteredMaterials(filtered);
+  };
+
+  const cancelEditing = () => {
+    setShowEditingWindow(false);
+    setMaterialOnEdit(null);
+    setSubmitMessage("");
+  };
+
+  const onEditSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!materialOnEdit) return;
+
+    const formData = new FormData(event.currentTarget);
+    const res: any = await updateStockIDStatus(
+      formData,
+      materialOnEdit.stockId
+    );
+
+    if (res?.error) {
+      setSubmitMessage(res.error);
+    } else {
+      setSubmitMessage(res.message + " Returning back to the list...");
+      await refreshMaterials();
+      setTimeout(() => {
+        setMaterialOnEdit(null);
+        setShowEditingWindow(false);
+        setSubmitMessage("");
+      }, 1000);
+    }
+  };
+
+  return (
+    <section>
+      <h2>Status of Materials</h2>
+      <div className="section-description">
+        <p>
+          <strong>Attention CSR Staff ❗❗❗</strong>
+        </p>
+        <p>
+          This list displays all materials along with their current statuses.
+          Each material can have one of the following statuses:
+          <br />
+          <strong>• Active 🟢</strong> – Currently used in production.
+          <br />
+          <strong>• Inactive 🟡</strong> – Temporarily paused; may resume use.
+          <br />
+          <strong>• Obsolete 🔴</strong> – No longer permitted for use.
+          <br />
+          Use the filter below to find and update materials as needed.
+        </p>
+      </div>
+
+      {/* Filter Form */}
+      <form className="filter" onSubmit={onFilterSubmit}>
+        <input name="programName" placeholder="Enter a Program Name" />
+        <input name="stockId" placeholder="Enter a Stock ID" />
+        <input name="description" placeholder="Enter a Description" />
+        <select name="materialStatus" id="materialStatus">
+          <option value="">-- Status --</option>
+          {Object.keys(MATERIAL_STATUS).map((status) => (
+            <option value={status} key={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+        <SubmitButton title="Look Up" />
+      </form>
+
+      <h2>Found Materials: {filteredMaterials.length}</h2>
+
+      {/* Materials Table */}
+      <div className="material_list">
+        <div className="list_header">
+          <p>Program Name</p>
+          <p>Stock ID</p>
+          <p>Description</p>
+          <p>Status</p>
+          <p>
+            Total Quantity:{" "}
+            {toUSFormat(
+              filteredMaterials.reduce((sum, m) => sum + m.quantity, 0)
+            )}
+          </p>
+          <p>Actions</p>
+        </div>
+
+        {filteredMaterials.map((material, idx) => (
+          <div className="material_list-item" key={idx}>
+            <p>{material.programName}</p>
+            <p>
+              <strong>{material.stockId}</strong>
+            </p>
+            <p>
+              <small>{material.description}</small>
+            </p>
+            <p>
+              <strong>
+                <small>
+                  {material.materialStatus}{" "}
+                  {MATERIAL_STATUS_ICON[material.materialStatus]}
+                </small>
+              </strong>
+            </p>
+            <p>{toUSFormat(material.quantity)}</p>
+            <div className="buttons-box">
+              <button
+                type="button"
+                onClick={() => {
+                  setMaterialOnEdit(material);
+                  setShowEditingWindow(true);
+                }}
+              >
+                Change
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Editing Modal */}
+      {showEditingWindow && (
+        <>
+          <div className="blur-overlay" onClick={cancelEditing} />
+          <div className="editing-window">
+            <form onSubmit={onEditSubmit}>
+              <div className="form-line">
+                <label htmlFor="editStatus">Material Status:</label>
+                <select
+                  name="materialStatus"
+                  defaultValue={materialOnEdit?.materialStatus}
+                  required
+                >
+                  <option value="">-- Status --</option>
+                  {Object.keys(MATERIAL_STATUS).map((status) => (
+                    <option value={status} key={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {submitMessage && (
+                <p className="submit-message">{submitMessage}</p>
+              )}
+
+              <div className="form-buttons">
+                <button type="button" onClick={cancelEditing}>
+                  Cancel Editing
+                </button>
+                <SubmitButton title="Update Status" />
+              </div>
+            </form>
+          </div>
+        </>
       )}
     </section>
   );

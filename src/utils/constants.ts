@@ -78,10 +78,16 @@ export const APP_ROUTES: Route[] = [
     restrict: ["admin", "warehouse", "production"],
   },
   {
+    path: "/material-status",
+    label: "Status of Materials",
+    icon: "🔰",
+    restrict: ["admin", "csr"],
+  },
+  {
     path: "/materials",
     label: "Inventory",
     icon: "📊",
-    restrict: ["admin", "warehouse", "csr", "vault"],
+    restrict: ["admin", "warehouse", "vault"],
   },
   {
     path: "/vault-current",
@@ -109,15 +115,7 @@ export const APP_ROUTES: Route[] = [
   },
 ];
 
-// States constants
 export const OWNER_TYPES = ["Tag", "Customer"];
-
-export const selectState = {
-  id: "",
-  name: "Loading...",
-  code: "Loading...",
-  warehouseName: "Loading...",
-};
 
 export const reportsSearchParams = {
   customerId: "",
@@ -135,6 +133,24 @@ export const requestStatusClassName: any = {
   pending: "neutral",
 };
 
-export const REQUEST_STATUSES: any = ["declined", "sent", "pending"];
+export const REQUEST_STATUSES = ["declined", "sent", "pending"];
 
 export const VAULT_MATERIAL_TYPES = ["CARDS (METAL)", "CARDS (PVC)", "CHIPS"];
+
+export const MATERIAL_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  OBSOLETE: "OBSOLETE",
+};
+
+export const MATERIAL_STATUS_ICON = {
+  [MATERIAL_STATUS.ACTIVE]: "🟢",
+  [MATERIAL_STATUS.INACTIVE]: "🟡",
+  [MATERIAL_STATUS.OBSOLETE]: "🔴",
+};
+
+export const MATERIAL_STATUS_CLASSNAME = {
+  [MATERIAL_STATUS.ACTIVE]: "active",
+  [MATERIAL_STATUS.INACTIVE]: "inactive",
+  [MATERIAL_STATUS.OBSOLETE]: "obsolete",
+};

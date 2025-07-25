@@ -13,7 +13,7 @@ import {
   sendMaterial,
   updateIncomingMaterial,
 } from "../../actions/materials";
-import { VAULT_MATERIAL_TYPES } from "utils/constants";
+import { MATERIAL_STATUS, VAULT_MATERIAL_TYPES } from "utils/constants";
 import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import {
   formatUserName,
@@ -235,10 +235,16 @@ export function SendMaterialForm() {
             required
           />
         </div>
-        <div className="form-checkboxes">
-          <label htmlFor="isActive">Allow for Use:</label>
-          <input type="checkbox" name="isActive" />
-          <small>(Check if this material is currently allowed for use)</small>
+        <div className="form-line">
+          <label htmlFor="materialStatus">Material Status:</label>
+          <select name="materialStatus" id="materialStatus" required>
+            <option value="">-- Select Material Status --</option>
+            {Object.values(MATERIAL_STATUS).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
         </div>
         <p className="submit-message">{submitMessage}</p>
         <div className="form-buttons">
@@ -336,6 +342,7 @@ export function EditIncomingMaterial(props: any) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [incomingMaterial, setIncomingMaterial] = useState<IncomingMaterial>();
   const [owner, setOwner] = useState<string>("");
+  const [materialStatus, setMaterialStatus] = useState<string>("");
   const [selectCustomers, setSelectCustomers] = useState<CustomerProgram[]>([]);
   const [selectMaterialTypes, setSelectMaterialTypes] = useState([]);
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -353,6 +360,7 @@ export function EditIncomingMaterial(props: any) {
       setSelectMaterialTypes(types);
       setIncomingMaterial(incomingMaterial);
       setOwner(incomingMaterial.owner);
+      setMaterialStatus(incomingMaterial.materialStatus);
     };
     getMaterialInfo();
   }, []);
@@ -531,21 +539,23 @@ export function EditIncomingMaterial(props: any) {
             required
           />
         </div>
-        <div className="form-checkboxes">
-          <label htmlFor="isActive">Allow for Use:</label>
-          <input
-            type="checkbox"
-            name="isActive"
-            id="isActive"
-            checked={!!incomingMaterial?.isActive}
-            onChange={(e) =>
-              setIncomingMaterial((prev) =>
-                prev ? { ...prev, isActive: e.target.checked } : prev
-              )
-            }
-          />
-          <small>(Check if this material is currently allowed for use)</small>
+        <div className="form-line">
+          <label htmlFor="">Material Status:</label>
+          <select
+            name="materialStatus"
+            required
+            value={materialStatus}
+            onChange={(e) => setMaterialStatus(e.target.value)}
+          >
+            <option value="">-- Select Material Status --</option>
+            {Object.values(MATERIAL_STATUS).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
         </div>
+
         <p className="submit-message">{sumbitMessage}</p>
         <div className="form-buttons">
           <button type="button" onClick={() => redirect("/pending-materials")}>

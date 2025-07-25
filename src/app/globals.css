@@ -270,13 +270,14 @@ form {
 
   /* Filter form */
   &.filter {
-    width: 70rem;
+    width: auto;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 
     input {
-      width: 20%;
+      width: auto;
       height: 2%;
     }
   }
@@ -519,6 +520,26 @@ form {
     border-radius: 6px;
     transition: background-color 0.3s ease, border 0.3s ease;
 
+    &.active {
+      &::after {
+        content: "ACTIVE";
+        position: absolute;
+        top: 0rem;
+        right: 0rem;
+        left: auto;
+        background-color: green;
+        color: white;
+        font-size: 0.6rem;
+        font-weight: bold;
+        padding: 0.2rem;
+        transform-origin: top left;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        z-index: 1;
+      }
+    }
+
     &.inactive {
       &::after {
         content: "INACTIVE";
@@ -526,7 +547,27 @@ form {
         top: 0rem;
         right: 0rem;
         left: auto;
-        background-color: #d21c1c;
+        background-color: yellow;
+        color: black;
+        font-size: 0.6rem;
+        font-weight: bold;
+        padding: 0.2rem;
+        transform-origin: top left;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        z-index: 1;
+      }
+    }
+
+    &.obsolete {
+      &::after {
+        content: "OBSOLETE";
+        position: absolute;
+        top: 0rem;
+        right: 0rem;
+        left: auto;
+        background-color: red;
         color: white;
         font-size: 0.6rem;
         font-weight: bold;

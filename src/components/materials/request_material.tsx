@@ -17,7 +17,11 @@ import {
   usePreventNumberInputScroll,
 } from "utils/client_utils";
 import { SubmitButton } from "ui/submit-button";
-import { requestStatusClassName, REQUEST_STATUSES } from "utils/constants";
+import {
+  requestStatusClassName,
+  REQUEST_STATUSES,
+  MATERIAL_STATUS,
+} from "utils/constants";
 import { useSession } from "next-auth/react";
 import { useSocket } from "context/socket-context";
 
@@ -36,8 +40,10 @@ export function RequestMaterials() {
       const materials = await fetchMaterials({});
       const descriptionsMap = new Map<string, string>();
       materials
-        .filter((material) =>
-          material.warehouseName?.toLowerCase().includes("warehouse")
+        .filter(
+          (material) =>
+            material.warehouseName?.toLowerCase().includes("warehouse") &&
+            material.materialStatus !== MATERIAL_STATUS.OBSOLETE
         )
         .forEach((material) => {
           if (!descriptionsMap.has(material.description)) {
