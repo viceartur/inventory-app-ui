@@ -15,7 +15,6 @@ export function WarehouseForm() {
   useEffect(() => {
     const getWarehouses = async () => {
       const warehouses = await fetchWarehouses();
-      console.log(warehouses);
       setWarehouses(warehouses);
     };
     getWarehouses();
