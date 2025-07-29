@@ -33,7 +33,7 @@ export const APP_ROUTES: Route[] = [
     path: "/order-needed",
     label: "Order Needed",
     icon: "📦",
-    restrict: ["admin", "csr"],
+    restrict: ["admin", "csr", "warehouse"],
   },
   {
     path: "/send-material",
