@@ -4,6 +4,7 @@ import { fetchMaterials, Material } from "actions/materials";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toUSFormat } from "utils/client_utils";
+import { MATERIAL_STATUS } from "utils/constants";
 
 export function OrderNeeded() {
   const { data: session } = useSession();
@@ -16,12 +17,16 @@ export function OrderNeeded() {
           await fetchMaterials({
             userRole: session?.user.role,
           })
-        ).filter((material: any) => material.isActiveProgram);
+        ).filter(
+          (material) =>
+            material.materialStatus === MATERIAL_STATUS.ACTIVE &&
+            material.isActiveProgram
+        );
 
         const mappedMaterials: any = {};
 
         // Combine materials with the same stockId
-        materials.forEach((m: any) => {
+        materials.forEach((m) => {
           if (!mappedMaterials[m.stockId]) {
             mappedMaterials[m.stockId] = m;
           } else {
