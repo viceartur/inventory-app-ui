@@ -1,13 +1,11 @@
 // URLs
 export const API = `${
-  process.env.NEXT_PUBLIC_PROD === "yes" ? "https" : "http"
-}://${process.env.NEXT_PUBLIC_SERVER_HOSTNAME}:${
-  process.env.NEXT_PUBLIC_SERVER_PORT
-}`;
+  process.env.NEXT_PUBLIC_NODE_ENV === "production" ? "https" : "http"
+}://${process.env.NEXT_PUBLIC_API_URL}`;
 
-export const WS = `${process.env.NEXT_PUBLIC_PROD === "yes" ? "wss" : "ws"}://${
-  process.env.NEXT_PUBLIC_SERVER_HOSTNAME
-}:${process.env.NEXT_PUBLIC_SERVER_PORT}/ws`;
+export const WS = `${
+  process.env.NEXT_PUBLIC_NODE_ENV === "production" ? "wss" : "ws"
+}://${process.env.NEXT_PUBLIC_API_URL}/ws`;
 
 // Routes
 export interface Route {
