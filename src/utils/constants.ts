@@ -1,11 +1,6 @@
 // URLs
-export const API = `${
-  process.env.NEXT_PUBLIC_NODE_ENV === "production" ? "https" : "http"
-}://${process.env.NEXT_PUBLIC_API_URL}`;
-
-export const WS = `${
-  process.env.NEXT_PUBLIC_NODE_ENV === "production" ? "wss" : "ws"
-}://${process.env.NEXT_PUBLIC_API_URL}/ws`;
+export const API = process.env.NEXT_PUBLIC_API_URL;
+export const WS = `${process.env.NEXT_PUBLIC_API_URL}/ws`;
 
 // Routes
 export interface Route {
