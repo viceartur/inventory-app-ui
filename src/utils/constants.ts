@@ -2,9 +2,6 @@
 export const API = process.env.NEXT_PUBLIC_API_URL;
 export const WS = process.env.NEXT_PUBLIC_WS_URL;
 
-console.log("API: ", API);
-console.log("WS: ", WS);
-
 // Routes
 export interface Route {
   path: string;
