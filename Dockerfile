@@ -4,6 +4,21 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Build-time args for env vars
+ARG NEXT_PUBLIC_API_URL
+ARG NEXTAUTH_URL
+ARG AUTH_SECRET
+ARG AUTH_TRUST_HOST
+
+# Export as env for Next.js to pick up during build
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+ENV AUTH_SECRET=$AUTH_SECRET
+ENV AUTH_TRUST_HOST=$AUTH_TRUST_HOST
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
