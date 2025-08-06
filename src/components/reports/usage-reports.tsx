@@ -9,7 +9,7 @@ import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { OWNER_TYPES } from "utils/constants";
 import { fetchTransactionsLog, fetchWeeklyUsageItems } from "actions/reports";
-import { toUSFormat } from "utils/client_utils";
+import { formatDate, toUSFormat } from "utils/client_utils";
 import { fetchWarehouses } from "actions/warehouses";
 
 export function UsageReports() {
@@ -262,7 +262,8 @@ export function WeeklyUsage() {
         </button>
       </div>
       <h2>
-        Usage Report as of {dateAsOf || new Date().toLocaleDateString("en-CA")}
+        Usage Report as of{" "}
+        {dateAsOf ? formatDate(dateAsOf) : new Date().toLocaleDateString()}
       </h2>
       {weeklyUsageItems.length ? (
         <table>
@@ -362,7 +363,7 @@ export function TransactionsLog() {
                 </td>
                 <td>{material.jobTicket}</td>
                 <td>{material.reasonDescription}</td>
-                <td>{new Date(material.date).toLocaleDateString("en-US")}</td>
+                <td>{formatDate(material.date)}</td>
               </tr>
             ))}
           </tbody>

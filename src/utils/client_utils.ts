@@ -42,3 +42,13 @@ export function debounce<T extends (...args: any[]) => void>(
     }, delay);
   };
 }
+
+// Format Date as MM/DD/YYYY
+export const formatDate = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+  const year = date.getUTCFullYear();
+  const formattedDate = `${month}/${day}/${year}`;
+  return formattedDate;
+};

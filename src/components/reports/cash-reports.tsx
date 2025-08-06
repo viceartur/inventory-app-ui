@@ -9,7 +9,7 @@ import { OWNER_TYPES, reportsSearchParams } from "utils/constants";
 import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
-import { toUSFormat } from "utils/client_utils";
+import { formatDate, toUSFormat } from "utils/client_utils";
 
 export function CashReports() {
   const [searchParams, setSearchParams] = useState(reportsSearchParams);
@@ -275,7 +275,7 @@ export function Transactions() {
                 )}
                 <td>{material.unitCost}</td>
                 <td>{material.cost}</td>
-                <td>{new Date(material.date).toLocaleDateString("en-US")}</td>
+                <td>{formatDate(material.date)}</td>
               </tr>
             ))}
           </tbody>
@@ -372,9 +372,7 @@ export function Balance() {
       </div>
       <h2>
         {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}{" "}
-        {dateAsOf
-          ? `as of ${new Date(dateAsOf).toLocaleDateString("en-US")}`
-          : ""}
+        {dateAsOf ? `as of ${formatDate(dateAsOf)}` : ""}
       </h2>
       {balance.length ? (
         <table>

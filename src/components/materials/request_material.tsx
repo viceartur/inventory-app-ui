@@ -12,6 +12,7 @@ import {
   updateRequestedMaterial,
 } from "../../actions/materials";
 import {
+  formatDate,
   formatUserName,
   toUSFormat,
   usePreventNumberInputScroll,
@@ -544,12 +545,8 @@ export function RequestStatus() {
                 {material.status}
               </td>
               <td>{material.notes}</td>
-              <td>
-                {new Date(material.updatedAt).toLocaleDateString("en-US")}
-              </td>
-              <td>
-                {new Date(material.requestedAt).toLocaleDateString("en-US")}
-              </td>
+              <td>{formatDate(material.updatedAt)}</td>
+              <td>{formatDate(material.requestedAt)}</td>
             </tr>
           ))}
         </tbody>
