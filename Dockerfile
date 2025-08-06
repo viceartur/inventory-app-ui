@@ -6,20 +6,6 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Build-time args for env vars
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_WS_URL
-ARG NEXTAUTH_URL
-ARG AUTH_SECRET
-ARG AUTH_TRUST_HOST
-
-# Export as env for Next.js to pick up during build
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
-ENV NEXTAUTH_URL=$NEXTAUTH_URL
-ENV AUTH_SECRET=$AUTH_SECRET
-ENV AUTH_TRUST_HOST=$AUTH_TRUST_HOST
-
 # Copy dependency files only
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
@@ -35,13 +21,13 @@ RUN \
 FROM base AS builder
 WORKDIR /app
 
-# Copy deps from previous stage
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy all other files
 COPY . .
 
-# Build the app
+ARG ENV_FILE=.env
+# Copy the selected env file as .env before build
+COPY ${ENV_FILE} .env
+
 RUN \
   if [ -f yarn.lock ]; then yarn build; \
   elif [ -f package-lock.json ]; then npm run build; \
@@ -69,6 +55,3 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
-
-# docker build -t inventory-app-ui .
-# docker run -d -p 3000:3000 inventory-app-ui
