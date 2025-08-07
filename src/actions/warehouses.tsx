@@ -5,7 +5,7 @@ import { API } from "utils/constants";
 export async function createWarehouse(prevState: any, formData: FormData) {
   const warehouse = {
     warehouseName: formData.get("warehouseName"),
-    locationName: formData.get("locationName"),
+    locationName: String(formData.get("locationName")).trim().toUpperCase(),
   };
 
   try {
@@ -18,13 +18,14 @@ export async function createWarehouse(prevState: any, formData: FormData) {
     });
 
     if (res.status != 200) {
-      return { message: "Error: " + res.statusText };
+      return { message: res.statusText };
     }
+
     return {
       message: `Location "${warehouse.locationName}" attached to the Warehouse "${warehouse.warehouseName}"`,
     };
   } catch (error: any) {
-    return { message: "Error: " + error.message };
+    return { error: "Error: " + error.message };
   }
 }
 
@@ -34,11 +35,8 @@ export async function fetchWarehouses() {
     if (!res) return [];
     const data = await res.json();
     if (!data?.length) return [];
-    const warehouses = data.map((warehouse: any) => ({
-      warehouseId: warehouse.WarehouseID,
-      warehouseName: warehouse.WarehouseName,
-    }));
-    return warehouses;
+
+    return data;
   } catch (error) {
     console.error(error);
     return [];
@@ -76,6 +74,8 @@ export async function fetchAvailableLocations(stockId: string, owner: string) {
     const locations = data.map((location: any) => ({
       id: location.ID,
       name: location.Name,
+      warehouseId: location.WarehouseID,
+      warehouseName: location.WarehouseName,
     }));
     return locations;
   } catch (error) {

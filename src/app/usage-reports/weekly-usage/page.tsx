@@ -1,11 +1,11 @@
 "use client";
-import { Transactions } from "../../../components/reports";
+import { WeeklyUsage } from "../../../components/reports/usage-reports";
 import { Suspense } from "react";
 
 export default function TransactionsPage() {
   return (
     <Suspense>
-      <Transactions />
+      <WeeklyUsage />
     </Suspense>
   );
 }

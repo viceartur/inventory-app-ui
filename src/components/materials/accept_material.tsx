@@ -6,18 +6,31 @@ import { SubmitButton } from "ui/submit-button";
 import {
   createMaterial,
   fetchIncomingMaterials,
+  IncomingMaterial,
 } from "../../actions/materials";
-import { incomingMaterialState, selectState } from "utils/constants";
+import { VAULT_MATERIAL_TYPES } from "utils/constants";
 import { fetchAvailableLocations } from "actions/warehouses";
-import { toUSFormat, usePreventNumberInputScroll } from "utils/utils";
+import {
+  formatUserName,
+  toUSFormat,
+  usePreventNumberInputScroll,
+} from "utils/client_utils";
 import { useSocket } from "context/socket-context";
 
-export function IncomingMaterials() {
-  const [incomingMaterialsList, setIncomingMaterialsList] = useState([]);
+export function IncomingMaterials(props: { isVault: boolean }) {
+  const [incomingMaterialsList, setIncomingMaterialsList] = useState<
+    IncomingMaterial[]
+  >([]);
 
   useEffect(() => {
     const getIncomingMaterials = async () => {
-      const materials = await fetchIncomingMaterials();
+      const incomingMaterials = await fetchIncomingMaterials();
+      // Filter incoming materials based on the type (vault or non-vault)
+      const materials = incomingMaterials.filter((m: any) =>
+        props.isVault
+          ? VAULT_MATERIAL_TYPES.includes(m.materialType)
+          : !VAULT_MATERIAL_TYPES.includes(m.materialType)
+      );
       setIncomingMaterialsList(materials);
     };
     getIncomingMaterials();
@@ -25,27 +38,52 @@ export function IncomingMaterials() {
 
   return (
     <section>
-      <h2>Incoming Materials List:</h2>
+      {props.isVault ? (
+        <h2>Incoming Vault Materials:</h2>
+      ) : (
+        <h2>Incoming Materials List:</h2>
+      )}
       {incomingMaterialsList.length ? (
         <div className="material_list">
           <div className="list_header">
-            <p>Customer</p>
+            <p>Customer Program</p>
             <p>Stock ID</p>
             <p>Quantity</p>
+            <p>Sent By</p>
             <p>Action</p>
           </div>
-          {incomingMaterialsList.map((material: any, i) => (
-            <div className="material_list-item" key={i}>
-              <p>{material.customerName}</p>
-              <p>{material.stockId}</p>
-              <p>{toUSFormat(material.quantity)}</p>
-              <button
-                onClick={() =>
-                  redirect(`/incoming-materials/${material.shippingId}`)
-                }
-              >
-                📥
-              </button>
+          {incomingMaterialsList.map((material, i) => (
+            <div
+              className={`material_list-item ${
+                material.owner === "Tag" ? "tag-owned" : "customer-owned"
+              }`}
+              key={i}
+            >
+              <p>{material.programName}</p>
+              <p>
+                <strong>{material.stockId}</strong>
+              </p>
+              <p>
+                <strong>{toUSFormat(material.quantity)}</strong>
+              </p>
+              <p>
+                {material.username
+                  ? formatUserName(material.username)
+                  : "Not assigned"}
+              </p>
+              <div className="buttons-box">
+                <button
+                  onClick={() => {
+                    if (props.isVault) {
+                      redirect(`/incoming-vault/${material.shippingId}`);
+                    } else {
+                      redirect(`/incoming-materials/${material.shippingId}`);
+                    }
+                  }}
+                >
+                  📥
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -56,12 +94,13 @@ export function IncomingMaterials() {
   );
 }
 
-export function CreateMaterialForm(props: { materialId: string }) {
+export function CreateMaterialForm(props: {
+  materialId: string;
+  isVault: boolean;
+}) {
   const socket = useSocket();
-  const [incomingMaterial, setIncomingMaterial] = useState(
-    incomingMaterialState
-  );
-  const [selectLocations, setSelectLocations] = useState([selectState]);
+  const [incomingMaterial, setIncomingMaterial] = useState<IncomingMaterial>();
+  const [selectLocations, setSelectLocations] = useState([]);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [sumbitMessage, setSubmitMessage] = useState("");
@@ -69,10 +108,19 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   useEffect(() => {
     const getMaterialCard = async () => {
-      const [material] = await fetchIncomingMaterials(props.materialId);
+      const [material] = await fetchIncomingMaterials(Number(props.materialId));
       const stockId = material.stockId;
       const owner = material.owner;
-      const locations = await fetchAvailableLocations(stockId, owner);
+      let locations = await fetchAvailableLocations(stockId, owner);
+      if (props.isVault) {
+        locations = locations.filter((l: any) =>
+          l.warehouseName.toLowerCase().includes("vault")
+        );
+      } else {
+        locations = locations.filter((l: any) =>
+          l.warehouseName.toLowerCase().includes("warehouse")
+        );
+      }
 
       setIncomingMaterial(material);
       setSelectLocations(locations);
@@ -89,15 +137,25 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   const confirmAction = async () => {
     setShowConfirmation(false);
-    const incomingMaterialId = props.materialId;
+    const incomingMaterialId = Number(props.materialId);
     const res: any = await createMaterial(incomingMaterialId, formData);
     if (res?.error) {
       setSubmitMessage(res.error);
     } else {
       setSubmitMessage("Material Added. Redirecting to Incoming Materials...");
-      socket?.send("materialsUpdated");
+
+      if (props.isVault) {
+        socket?.send("vaultUpdated");
+      } else {
+        socket?.send("materialsUpdated");
+      }
+
       setTimeout(() => {
-        redirect("/incoming-materials/");
+        if (props.isVault) {
+          redirect("/incoming-vault/");
+        } else {
+          redirect("/incoming-materials/");
+        }
       }, 2000);
     }
   };
@@ -109,33 +167,33 @@ export function CreateMaterialForm(props: { materialId: string }) {
 
   return (
     <section>
-      <h2>Adding the Material to the Location</h2>
+      <h2>Adding a Material to the Location</h2>
       <form onSubmit={submitForm}>
         <div className="form-info">
           <h3>Information from CSR:</h3>
           <div className="form-info-line">
             <label>Customer: </label>
-            {incomingMaterial.customerName}
+            {incomingMaterial?.programName}
           </div>
           <div className="form-info-line">
             <label>Stock ID: </label>
-            {incomingMaterial.stockId}
+            {incomingMaterial?.stockId}
           </div>
           <div className="form-info-line">
             <label>Description:</label>
-            {incomingMaterial.description}
+            {incomingMaterial?.description}
           </div>
           <div className="form-info-line">
             <label>Type: </label>
-            {incomingMaterial.materialType}
+            {incomingMaterial?.materialType}
           </div>
           <div className="form-info-line">
             <label>Ownership:</label>
-            {incomingMaterial.owner}
+            {incomingMaterial?.owner}
           </div>
           <div className="form-info-line">
-            <label>Allow for use:</label>
-            {incomingMaterial.isActive ? "Yes" : "No"}
+            <label>Material Status:</label>
+            {incomingMaterial?.materialStatus}
           </div>
         </div>
         <div className="form-line">
@@ -144,12 +202,12 @@ export function CreateMaterialForm(props: { materialId: string }) {
             type="number"
             name="quantity"
             placeholder="Quantity"
-            key={incomingMaterial.quantity}
-            defaultValue={incomingMaterial.quantity}
+            key={incomingMaterial?.quantity}
+            defaultValue={incomingMaterial?.quantity}
             required
           />
         </div>
-        {incomingMaterial.materialType === "CHIPS" && (
+        {incomingMaterial?.materialType === "CHIPS" && (
           <div className="form-line">
             <label>Serial # range:</label>
             <input
@@ -165,7 +223,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
           <select name="locationId" required>
             {selectLocations.map((location: any, i: number) => (
               <option key={i} value={location.id}>
-                {location.name}
+                {location.name} ({location.warehouseName})
               </option>
             ))}
           </select>
@@ -178,7 +236,13 @@ export function CreateMaterialForm(props: { materialId: string }) {
         <div className="form-buttons">
           <button
             type="button"
-            onClick={() => redirect("/incoming-materials/")}
+            onClick={() => {
+              if (props.isVault) {
+                redirect("/incoming-vault/");
+              } else {
+                redirect("/incoming-materials/");
+              }
+            }}
           >
             Go back
           </button>
@@ -189,7 +253,7 @@ export function CreateMaterialForm(props: { materialId: string }) {
       {showConfirmation && (
         <div className="confirmation-window">
           <p>Do you want to accept this material?</p>
-          <p>Stock ID: "{incomingMaterial.stockId}"</p>
+          <p>Stock ID: "{incomingMaterial?.stockId}"</p>
           <p>Quantity: {toUSFormat(Number(formData?.get("quantity")))}</p>
           <button type="button" onClick={confirmAction}>
             Yes

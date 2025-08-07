@@ -5,27 +5,23 @@ import { useState, useEffect, FormEvent } from "react";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
-import { ownerTypes, searchParamsState, selectState } from "utils/constants";
-import { fetchCustomers } from "actions/customers";
+import { OWNER_TYPES, reportsSearchParams } from "utils/constants";
+import { CustomerProgram, fetchCustomerPrograms } from "actions/customers";
 import { fetchMaterialTypes } from "actions/materials";
 import { fetchBalance, fetchTransactions } from "actions/reports";
-import { toUSFormat } from "utils/utils";
+import { formatDate, toUSFormat } from "utils/client_utils";
 
-export function Reports() {
-  const [searchParams, setSearchParams] = useState(searchParamsState);
-  const [selectCustomers, setSelectCustomers] = useState([
-    { ...selectState, name: "" },
-  ]);
-  const [selectMaterialTypes, setSelectMaterialTypes] = useState([
-    { ...selectState, name: "" },
-  ]);
+export function CashReports() {
+  const [searchParams, setSearchParams] = useState(reportsSearchParams);
+  const [selectCustomers, setSelectCustomers] = useState<CustomerProgram[]>([]);
+  const [selectMaterialTypes, setSelectMaterialTypes] = useState<any[]>([]);
 
   useEffect(() => {
     const getReportInfo = async () => {
-      const customers = await fetchCustomers();
+      const customers = await fetchCustomerPrograms();
       const materialTypes = await fetchMaterialTypes();
-      setSelectCustomers([...selectCustomers, ...customers]);
-      setSelectMaterialTypes([...selectMaterialTypes, ...materialTypes]);
+      setSelectCustomers(customers);
+      setSelectMaterialTypes(materialTypes);
     };
     getReportInfo();
   }, []);
@@ -71,7 +67,7 @@ export function Reports() {
       dateFrom,
       dateTo,
     });
-    redirect(`/reports/transactions?${queryParams.toString()}`);
+    redirect(`/cash-reports/transactions?${queryParams.toString()}`);
   };
 
   const handleBalanceRedirect = () => {
@@ -89,7 +85,7 @@ export function Reports() {
       materialType,
       dateAsOf,
     });
-    redirect(`/reports/balance?${queryParams.toString()}`);
+    redirect(`/cash-reports/balance?${queryParams.toString()}`);
   };
 
   return (
@@ -97,28 +93,33 @@ export function Reports() {
       <h2>Financial Reports Page</h2>
       <form onChange={onChangeForm}>
         <div className="form-info">
-          <h3>Transaction Report (T):</h3>
-          <p>- Shows the transactions and its cost (Date From/To).</p>
+          <h3>📊Transaction Report (T):</h3>
+          <p>Shows the transactions and its cost (Date From/To).</p>
           <p>
-            - When "CHIPS" Material Type is chosen, "Serial # Range" is
-            displayed.
+            When "CHIPS" Material Type is chosen, "Serial # Range" is displayed.
           </p>
-          <h3>Balance Report (B):</h3>
-          <p>- Shows total cost for the specific date (Date As Of).</p>
+          <h3>💰Balance Report (B):</h3>
+          <p>Shows total cost for the specific date (Date As Of).</p>
         </div>
         <div className="form-line">
-          <label>Customer:</label>
-          <select name="customer" required>
+          <label>Customer Program:</label>
+          <select name="customer">
+            <option value="">-- Select a customer (optional) --</option>
             {selectCustomers.map((customer, i) => (
-              <option key={i} value={`${customer.id}%${customer.name}`}>
-                {customer.name}
+              <option
+                key={i}
+                value={`${customer.programId}%${customer.programName}`}
+              >
+                {customer.customerName || "No customer"}: {customer.programName}
               </option>
             ))}
           </select>
         </div>
         <div className="form-line">
           <label>Material Type:</label>
-          <select name="materialType" required>
+          <select name="materialType">
+            <option value="">-- Select a material type (optional) --</option>
+
             {selectMaterialTypes.map((type) => (
               <option key={type.id} value={type.name}>
                 {type.name}
@@ -129,7 +130,8 @@ export function Reports() {
         <div className="form-line">
           <label>Owner:</label>
           <select name="owner" required>
-            {ownerTypes.map((type, i) => (
+            <option value="">-- Select an owner (optional) --</option>
+            {OWNER_TYPES.map((type, i) => (
               <option key={i} value={type}>
                 {type}
               </option>
@@ -150,10 +152,10 @@ export function Reports() {
         </div>
         <div className="form-buttons">
           <button type="button" onClick={handleTransactionsRedirect}>
-            Get Transactions Report
+            Get Transactions
           </button>
           <button type="button" onClick={handleBalanceRedirect}>
-            Get Balance Report
+            Get Balance
           </button>
         </div>
       </form>
@@ -234,40 +236,53 @@ export function Transactions() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/reports")}>Back to Reports</button>
-        <button onClick={onClickDownload}>Download this Report</button>
+        <button
+          className="control-button"
+          onClick={() => redirect("/cash-reports")}
+        >
+          Back to Reports
+        </button>
+        <button className="control-button" onClick={onClickDownload}>
+          Download this Report
+        </button>
       </div>
       <h2>{customerName || "General"} Transaction Report</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Stock ID</th>
-            <th>Material Type</th>
-            <th>Quantity (+/-)</th>
-            {materialType === "CHIPS" && <th>Serial # Range</th>}
-            <th>Unit Cost, USD</th>
-            <th>Cost, USD</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((material: any, i) => (
-            <tr key={i}>
-              <td>{material.stockId}</td>
-              <td>{material.materialType}</td>
-              <td className={material.qty > 0 ? "" : "negative"}>
-                {toUSFormat(material.qty)}
-              </td>
-              {materialType === "CHIPS" && (
-                <td>{material.serialNumberRange}</td>
-              )}
-              <td>{material.unitCost}</td>
-              <td>{material.cost}</td>
-              <td>{material.date}</td>
+      {transactions.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Material Type</th>
+              <th>Quantity (+/-)</th>
+              <th>Cumulative Qty</th>
+              {materialType === "CHIPS" && <th>Serial # Range</th>}
+              <th>Unit Cost, USD</th>
+              <th>Cost, USD</th>
+              <th>Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.materialType}</td>
+                <td className={material.qty > 0 ? "" : "negative"}>
+                  {toUSFormat(material.qty)}
+                </td>
+                <td>{toUSFormat(material.cumulativeQty)}</td>
+                {materialType === "CHIPS" && (
+                  <td>{material.serialNumberRange}</td>
+                )}
+                <td>{material.unitCost}</td>
+                <td>{material.cost}</td>
+                <td>{formatDate(material.date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        "No transactions data found for the current query parameters. Please adjust your filters or try a different search."
+      )}
     </section>
   );
 }
@@ -345,35 +360,46 @@ export function Balance() {
   return (
     <section>
       <div>
-        <button onClick={() => redirect("/reports")}>Back to Reports</button>
-        <button onClick={onClickDownload}>Download this Report</button>
+        <button
+          className="control-button"
+          onClick={() => redirect("/cash-reports")}
+        >
+          Back to Reports
+        </button>
+        <button className="control-button" onClick={onClickDownload}>
+          Download this Report
+        </button>
       </div>
       <h2>
-        {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}
+        {customerName || "General"} Balance Report: ${toUSFormat(totalValue)}{" "}
+        {dateAsOf ? `as of ${formatDate(dateAsOf)}` : ""}
       </h2>
-      {dateAsOf ? <h2>As of {dateAsOf}</h2> : ""}
-      <table>
-        <thead>
-          <tr>
-            <th>Stock ID</th>
-            <th>Description</th>
-            <th>Material Type</th>
-            <th>Quantity</th>
-            <th>Total Value, USD</th>
-          </tr>
-        </thead>
-        <tbody>
-          {balance.map((material: any, i) => (
-            <tr key={i}>
-              <td>{material.stockId}</td>
-              <td>{material.description}</td>
-              <td>{material.materialType}</td>
-              <td>{toUSFormat(material.qty)}</td>
-              <td>{material.totalValue}</td>
+      {balance.length ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Stock ID</th>
+              <th>Description</th>
+              <th>Material Type</th>
+              <th>Quantity</th>
+              <th>Total Value, USD</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {balance.map((material: any, i) => (
+              <tr key={i}>
+                <td>{material.stockId}</td>
+                <td>{material.description}</td>
+                <td>{material.materialType}</td>
+                <td>{toUSFormat(material.qty)}</td>
+                <td>{material.totalValue}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        "No transactions data found for the current query parameters. Please adjust your filters or try a different search."
+      )}
     </section>
   );
 }

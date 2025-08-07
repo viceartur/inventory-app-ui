@@ -9,23 +9,77 @@ import { useSession } from "next-auth/react";
 import { APP_ROUTES, Route } from "utils/constants";
 import { SignOutButton } from "ui/signout-button";
 import logoPic from "../utils/logo.png";
+import { fetchRequestedMaterialsCount } from "actions/materials";
 
 export function NavLinks() {
   const { data: session } = useSession();
   const socket = useSocket();
-  const pathname = usePathname();
-  const [quantity, setQuantity] = useState(0);
+  const pathname = "/" + usePathname().split("/").filter(Boolean)[0];
+  const [qtyIncoming, setQtyIncoming] = useState(0);
+  const [qtyVault, setQtyVault] = useState(0);
+  const [qtyRequested, setQtyRequested] = useState(0);
 
   useEffect(() => {
-    if (socket) {
-      socket.onmessage = (event: any) => {
-        const response = JSON.parse(event.data);
-        if (response.type === "incomingMaterialsQty") {
-          setQuantity(response.data);
-        }
-      };
+    // Grant permission for notifications for the user.
+    if (
+      typeof window !== "undefined" &&
+      Notification.permission !== "granted"
+    ) {
+      Notification.requestPermission();
     }
-  }, [socket]);
+
+    // Set Requested Materials Quantity at first render.
+    const getRequestedMaterialsQty = async () => {
+      const qtyRequested = await fetchRequestedMaterialsCount();
+      setQtyRequested(qtyRequested);
+    };
+    getRequestedMaterialsQty();
+  }, []);
+
+  // Handle WebSocket.
+  useEffect(() => {
+    if (!socket || !session?.user.role) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      const response = JSON.parse(event.data);
+      switch (response.type) {
+        case "incomingMaterialsQty":
+          setQtyIncoming(response.data);
+          break;
+        case "incomingVaultQty":
+          setQtyVault(response.data);
+          break;
+        case "requestedMaterialsQty":
+          setQtyRequested(response.data);
+
+          // Show notification only if allowed
+          if (Notification.permission === "granted") {
+            const notification = new Notification("📦 New Material Request", {
+              body: 'Production has requested materials. Check "Requested Materials".',
+            });
+
+            // Click handler redirects to the section
+            notification.onclick = () => {
+              window.focus();
+              window.location.href = "/requested-materials";
+            };
+          }
+
+          break;
+        case "requestedMaterialsQtyRemoved":
+          setQtyRequested(response.data);
+          break;
+        default:
+          break;
+      }
+    };
+
+    socket.addEventListener("message", handleMessage);
+
+    return () => {
+      socket.removeEventListener("message", handleMessage);
+    };
+  }, [socket, session?.user.role]);
 
   return (
     <nav>
@@ -48,11 +102,19 @@ export function NavLinks() {
           className={`link${pathname === route.path ? " active" : ""}`}
           href={route.path}
         >
-          {route.label}{" "}
-          {["/incoming-materials", "/pending-materials"].includes(route.path) &&
-          quantity
-            ? "(" + quantity + ")"
-            : ""}
+          <span className="nav-icon">{route.icon}</span>
+          <span className="nav-label">
+            {route.label}{" "}
+            {"/incoming-materials" === route.path && qtyIncoming
+              ? `(${qtyIncoming})`
+              : ""}
+            {"/incoming-vault" === route.path && qtyVault
+              ? `(${qtyVault})`
+              : ""}
+            {"/requested-materials" === route.path && qtyRequested
+              ? `(${qtyRequested})`
+              : ""}
+          </span>
         </Link>
       ))}
       <SignOutButton />
