@@ -58,14 +58,22 @@ export function OrderNeeded() {
       <h2>Order Needed Materials</h2>
       <div className="section-description">
         <p>
-          The Dashboard displays the materials📦that need to be ordered🛒because
-          they have reached their minimum quantity threshold⚖️
+          The list shows only <strong>Active Materials 🟢</strong> that require
+          reordering.
+        </p>
+        <p>
+          If certain materials are missing, please check the{" "}
+          <a href="/material-status">
+            <em>Status of Materials</em>
+          </a>{" "}
+          section and update the status for the relevant{" "}
+          <strong>Stock ID</strong>.
         </p>
       </div>
       <table>
         <thead>
           <tr>
-            <th>Customer</th>
+            <th>Customer Program</th>
             <th>Stock ID</th>
             <th>Description</th>
             <th>Min Qty</th>
@@ -76,8 +84,12 @@ export function OrderNeeded() {
           {materials.map((material, i) => (
             <tr key={i}>
               <td>{material.programName}</td>
-              <td>{material.stockId}</td>
-              <td>{material.description}</td>
+              <td>
+                <strong>{material.stockId}</strong>
+              </td>
+              <td>
+                <small>{material.description}</small>
+              </td>
               <td>{toUSFormat(material.minQty)}</td>
               <td className="negative">{toUSFormat(material.quantity)}</td>
             </tr>
