@@ -89,8 +89,16 @@ export function RequestMaterials() {
       <div className="section-description">
         <p>
           Production staff may request materials for delivery from the warehouse
-          using the form below. Please select the desired material currently
-          available in the warehouse and specify the required quantity.
+          using the form below.
+        </p>
+        <p>
+          The list displays only materials currently <strong>available</strong>{" "}
+          in the warehouse.
+        </p>
+        <p>
+          <strong>Note:</strong> If an item is missing from the list, it means
+          it is not in stock and must be ordered — please contact CSR to arrange
+          the order.
         </p>
       </div>
       <form ref={formRef} onSubmit={onSubmit}>
