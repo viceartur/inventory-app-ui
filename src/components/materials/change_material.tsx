@@ -662,7 +662,7 @@ export function MaterialReplenishment() {
     return (
       materials
         // Display only items with a current location and owned by the Customer (not Tag)
-        .filter((m: any) => m.locationName !== "None" && m.owner == "Customer")
+        .filter((m: any) => m.locationName !== "None")
         .map((m: any) => ({
           id: m.locationId,
           name: m.locationName,
@@ -742,18 +742,22 @@ export function MaterialReplenishment() {
       <h2>Material Replenishment</h2>
       <div className="section-description">
         <p>
-          📦 Stock adjustments are permitted only for materials owned by the
-          Customer. If materials are owned by Tag and need to be replenished, a
-          new shipment should be initiated by the CSR.
+          📦 <strong>Stock adjustments</strong> are allowed only for materials
+          that <strong>do not have</strong> any recorded purchase prices. If a
+          material already has purchase prices and needs replenishment, please
+          initiate a new shipment request through the CSR.
         </p>
         <p>
-          🎫 If a Job Ticket is provided and matches, details will auto-fill.
-          Otherwise, enter the stock information manually.
+          🎫 If a <strong>Job Ticket</strong> is provided and matches, material
+          details will be auto-filled. Otherwise, you can manually enter the
+          stock information.
         </p>
-        <p>✏️ You can update the quantity and select a location.</p>
         <p>
-          ⚠️ If no locations are found, the stock is either not stored or is
-          owned by Tag.
+          ✏️ Update the <strong>quantity</strong> and select the appropriate{" "}
+          <strong>location</strong>.
+        </p>
+        <p>
+          ⚠️ If no locations are available, it means the stock is not stored.
         </p>
       </div>
       <form ref={formRef} onSubmit={handleSubmit}>
@@ -789,7 +793,7 @@ export function MaterialReplenishment() {
           />
         </div>
         <div className="form-line">
-          <label>Locations ({locations.length}):</label>
+          <label>Locations found ({locations.length}):</label>
           <select
             name="location"
             required
