@@ -998,7 +998,12 @@ export function MaterialStatus() {
         </div>
 
         {filteredMaterials.map((material, idx) => (
-          <div className="material_list-item" key={idx}>
+          <div
+            className={`material_list-item${
+              material.owner === "Tag" ? " tag-owned" : " customer-owned"
+            }`}
+            key={idx}
+          >
             <p>{material.programName}</p>
             <p>
               <strong>{material.stockId}</strong>
